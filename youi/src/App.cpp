@@ -1,5 +1,8 @@
 // © You i Labs Inc. 2000-2019. All rights reserved.
 #include "App.h"
+#include "DimensionsModule.h"
+#include "OrientationLockModule.h"
+
 #include <appium/YiWebDriverLocator.h>
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
@@ -83,13 +86,13 @@ bool App::UserInit()
 
 #if defined(YI_LOCAL_JS_APP)
 #    if defined(YI_INLINE_JS_APP)
-    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderInlineString(INLINE_JS_BUNDLE_STRING));
+    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderInlineString>(INLINE_JS_BUNDLE_STRING);
 #    else
-    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderLocalAsset());
+    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderLocalAsset>();
 #    endif
 #else
-    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderRemote(CYIUrl("http://192.168.1.17:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false")));
-//    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderRemote());
+    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>(CYIUrl("http://10.20.9.159:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false"));
+    // std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>();
 #endif
 
     PlatformApp::SetJsBundleLoader(std::move(pBundleLoader));
@@ -100,6 +103,9 @@ bool App::UserInit()
 #elif defined(YI_ANDROID)
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
 #endif
+
+    GetBridge().AddModule<OrientationLockModule>();
+    GetBridge().AddModule<DimensionsModule>();
 
     CYIHTTPService::GetInstance()->ClearCache();
 

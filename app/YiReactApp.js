@@ -4,17 +4,19 @@
  */
 
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import { DeviceInfo, FairPlayDrmHandler, WidevineCustomRequestDrmHandler, Video } from '@youi/react-native-youi';
+import { 
+  View, 
+  Dimensions, 
+  NativeModules 
+} from 'react-native';
+import {
+  DeviceInfo, 
+  FairPlayDrmHandler, 
+  WidevineCustomRequestDrmHandler, 
+  Video
+} from '@youi/react-native-youi';
 
 var base64 = require('base-64');
-
-const apiKey = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYXBpIiwidWlkIjoiOWQxOWIzZWQtYzA1Zi00ZTBjLWEzMzgtNDE4NzA1MTAwZGEzIiwiYW5vbiI6ZmFsc2UsInBlcm1pc3Npb25zIjpudWxsLCJhcGlLZXkiOiI5ZDE5YjNlZC1jMDVmLTRlMGMtYTMzOC00MTg3MDUxMDBkYTMiLCJleHAiOjE1ODI3NTE4NDEsImlhdCI6MTUxOTY3OTg0MSwiaXNzIjoiT3JiaXMtT0FNLVYxIiwic3ViIjoiOWQxOWIzZWQtYzA1Zi00ZTBjLWEzMzgtNDE4NzA1MTAwZGEzIn0.iLa8Ch4k59Of4UL6mWJwHNeX-YBb4gcfsw46IMmbT9id-n-8Fj3g0Hz9l6d_GIZDz2Hi8OQsB-CFeycQGYBkgQ';
-const streamUrl = 'https://dtv-latam-abc.akamaized.net/hls/live/2003011-b/dtv/dtv-latam-boomerang/master.m3u8';
-const assetId = 'c0fe1b7d2de4e5b94dc821091e5b2150';
-const loginUrl = 'https://platform.stage.dtc.istreamplanet.net/oam/v1/user/tokens';
-const username = 'tizen-test3@mailinator.com';
-const password = 'Test1234!';
 
 class YiReactApp extends Component {
   constructor() {
@@ -30,10 +32,12 @@ class YiReactApp extends Component {
   }
 
   componentWillMount() {
+    NativeModules.OrientationLock.setRotationMode(0); // Lock Landscape
+
     if (this.streamInfo.drmScheme === 'fairplay') {
       FairPlayDrmHandler.addEventListener('DRM_REQUEST_URL_AVAILABLE', this.onFairplayDRMRequestUrlAvailable);
       FairPlayDrmHandler.addEventListener('SPC_MESSAGE_AVAILABLE', this.onFairplaySPCMessageAvailable);
-    } else if (this.streamInfo.drmInfo ==='widefine_module') {
+    } else if (this.streamInfo.drmScheme ==='widevine_modular_custom_request') {
       WidevineCustomRequestDrmHandler.addEventListener('DRM_POST_REQUEST_AVAILABLE', this.onWidevineDRMPostRequestAvailable);
     }
   }
@@ -42,46 +46,30 @@ class YiReactApp extends Component {
     if (this.streamInfo.drmScheme === 'fairplay') {
       FairPlayDrmHandler.removeEventListener('DRM_REQUEST_URL_AVAILABLE', this.onFairplayDRMRequestUrlAvailable);
       FairPlayDrmHandler.removeEventListener('SPC_MESSAGE_AVAILABLE', this.onFairplaySPCMessageAvailable);
-    } else if (this.streamInfo.drmInfo ==='widefine_module') {
+    } else if (this.streamInfo.drmScheme ==='widevine_modular_custom_request') {
       WidevineCustomRequestDrmHandler.removeEventListener('DRM_POST_REQUEST_AVAILABLE', this.onWidevineDRMPostRequestAvailable);
     }
   }
 
   onWidevineDRMPostRequestAvailable = (args) => {
-    var xmlhttp = new XMLHttpRequest();
+    const { tag, drmRequestUrl, headers, postData } = args;
 
-     // Incorrect URL set in source. Correct the license acquisition URL here
-    xmlhttp.open("POST", "https://widevine-proxy.appspot.com/proxy", true);
+    const drmRequestHeaders = { ...headers, 'Content-Type': 'application/octet-stream' };
 
-     // Configure the HTTP request to send and receive binary data
-    xmlhttp.responseType = "arraybuffer";
-    xmlhttp.setRequestHeader("Content-Type", "application/octet-stream");
-
-     // Set custom request headers if they're included
-    for (var headerKey in args.headers) {
-      if (args.headers.hasOwnProperty(headerKey)) {
-        xmlhttp.setRequestHeader(headerKey, args.headers[headerKey]);
-      }
-    }
-
-     // Set the response callback function
-      xmlhttp.onload = function() {
-      if (xmlhttp.status === 200) {
-        if(xmlhttp.response) {
-          var typedArray = new Uint8Array(xmlhttp.response);
-          const array = [...typedArray];
-          WidevineCustomRequestDrmHandler.notifySuccess(args.tag, array);
+    fetch(drmRequestUrl, { method: 'POST', headers: drmRequestHeaders, body: postData })
+      .then((response) => {
+        if (!response.ok) {
+          console.log("The login request failed: " + response.status);
+          WidevineCustomRequestDrmHandler.notifyFailure(tag);
         }
-      }
-      else
-      {
-        console.error("Unhandled HTTP DRM request result: {status: " + xmlhttp.status + ", response text: " + xmlhttp.responseText + "}");
-        WidevineCustomRequestDrmHandler.notifyFailure(args.tag);
-      }
-    };
-
-     // Send the POST request
-    xmlhttp.send(new Uint8Array(args.postData));
+        response.json().then((body) => {
+          var typedArray = new Uint8Array(body);
+          WidevineCustomRequestDrmHandler.notifySuccess(tag, typedArray);
+        })
+      }).catch((error) => {
+        console.log("An error occured during login: " + error.message);
+        WidevineCustomRequestDrmHandler.notifyFailure(tag);
+      });
   }
 
   onFairplayDRMRequestUrlAvailable = (args) => {
@@ -105,7 +93,7 @@ class YiReactApp extends Component {
               FairPlayDrmHandler.notifyFailure(tag);
             }
             response.text().then((body) => {
-              FairPlayDrmHandler.requestSPCMessage(tag, body, assetId).bind(this);
+              FairPlayDrmHandler.requestSPCMessage(tag, body, assetId);
             });
           }).catch((error) => {
             console.log("An error occurred while calling the fetch certificate URL: " + error.message);
@@ -126,17 +114,21 @@ class YiReactApp extends Component {
     const { spcMessage, tag } = args;
 
     const authHeaders = {
-      'Authorization': `Bearer ${apiKey}`,
+      'Authorization': 'Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYXBpIiwidWlkIjoiOWQxOWIzZWQtYzA1Zi00ZTBjLWEzMzgtNDE4NzA1MTAwZGEzIiwiYW5vbiI6ZmFsc2UsInBlcm1pc3Npb25zIjpudWxsLCJhcGlLZXkiOiI5ZDE5YjNlZC1jMDVmLTRlMGMtYTMzOC00MTg3MDUxMDBkYTMiLCJleHAiOjE1ODI3NTE4NDEsImlhdCI6MTUxOTY3OTg0MSwiaXNzIjoiT3JiaXMtT0FNLVYxIiwic3ViIjoiOWQxOWIzZWQtYzA1Zi00ZTBjLWEzMzgtNDE4NzA1MTAwZGEzIn0.iLa8Ch4k59Of4UL6mWJwHNeX-YBb4gcfsw46IMmbT9id-n-8Fj3g0Hz9l6d_GIZDz2Hi8OQsB-CFeycQGYBkgQ',
       'Content-Type': "application/x-www-form-urlencoded",
     };
 
     const authBody = JSON.stringify({
-      'username': username,
-      'password': password,
+      'username': 'tizen-test3@mailinator.com',
+      'password': 'Test1234!',
     });
 
-    fetch(loginUrl, { method: 'POST', headers: authHeaders, body: authBody })
-      .then((response) => {
+    fetch('https://platform.stage.dtc.istreamplanet.net/oam/v1/user/tokens',
+      {
+        method: 'POST',
+        headers: authHeaders,
+        body: authBody 
+      }).then((response) => {
         if (!response.ok) {
           console.log("The login request failed: " + response.status);
           FairPlayDrmHandler.notifyFailure(tag);
@@ -160,8 +152,8 @@ class YiReactApp extends Component {
     };
 
     const body = JSON.stringify({
-      'assetID': assetId,
-      'playbackUrl': streamUrl
+      'assetID': this.streamInfo.assetId,
+      'playbackUrl': this.streamInfo.uri
     });
 
     const tokenUrl = `https://platform.stage.dtc.istreamplanet.net/oem/v1/user/accounts/${account.uid}/entitlement?tokentype=isp-atlas`;
@@ -216,10 +208,12 @@ onTokenSuccess = (tag, args, spcMessage) => {
   }
 
   render() {
+    const { width, height } = Dimensions.get('window');
+
     return(
-      <View style={styles.containerStyle}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Video 
-          style={styles.videoStyle}
+          style={{ width, height }}
           ref={ ref => this.videoPlayer = ref }
           source={this.streamInfo}
           onErrorOccurred={this.handleOnErrorOccurred}
@@ -238,23 +232,25 @@ const getStreamInfo = () => {
     type: 'HLS'
   };
 
-  if (DeviceInfo.getDeviceModel() === 'Simulator') {
-    return clearStreamInfo;
-  }
+  switch(DeviceInfo.getSystemName()) {
+    case 'iOS':
+    case 'tvOS':
+      if (DeviceInfo.getDeviceModel() === 'Simulator') {
+        return clearStreamInfo;
+      }
 
-  switch(DeviceInfo.getDeviceManufacturer()) {
-    case 'Apple':
       return {
         uri: 'https://dtv-latam-abc.akamaized.net/hls/live/2003011-b/dtv/dtv-latam-boomerang/master.m3u8',
         type: 'HLS',
+        assetId: 'c0fe1b7d2de4e5b94dc821091e5b2150',
         drmScheme: 'fairplay',
         drmInfo: null
       };
-    case 'Android':
+    case 'android':
       return {
         uri: "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd",
         type: 'DASH',
-          drmScheme: 'widevine_modular',
+          drmScheme: 'widevine_modular_custom_request',
           drmInfo: {
             licenseAcquisitionUrl: "https://widevine-proxy.appspot.com/proxy"
           }
@@ -263,18 +259,5 @@ const getStreamInfo = () => {
       return clearStreamInfo;
   }
 }
-
-const styles = {
-  containerStyle: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center'
-  },
-  videoStyle: {
-    position: 'absolute',
-    width: 1920,
-    height: 1080
-  }
-};
 
 export default YiReactApp;
