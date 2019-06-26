@@ -8,7 +8,12 @@
 #include <logging/YiLoggerHelper.h>
 #include <framework/YiFramework.h>
 
+#if defined(YI_IOS) || defined(YI_TVOS)
 #include <youireact/modules/drm/FairPlayDrmHandlerModule.h>
+#elif defined(YI_ANDROID)
+#include <youireact/modules/drm/WidevineCustomRequestDrmHandlerModule.h>
+#endif
+
 #include <network/YiHTTPService.h>
 
 #if defined(YI_LOCAL_JS_APP)
@@ -83,14 +88,19 @@ bool App::UserInit()
     std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderLocalAsset());
 #    endif
 #else
-    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderRemote());
+    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderRemote(CYIUrl("http://192.168.1.17:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false")));
+//    std::unique_ptr<JsBundleLoader> pBundleLoader(new JsBundleLoaderRemote());
 #endif
 
     PlatformApp::SetJsBundleLoader(std::move(pBundleLoader));
     bool result = PlatformApp::UserInit();
 
+#if defined(YI_IOS) || defined(YI_TVOS)
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
-    
+#elif defined(YI_ANDROID)
+    GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
+#endif
+
     CYIHTTPService::GetInstance()->ClearCache();
 
     return result;
