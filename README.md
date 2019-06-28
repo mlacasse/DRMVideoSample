@@ -1,6 +1,8 @@
 # AT&T Video Player sample w/ DRM
 
-This sample demonstrates how to play DRM content using the AT&T license workflow.
+This sample demonstrates how to play content using either Widevine or Fairplay DRM.
+
+The Widevine implementation demonstrates the WidevineCustomRequestDrmHandler.
 
 ## Requirements
 
