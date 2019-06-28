@@ -1,5 +1,10 @@
+import React from 'react';
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
-import YiReactApp from './app/YiReactApp';
+import AppComponent from './app/AppComponent';
+
+const YiReactApp = () => (
+  <AppComponent />
+);
 
 AppRegistry.registerComponent(appName, () => YiReactApp);

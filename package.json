@@ -10,7 +10,9 @@
 		"@youi/react-native-youi": "/Users/marclacasse/youiengine/5.4.0/libs/react-native-youi",
 		"base-64": "^0.1.0",
 		"react": "16.3.0",
-		"react-native": "0.55.0"
+		"react-native": "0.55.0",
+		"react-redux": "^7.1.0",
+		"redux": "^4.0.1"
 	},
 	"devDependencies": {
 		"babel-jest": "^23.2.0",
