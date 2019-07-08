@@ -23,6 +23,7 @@ class AppComponent extends Component {
       <ACVideo 
         style={{ width, height }}
         source={this.props.streamInfo}
+        continuous={1}
       />
     );
   }

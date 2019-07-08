@@ -40,12 +40,15 @@ using namespace yi::react;
 
 bool App::UserInit()
 {
+    // Disable hud
+    SetHUDVisibility(false);
+
     // Setup Logging Preferences
     std::shared_ptr<CYIPreferences> pPreferences(new CYIPreferences());
-    
+
     // App wide Log preferences
     pPreferences->Set("TAG_GENERAL", "DEBUG");
-    
+
     // Error messages
     pPreferences->Set("TAG_CYIAssetDownloadHelper", "ERROR");
     pPreferences->Set("TAG_CYIHTTPService", "ERROR");
@@ -58,13 +61,13 @@ bool App::UserInit()
     pPreferences->Set("TAG_CYIExoPlayer", "ERROR");
     pPreferences->Set("TAG_ShadowTree", "ERROR");
     pPreferences->Set("TAG_UIManagerModule", "ERROR");
-    
+
     // Debug messages
     pPreferences->Set("TAG_Transfer", "DEBUG");
-    
+
     // Info messages
     pPreferences->Set("TAG_JavaScript", "INFO");
-    
+
     CYILogger::SetPreferences(pPreferences);
 
     // Start the web driver for allowing the use of Appium.
