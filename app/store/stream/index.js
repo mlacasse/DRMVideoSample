@@ -9,20 +9,24 @@ const FairPlayStream = {
 };
 
 const DASHStream = {
-  uri: "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd",
+  uri: 'https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd',
   type: 'DASH',
   drmScheme: 'widevine_modular_custom_request',
   drmInfo: {
-    licenseAcquisitionUrl: "https://widevine-proxy.appspot.com/proxy"
+    licenseAcquisitionUrl: 'https://widevine-proxy.appspot.com/proxy'
   }
 };
 
 const CLEARStream = {
-  uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+  uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
   type: 'HLS'
 };
 
 export default (state = CLEARStream, action) => {
+  if (DeviceInfo.getDeviceModel() === 'Simulator') {
+    return state;
+  }
+
   switch(DeviceInfo.getSystemName()) {
     case 'iOS':
     case 'tvOS':
@@ -31,10 +35,6 @@ export default (state = CLEARStream, action) => {
     case 'android':
       state = DASHStream;
       break;
-  }
-
-  if (DeviceInfo.getDeviceModel() === 'Simulator') {
-    state = CLEARStream;
   }
 
   return state;
