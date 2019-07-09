@@ -7,7 +7,8 @@ import styles from '../styles';
 export default class ACVideoControlBar extends PureComponent {
   static propTypes = {
     durationLeft: PropTypes.number.isRequired,
-    children: PropTypes.element,
+    framesPerSecond: PropTypes.number.isRequired,
+    children: PropTypes.element
   };
 
   static defaultProps = {
@@ -15,6 +16,10 @@ export default class ACVideoControlBar extends PureComponent {
   };
 
   createDurationText = () => {
+    if (this.props.durationLeft <= 0) {
+      return `${this.props.framesPerSecond.toFixed(0)}`;
+    }
+
     const seconds = Math.floor((this.props.durationLeft / 1000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
     const minutes = Math.floor((this.props.durationLeft / (1000*60)) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
     const hours = Math.floor((this.props.durationLeft / (1000*60*60)) % 60);
@@ -24,11 +29,11 @@ export default class ACVideoControlBar extends PureComponent {
 
   render() {
     const { children } = this.props;
-
+    
     return (
       <View style={styles.durationContainerStyle}>
-        <Text style={styles.durationTextStyle}>{this.createDurationText()}</Text>
         {children}
+        <Text style={styles.durationTextStyle}>{this.createDurationText()}</Text>
       </View>
     );
   }

@@ -1,9 +1,13 @@
 import React, { Component } from 'react';
 import { View, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
-import { Video } from '@youi/react-native-youi';
+import { Image, Video } from '@youi/react-native-youi';
 
-import { ACVideoControlBar, ACVideoProgressBar } from './subcomponents';
+import { ACVideoControlBar, ACVideoProgressBar, ACPlayPauseButton } from './subcomponents';
+
+import LiveIcon from './resources/circle-on-now.png';
+
+import styles from './subcomponents/styles';
 
 class ACVideo extends Component {
   static propTypes = {
@@ -18,9 +22,11 @@ class ACVideo extends Component {
       duration: 0,
       durationLeft: 0,
       durationCompleted: 0,
+      framesPerSecond: 0,
       isError: false,
       isPlaying: false,
       isReady: false,
+      isLive: false
     };
 
     this.videoPlayer = null;
@@ -34,28 +40,43 @@ class ACVideo extends Component {
     return (this.state.durationCompleted / this.state.duration) * 100;
   }
 
+  handleOnTimedMetadata = metadata => {
+    this.setState({ timedMetadata: metadata })
+
+    console.log('============= handleOnTimedMetadata =============');
+    console.log(metadata);
+    console.log('============= handleOnTimedMetadata =============');
+  }
+
   handleOnCurrentTimeUpdated = currentTime => {
     const { duration } = this.state;
     const durationLeft = duration - currentTime;
 
-    this.setState({
-      durationLeft,
-      durationCompleted: duration - durationLeft,
-    });
+    this.videoPlayer.getStatistics()
+      .then((statistics) => {
+        this.setState({
+          durationLeft,
+          durationCompleted: duration - durationLeft,
+          framesPerSecond: statistics.framesPerSecond < 0 ? 0 : statistics.framesPerSecond
+        });
+      });
   };
 
   handleOnDurationChanged = duration => {
     this.setState({
       duration,
       durationLeft: duration,
-      durationCompleted: 0,
+      durationCompleted: 0
     });
   }
 
   handleOnReady = () => {
     if (this.videoPlayer) {
-      this.setState({ isReady: true });
-      this.videoPlayer.play();
+      this.videoPlayer.getStatistics()
+        .then((statistics) => {
+          this.setState({ isReady: true, isLive: statistics.isLive });
+          this.videoPlayer.play();
+        });
     }
   }
 
@@ -63,7 +84,7 @@ class ACVideo extends Component {
     this.setState({ isPlaying: true });
   }
 
-  handleOnPause = () => {
+  handleOnPaused = () => {
     this.setState({ isPlaying: false });
   }
 
@@ -71,8 +92,18 @@ class ACVideo extends Component {
     console.log("onErrorOccurred: ", error);
 
     if (this.videoPlayer) {
-      this.setState({ isError: true, isReady: false, isPlaying: false });
+      this.setState({ isError: true, isReady: false, isPlaying: false, isLive: false });
       this.videoPlayer.stop();
+    }
+  }
+
+  handleOnPlayControlPress = () => {
+    if (this.videoPlayer) {
+      if (this.state.isPlaying) {
+        this.videoPlayer.pause();
+      } else {
+        this.videoPlayer.play();
+      }
     }
   }
 
@@ -90,6 +121,12 @@ class ACVideo extends Component {
     }
   }
 
+  renderIsLive() {
+    if (this.state.isLive) {
+      return <Image source={LiveIcon} style={styles.playBackIcon} />
+    }
+  }
+
   render() {
     return(
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -100,12 +137,15 @@ class ACVideo extends Component {
           onDurationChanged={this.handleOnDurationChanged}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
+          onTimedMetadata={this.handleOnTimedMetadata}
           onPlaying={this.handleOnPlaying}
-          onPause={this.handleOnPause}
+          onPaused={this.handleOnPaused}
           onReady={this.handleOnReady}
           {...this.props}
         />
-        <ACVideoControlBar durationLeft={this.state.durationLeft}>
+        <ACVideoControlBar isLive={this.state.isLive} durationLeft={this.state.durationLeft} framesPerSecond={this.state.framesPerSecond}>
+          {this.renderIsLive()}
+          <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
           <ACVideoProgressBar barWidth={this.calculateDurationCompletedInPercentage()} />
         </ACVideoControlBar>
       </View>

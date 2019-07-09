@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, NativeModules } from 'react-native';
+import { NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo } from '@youi/react-native-youi';
@@ -17,11 +17,9 @@ class AppComponent extends Component {
   }
 
   render() {
-    const { width, height } = Dimensions.get('window');
-
     return(
       <ACVideo 
-        style={{ width, height }}
+        style={{ width: '100%', height: '100%' }}
         source={this.props.streamInfo}
         continuous={1}
       />
