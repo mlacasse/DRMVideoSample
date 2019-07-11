@@ -20,7 +20,7 @@ const DASHStream = {
 const CLEARStream = {
   uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
   type: 'HLS'
-};
+}
 
 export default (state = CLEARStream, action) => {
   if (DeviceInfo.getDeviceModel() === 'Simulator') {

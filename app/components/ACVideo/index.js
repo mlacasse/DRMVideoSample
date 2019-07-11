@@ -41,10 +41,8 @@ class ACVideo extends Component {
   }
 
   handleOnTimedMetadata = metadata => {
-    this.setState({ timedMetadata: metadata })
-
     console.log('============= handleOnTimedMetadata =============');
-    console.log(metadata);
+    console.log(metadata.nativeEvent);
     console.log('============= handleOnTimedMetadata =============');
   }
 
@@ -89,7 +87,9 @@ class ACVideo extends Component {
   }
 
   handleOnErrorOccurred = error => {
-    console.log("onErrorOccurred: ", error);
+    const { errorCode, message } = error.nativeEvent;
+
+    console.log(errorCode + " : " + message);
 
     if (this.videoPlayer) {
       this.setState({ isError: true, isReady: false, isPlaying: false, isLive: false });
