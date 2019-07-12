@@ -3,7 +3,6 @@
 #include "DimensionsModule.h"
 #include "OrientationLockModule.h"
 
-#include <appium/YiWebDriverLocator.h>
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
 
@@ -70,13 +69,6 @@ bool App::UserInit()
 
     CYILogger::SetPreferences(pPreferences);
 
-    // Start the web driver for allowing the use of Appium.
-    CYIWebDriver *pWebDriver = CYIWebDriverLocator::GetWebDriver();
-    if (pWebDriver)
-    {
-        pWebDriver->Start();
-    }
-
 #if !defined(YI_MINI_GLOG)
     // miniglog defines this using a non-const char * causing a compile error and it has no implementation anyway.
     static bool isGoogleLoggingInitialized = false;
@@ -94,7 +86,7 @@ bool App::UserInit()
     std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderLocalAsset>();
 #    endif
 #else
-    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>(CYIUrl("http://10.100.88.192:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false"));
+    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>(CYIUrl("http://10.100.89.104:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false"));
 #endif
 
     PlatformApp::SetJsBundleLoader(std::move(pBundleLoader));

@@ -1,4 +1,4 @@
-# AT&T Video Player sample w/ DRM
+# Video Player sample w/ DRM
 
 This sample demonstrates how to play content using either Widevine or Fairplay DRM.
 
