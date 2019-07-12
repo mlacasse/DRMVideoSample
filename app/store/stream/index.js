@@ -33,7 +33,7 @@ export default (state = CLEARStream, action) => {
       state = FairPlayStream;
       break;
     case 'android':
-      state = DASHStream;
+      state = CLEARStream;
       break;
   }
 
