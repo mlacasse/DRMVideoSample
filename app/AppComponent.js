@@ -1,28 +1,68 @@
 import React, { Component } from 'react';
-import { NativeModules } from 'react-native';
+import { View, Dimensions, NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo } from '@youi/react-native-youi';
-import { ACVideo, withFairplay, withPassthrough, withWidevine } from './components';
+import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 class AppComponent extends Component {
   state = {}
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    const { width, height } = Dimensions.get('window');
+
+    this.state = {
+      window: {
+        width,
+        height,
+      },
+    };
+
+    // 0 = Landscape
+    // 1 = Portrait
+    // 2 = Auto
+    // 3 = LandscapeRight
+    // 4 = LandscapeLeft
+    // 5 = PortraitUpright
+    // 6 = AutoUpright
+
+    NativeModules.OrientationLock.setRotationMode(6);
   }
 
   componentWillMount() {
-    NativeModules.OrientationLock.setRotationMode(0); // Lock Landscape
+    Dimensions.addEventListener('change', this.handleOnOrientationChange);
+  }
+
+
+  componentWillUnmount = () => {
+    Dimensions.removeEventListener('change', this.handleOnOrientationChange);
+  }
+
+  handleOnOrientationChange = ({ window }) => {
+    this.setState({ window });
   }
 
   render() {
     return(
-      <ACVideo 
-        style={{ width: '100%', height: '100%' }}
-        source={this.props.streamInfo}
-        continuous={1}
-      />
+      <View style={{
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        <ACScaler
+          xRatio={16}
+          yRatio={9}
+          screenDimensions={this.state.window}
+        >
+          <ACVideo 
+            style={{ width: '100%', height: '100%' }}
+            source={this.props.streamInfo}
+            continuous={1}
+          />
+        </ACScaler>
+      </View>
     );
   }
 };

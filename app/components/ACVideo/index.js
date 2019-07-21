@@ -1,15 +1,13 @@
-import React, { Component } from 'react';
-import { View, NativeModules } from 'react-native';
+import React, { PureComponent } from 'react';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
 import { Image, Video } from '@youi/react-native-youi';
 
 import { ACVideoControlBar, ACVideoProgressBar, ACPlayPauseButton } from './subcomponents';
 
-import LiveIcon from './resources/circle-on-now.png';
-
 import styles from './subcomponents/styles';
 
-class ACVideo extends Component {
+class ACVideo extends PureComponent {
   static propTypes = {
     source: PropTypes.object.isRequired,
     style: PropTypes.object.isRequired
@@ -30,10 +28,6 @@ class ACVideo extends Component {
     };
 
     this.videoPlayer = null;
-  }
-
-  componentWillMount() {
-    NativeModules.OrientationLock.setRotationMode(0); // Lock Landscape
   }
 
   calculateDurationCompletedInPercentage = () => {
@@ -123,7 +117,7 @@ class ACVideo extends Component {
 
   renderIsLive() {
     if (this.state.isLive) {
-      return <Image source={LiveIcon} style={styles.playBackIcon} />
+      return <Image source={{ 'uri': 'res://drawable/default/circle-on-now.png' }} style={styles.playBackIcon} />
     }
   }
 

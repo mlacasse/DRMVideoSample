@@ -86,7 +86,7 @@ bool App::UserInit()
     std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderLocalAsset>();
 #    endif
 #else
-    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>(CYIUrl("http://10.100.89.104:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false"));
+    std::unique_ptr<JsBundleLoader> pBundleLoader = std::make_unique<JsBundleLoaderRemote>(CYIUrl("http://0.0.0.0:8081/index.youi.bundle?platform=ios&dev=false&hot=false&minify=false"));
 #endif
 
     PlatformApp::SetJsBundleLoader(std::move(pBundleLoader));
