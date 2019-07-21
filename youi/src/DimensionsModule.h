@@ -4,6 +4,10 @@
 #include <signal/YiSignalHandler.h>
 #include <youireact/NativeModule.h>
 
+namespace yi
+{
+namespace react
+{
 class YI_RN_MODULE(DimensionsModule)
 {
 public:
@@ -16,5 +20,8 @@ private:
     void InitReactNativeView();
     void OnSurfaceSizeChanged(int32_t width, int32_t height);
 };
+
+} // namespace react
+} // namespace yi
 
 #endif

@@ -1,5 +1,3 @@
-#ifndef YI_IOS
-
 #include "DimensionsModule.h"
 
 #include <cmath>
@@ -16,23 +14,26 @@
 
 static const CYIString SCENE_NAME = "React";
 
+using namespace yi::react;
+
 YI_RN_INSTANTIATE_MODULE(DimensionsModule);
 
+#ifndef YI_IOS
 namespace {
     float PpiToPixelRatio(int32_t ppi)
     {
         float approximateRatio = (float)ppi / 150;
-
-         float roundedRatio = std::floor((approximateRatio * 2) + 0.5) / 2;
-
-         if (roundedRatio > 3.5f)
+        
+        float roundedRatio = std::floor((approximateRatio * 2) + 0.5) / 2;
+        
+        if (roundedRatio > 3.5f)
             return 3.5f;
         else if (glm::epsilonEqual(roundedRatio, 2.5f, glm::epsilon<float>()))
             return 3.f;
         else if (roundedRatio < 1.f)
             return 1.f;
-
-         return roundedRatio;
+        
+        return roundedRatio;
     }
 }
 
@@ -53,6 +54,7 @@ DimensionsModule::DimensionsModule() {
 
     InitReactNativeView();
 }
+#endif
 
 void DimensionsModule::InitReactNativeView()
 {
@@ -73,7 +75,7 @@ void DimensionsModule::OnSurfaceSizeChanged(int32_t width, int32_t height)
 {
     auto *pSceneMgr = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
     auto *pScene = static_cast<CYISceneView *>(pSceneMgr->GetScene(SCENE_NAME));
-        
+
     if (pScene)
     {
         auto *pReactNativeView = pScene->GetNode<CYIReactNativeView>();
@@ -86,4 +88,3 @@ void DimensionsModule::OnSurfaceSizeChanged(int32_t width, int32_t height)
         pScene->SetSize(glm::vec3{static_cast<float>(width), static_cast<float>(height), 0.1f});
     }
 }
-#endif

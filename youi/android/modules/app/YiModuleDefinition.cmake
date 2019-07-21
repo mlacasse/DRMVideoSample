@@ -17,13 +17,13 @@ if(YI_LOCAL_JS)
 endif()
 
 set(YI_REACT_APP ON)
-yi_define_module(ATTVideoSample
+yi_define_module(DRMVideoSample
     TYPE APPLICATION
     PROJECT_DIR ${_PROJECT_DIR}
     VARIABLES
-        "YI_PROJECT_NAME=ATTVideoSample"
-        "YI_PACKAGE_NAME=tv.youi.attvideosample"
-        "YI_DISPLAY_NAME=\"ATTVideoSample\""
+        "YI_PROJECT_NAME=DRMVideoSample"
+        "YI_PACKAGE_NAME=tv.youi.drmvideosample"
+        "YI_DISPLAY_NAME=\"DRMVideoSample\""
         "YI_BUILD_NUMBER=1"
         "YI_VERSION_NUMBER=1.0.0"
         "YI_API_LEVEL=21"
