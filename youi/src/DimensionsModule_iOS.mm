@@ -9,10 +9,12 @@
 
 using namespace yi::react;
 
-YI_RN_INSTANTIATE_MODULE(DimensionsModule);
+YI_RN_INSTANTIATE_MODULE(DimensionsModule, EventEmitterModule);
 
 DimensionsModule::DimensionsModule()
 {
+    SetSupportedEvents({ "change" });
+
     DimensionsModule::ratio = [[UIScreen mainScreen] scale];
 
     CYIAppContext::GetInstance()->GetApp()->SurfaceSizeChanged.Connect(*this, &DimensionsModule::OnSurfaceSizeChanged);

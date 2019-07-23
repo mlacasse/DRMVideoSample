@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
+import ACSwipe from '../ACSwipe';
 
 class ACScaler extends PureComponent {
   static propTypes = {
@@ -34,7 +35,12 @@ class ACScaler extends PureComponent {
 
   render() {
     const containerDimensionStyle = this.getScreenDimensions();
-    return <View style={containerDimensionStyle}>{this.props.children}</View>;
+    return (
+      <View style={containerDimensionStyle}>
+        {this.props.children}
+        <ACSwipe style={containerDimensionStyle}/>
+      </View>
+    );
   }
 }
 

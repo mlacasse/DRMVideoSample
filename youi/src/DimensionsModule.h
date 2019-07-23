@@ -3,16 +3,19 @@
 
 #include <signal/YiSignalHandler.h>
 #include <youireact/NativeModule.h>
+#include <youireact/modules/EventEmitter.h>
 
 namespace yi
 {
 namespace react
 {
-class YI_RN_MODULE(DimensionsModule)
+class YI_RN_MODULE(DimensionsModule, EventEmitterModule)
 {
 public:
     YI_RN_EXPORT_NAME(Dimensions);
     DimensionsModule();
+
+    YI_RN_EXPORT_CONSTANT(window);
 
 private:
     float ratio;

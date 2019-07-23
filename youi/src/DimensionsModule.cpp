@@ -12,11 +12,13 @@
 #include <view/YiSceneView.h>
 #include <youireact/YiReactNativeView.h>
 
-static const CYIString SCENE_NAME = "React";
+static const std::string SCENE_NAME = "React";
+
+static const float FONT_SCALE = 1.f;
 
 using namespace yi::react;
 
-YI_RN_INSTANTIATE_MODULE(DimensionsModule);
+YI_RN_INSTANTIATE_MODULE(DimensionsModule, EventEmitterModule);
 
 #ifndef YI_IOS
 namespace {
@@ -38,6 +40,8 @@ namespace {
 }
 
 DimensionsModule::DimensionsModule() {
+    SetSupportedEvents({ "change" });
+
     const auto ppi = CYIAppContext::GetInstance()->GetScreen()->GetXDensity();
 
     #if defined(YI_ANDROID)
@@ -87,4 +91,25 @@ void DimensionsModule::OnSurfaceSizeChanged(int32_t width, int32_t height)
         pReactNativeView->SetScale(glm::vec3{DimensionsModule::ratio, DimensionsModule::ratio, 1.f});
         pScene->SetSize(glm::vec3{static_cast<float>(width), static_cast<float>(height), 0.1f});
     }
+
+    const folly::dynamic windowDimensions(folly::dynamic::object("width", width / DimensionsModule::ratio)("height", height / DimensionsModule::ratio)("scale", DimensionsModule::ratio)("fontScale", FONT_SCALE));
+    
+    EmitEvent("change", folly::dynamic::object("window", windowDimensions));
 }
+
+YI_RN_DEFINE_EXPORT_CONSTANT(DimensionsModule, window)
+{
+    folly::dynamic windowInfo = folly::dynamic::object;
+    
+    const auto *pSurface = CYIAppContext::GetInstance()->GetSurface();
+    if (pSurface)
+    {
+        windowInfo["width"] = ToDynamic(pSurface->GetWidth() / DimensionsModule::ratio);
+        windowInfo["height"] = ToDynamic(pSurface->GetHeight() / DimensionsModule::ratio);
+        windowInfo["scale"] = ToDynamic(DimensionsModule::ratio);
+        windowInfo["fontScale"] = ToDynamic(FONT_SCALE);
+    }
+    
+    return ToDynamic(windowInfo);
+}
+
