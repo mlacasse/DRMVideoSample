@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { View, Dimensions, NativeModules } from 'react-native';
+import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo } from '@youi/react-native-youi';
-import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
+import { ACVideo, ACScaler, ACSwipe, withFairplay, withPassthrough, withWidevine } from './components';
+
+const { Dimensions } = NativeModules;
 
 class AppComponent extends Component {
-  state = {}
-
   constructor(props) {
     super(props);
 
-    const { width, height } = Dimensions.get('window');
+    const { width, height } = Dimensions.window;
 
     this.state = {
       window: {
@@ -29,15 +29,16 @@ class AppComponent extends Component {
     // 6 = AutoUpright
 
     NativeModules.OrientationLock.setRotationMode(6);
+
+    this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
   }
 
-  componentWillMount() {
-    Dimensions.addEventListener('change', this.handleOnOrientationChange);
+  componentWillMount = () => {
+    this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
   }
-
 
   componentWillUnmount = () => {
-    Dimensions.removeEventListener('change', this.handleOnOrientationChange);
+    this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
   }
 
   handleOnOrientationChange = ({ window }) => {
@@ -45,6 +46,8 @@ class AppComponent extends Component {
   }
 
   render() {
+    const { width, height } = this.state.window;
+
     return(
       <View style={{
         flex: 1,
@@ -54,7 +57,7 @@ class AppComponent extends Component {
         <ACScaler
           xRatio={16}
           yRatio={9}
-          screenDimensions={this.state.window}
+          screenDimensions={{ width, height }}
         >
           <ACVideo 
             style={{ width: '100%', height: '100%' }}

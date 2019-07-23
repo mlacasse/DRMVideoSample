@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Image } from 'react-native';
+import { View, Image } from 'react-native';
 
 import ACTouchable from '../../../ACTouchable';
 
