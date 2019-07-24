@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
-import ACSwipe from '../ACSwipe';
 
 class ACScaler extends PureComponent {
   static propTypes = {
@@ -33,12 +32,22 @@ class ACScaler extends PureComponent {
     };
   };
 
+  cloneStyleOnToChildren = ({ width, height }) => {
+    if (this.props.children instanceof Array) {
+      return this.props.children.map((child) => {
+        return React.cloneElement(child, { style: { width, height, ...child.style }});
+      });
+    }
+
+    return React.cloneElement(this.props.children, { style: { width, height, ...this.props.children.style }});
+  }
+
   render() {
-    const containerDimensionStyle = this.getScreenDimensions();
+    const { width, height } = this.getScreenDimensions();
+
     return (
-      <View style={containerDimensionStyle}>
-        {this.props.children}
-        <ACSwipe style={containerDimensionStyle}/>
+      <View style={{ width, height }}>
+        {this.cloneStyleOnToChildren({ width, height })}
       </View>
     );
   }
