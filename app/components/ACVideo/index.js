@@ -126,7 +126,7 @@ class ACVideo extends PureComponent {
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Video 
           ref={ ref => this.videoPlayer = ref }
-          source={this.props.streamInfo}
+          source={this.props.source}
           onErrorOccurred={this.handleOnErrorOccurred}
           onDurationChanged={this.handleOnDurationChanged}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
