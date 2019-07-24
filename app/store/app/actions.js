@@ -1,4 +1,4 @@
-import { ERROR, VIDEO } from './types';
+import { ERROR } from './types';
 
 export const setError = ({ error }) => {
   return {
