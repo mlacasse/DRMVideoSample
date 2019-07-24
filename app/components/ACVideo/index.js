@@ -1,11 +1,7 @@
 import React, { PureComponent } from 'react';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import { Image, Video } from '@youi/react-native-youi';
-
-import { ACVideoControlBar, ACVideoProgressBar, ACPlayPauseButton } from './subcomponents';
-
-import styles from './subcomponents/styles';
+import { Video } from '@youi/react-native-youi';
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -22,16 +18,11 @@ class ACVideo extends PureComponent {
       durationCompleted: 0,
       framesPerSecond: 0,
       isError: false,
-      isPlaying: false,
       isReady: false,
       isLive: false
     };
 
     this.videoPlayer = null;
-  }
-
-  calculateDurationCompletedInPercentage = () => {
-    return (this.state.durationCompleted / this.state.duration) * 100;
   }
 
   handleOnTimedMetadata = metadata => {
@@ -46,6 +37,10 @@ class ACVideo extends PureComponent {
 
     this.videoPlayer.getStatistics()
       .then((statistics) => {
+        console.log('============= handleOnCurrentTimeUpdated =============');
+        console.log(this.state);
+        console.log('============= handleOnCurrentTimeUpdated =============');
+
         this.setState({
           durationLeft,
           durationCompleted: duration - durationLeft,
@@ -72,32 +67,14 @@ class ACVideo extends PureComponent {
     }
   }
 
-  handleOnPlaying = () => {
-    this.setState({ isPlaying: true });
-  }
-
-  handleOnPaused = () => {
-    this.setState({ isPlaying: false });
-  }
-
   handleOnErrorOccurred = error => {
     const { errorCode, message } = error.nativeEvent;
 
     console.log(errorCode + " : " + message);
 
     if (this.videoPlayer) {
-      this.setState({ isError: true, isReady: false, isPlaying: false, isLive: false });
+      this.setState({ isError: true, isReady: false, isLive: false });
       this.videoPlayer.stop();
-    }
-  }
-
-  handleOnPlayControlPress = () => {
-    if (this.videoPlayer) {
-      if (this.state.isPlaying) {
-        this.videoPlayer.pause();
-      } else {
-        this.videoPlayer.play();
-      }
     }
   }
 
@@ -112,12 +89,6 @@ class ACVideo extends PureComponent {
         this.videoPlayer.seek(0);
         this.videoPlayer.play();
       }
-    }
-  }
-
-  renderIsLive() {
-    if (this.state.isLive) {
-      return <Image source={{ 'uri': 'res://drawable/default/circle-on-now.png' }} style={styles.playBackIcon} />
     }
   }
 
@@ -137,11 +108,6 @@ class ACVideo extends PureComponent {
           onReady={this.handleOnReady}
           {...this.props}
         />
-        <ACVideoControlBar isLive={this.state.isLive} durationLeft={this.state.durationLeft} framesPerSecond={this.state.framesPerSecond}>
-          {this.renderIsLive()}
-          <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
-          <ACVideoProgressBar barWidth={this.calculateDurationCompletedInPercentage()} />
-        </ACVideoControlBar>
       </View>
     );
   }

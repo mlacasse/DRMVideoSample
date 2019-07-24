@@ -7,6 +7,11 @@ import { ACVideo, ACScaler, ACSwipe, withFairplay, withPassthrough, withWidevine
 
 const { Dimensions } = NativeModules;
 
+const ID3TagStream = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true',
+  type: 'HLS',
+};
+
 class AppComponent extends Component {
   constructor(props) {
     super(props);
@@ -14,6 +19,8 @@ class AppComponent extends Component {
     const { width, height } = Dimensions.window;
 
     this.state = {
+      isClear: false,
+      streamInfo: this.props.streamInfo,
       window: {
         width,
         height,
@@ -45,12 +52,20 @@ class AppComponent extends Component {
     this.setState({ window });
   }
 
+  toggleStreamInfo = () => {
+    if (this.state.isClear) {
+      this.setState({ streamInfo: this.props.streamInfo, isClear: false })
+    } else {
+      this.setState({ streamInfo: ID3TagStream, isClear: true })
+    }
+  }
+
   handleOnSwipeRight = () => {
-    console.log('Swipe Right!');
+    this.toggleStreamInfo();
   }
 
   handleOnSwipeLeft = () => {
-    console.log('Swipe Left!');
+    this.toggleStreamInfo();
   }
 
   render() {
@@ -68,7 +83,7 @@ class AppComponent extends Component {
           screenDimensions={{ width, height }}
         >
           <ACVideo 
-            source={this.props.streamInfo}
+            source={this.state.streamInfo}
             continuous={1}
           />
           <ACSwipe
