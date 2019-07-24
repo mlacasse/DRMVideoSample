@@ -45,6 +45,14 @@ class AppComponent extends Component {
     this.setState({ window });
   }
 
+  handleOnSwipeRight = () => {
+    console.log('Swipe Right!');
+  }
+
+  handleOnSwipeLeft = () => {
+    console.log('Swipe Left!');
+  }
+
   render() {
     const { width, height } = this.state.window;
 
@@ -60,9 +68,12 @@ class AppComponent extends Component {
           screenDimensions={{ width, height }}
         >
           <ACVideo 
-            style={{ width: '100%', height: '100%' }}
             source={this.props.streamInfo}
             continuous={1}
+          />
+          <ACSwipe
+            onSwipeLeft={this.handleOnSwipeLeft}
+            onSwipeRight={this.handleOnSwipeRight}
           />
         </ACScaler>
       </View>

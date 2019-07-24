@@ -21,20 +21,18 @@ class ACSwipe extends PureComponent {
 
     if (isFarLeft || isFarRight) {
       this.setState({ direction: isFarLeft ? 'left' : 'right' });
-
-      return true;
     }
 
-    return false;
+    return this.state.direction !== undefined;
   }
 
   handleOnResponderRelease = (evt) => {
     const { width } = this.state;
 
-    if ( this.state.direction === 'left' && Math.floor(evt.nativeEvent.pageX) > width / 2) {
-      console.log('Swipe right!');
-    } else if ( this.state.direction === 'right' && Math.floor(evt.nativeEvent.pageX) < width / 2) {
-      console.log('Swipe left!');
+    if (this.state.direction === 'left' && Math.floor(evt.nativeEvent.pageX) > width / 2) {
+      this.handleOnSwipeRight();
+    } else if (this.state.direction === 'right' && Math.floor(evt.nativeEvent.pageX) < width / 2) {
+      this.handleOnSwipeLeft();
     }
 
     this.setState({ direction: undefined });
@@ -44,10 +42,22 @@ class ACSwipe extends PureComponent {
     this.setState({ direction: undefined });
   }
 
+  handleOnSwipeRight = () => {
+    if (this.props.onSwipeRight) {
+      this.props.onSwipeRight();
+    }
+  }
+
+  handleOnSwipeLeft = () => {
+    if (this.props.onSwipeLeft) {
+      this.props.onSwipeLeft();
+    }
+  }
+
   render() {
     return (
       <View
-        style={{position: 'absolute', ...this.props.style }}
+        style={{ position: 'absolute', ...this.props.style }}
         onMoveShouldSetResponder={this.handleOnMoveShouldSetResponder}
         onResponderRelease={this.handleOnResponderRelease}
         onResponderTerminationRequest={(evt) => true}
