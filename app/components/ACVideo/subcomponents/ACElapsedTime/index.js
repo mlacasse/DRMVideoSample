@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
-import { View, Text, FormFactor } from '@youi/react-native-youi';
+import { Text } from '@youi/react-native-youi';
 import PropTypes from 'prop-types';
+
+import { ACVideoStyles } from '../styles';
 
 export default class ACElapsedTime extends PureComponent {
   static propTypes = {
@@ -30,16 +32,7 @@ export default class ACElapsedTime extends PureComponent {
 
   render() {
     return (
-        <Text style={styles.elapsedStyle}>{this.createElapsedTimeText()}</Text>
+        <Text style={ACVideoStyles.elapsedStyle}>{this.createElapsedTimeText()}</Text>
     );
   }
 }
-
-const styles = {
-  elapsedStyle: {
-    fontSize: FormFactor.isHandset ? 14 : 25,
-    marginLeft: 10,
-    marginRight: 10,
-    color: '#FAFAFA',
-  },
-};
