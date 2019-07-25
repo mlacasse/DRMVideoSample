@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo } from '@youi/react-native-youi';
-import { ACVideo, ACScaler, ACSwipe, withFairplay, withPassthrough, withWidevine } from './components';
+import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 const { Dimensions } = NativeModules;
 
@@ -12,7 +12,7 @@ const ID3TagStream = {
   type: 'HLS',
 };
 
-class AppComponent extends Component {
+class AppComponent extends PureComponent {
   constructor(props) {
     super(props);
 
@@ -48,16 +48,16 @@ class AppComponent extends Component {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
   }
 
-  handleOnOrientationChange = ({ window }) => {
-    this.setState({ window });
-  }
-
   toggleStreamInfo = () => {
     if (this.state.isClear) {
       this.setState({ streamInfo: this.props.streamInfo, isClear: false })
     } else {
       this.setState({ streamInfo: ID3TagStream, isClear: true })
     }
+  }
+
+  handleOnOrientationChange = ({ window }) => {
+    this.setState({ window });
   }
 
   handleOnSwipeRight = () => {
@@ -76,6 +76,7 @@ class AppComponent extends Component {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
+        backgroundColor: 'grey',
       }}>
         <ACScaler
           xRatio={16}
@@ -85,8 +86,6 @@ class AppComponent extends Component {
           <ACVideo 
             source={this.state.streamInfo}
             continuous={1}
-          />
-          <ACSwipe
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
           />
