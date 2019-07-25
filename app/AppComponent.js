@@ -7,10 +7,10 @@ import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from '
 
 const { Dimensions } = NativeModules;
 
-const ID3TagStream = {
-  uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true',
-  type: 'HLS',
-};
+const CLEARStream = {
+  uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
+  type: 'HLS'
+}
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -52,7 +52,7 @@ class AppComponent extends PureComponent {
     if (this.state.isClear) {
       this.setState({ streamInfo: this.props.streamInfo, isClear: false })
     } else {
-      this.setState({ streamInfo: ID3TagStream, isClear: true })
+      this.setState({ streamInfo: CLEARStream, isClear: true })
     }
   }
 
