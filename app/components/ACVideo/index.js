@@ -3,10 +3,12 @@ import { View } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video } from '@youi/react-native-youi';
 
+import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton } from './subcomponents';
+
 class ACVideo extends PureComponent {
   static propTypes = {
     source: PropTypes.object.isRequired,
-    style: PropTypes.object.isRequired
+    style: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -14,101 +16,147 @@ class ACVideo extends PureComponent {
 
     this.state = {
       duration: 0,
-      durationLeft: 0,
-      durationCompleted: 0,
-      framesPerSecond: 0,
+      elapsed: 0,
+      showControls: false,
+      isPlaying: false,
       isError: false,
       isReady: false,
-      isLive: false
+      isLive: false,
     };
 
     this.videoPlayer = null;
   }
 
-  handleOnTimedMetadata = metadata => {
-    console.log('============= handleOnTimedMetadata =============');
-    console.log(metadata.nativeEvent);
-    console.log('============= handleOnTimedMetadata =============');
+  calculateProgress = () => {
+    const { elapsed, duration } = this.state;
+    return (elapsed / duration) * 100;
   }
 
   handleOnCurrentTimeUpdated = currentTime => {
-    const { duration } = this.state;
-    const durationLeft = duration - currentTime;
+    this.setState({ elapsed: currentTime });
 
-    this.videoPlayer.getStatistics()
-      .then((statistics) => {
-        console.log('============= handleOnCurrentTimeUpdated =============');
-        console.log(this.state);
-        console.log('============= handleOnCurrentTimeUpdated =============');
-
-        this.setState({
-          durationLeft,
-          durationCompleted: duration - durationLeft,
-          framesPerSecond: statistics.framesPerSecond < 0 ? 0 : statistics.framesPerSecond
-        });
-      });
+    if (this.props.onCurrentTimeUpdated) {
+      this.props.onCurrentTimeUpdated(this.state.elapsed);
+    }
   };
 
   handleOnDurationChanged = duration => {
-    this.setState({
-      duration,
-      durationLeft: duration,
-      durationCompleted: 0
-    });
+    this.setState({ duration, elapsed: 0 });
+
+    if (this.props.onDurationChanged) {
+      this.props.onDurationChanged(this.state.duration);
+    }
   }
 
   handleOnReady = () => {
+    this.setState({ isReady: true });
+
     if (this.videoPlayer) {
-      this.videoPlayer.getStatistics()
-        .then((statistics) => {
-          this.setState({ isReady: true, isLive: statistics.isLive });
-          this.videoPlayer.play();
-        });
+      this.videoPlayer.play();
+    }
+  }
+
+  handleOnPlaying = () => {
+    this.setState({ isPlaying: true });
+
+    if (this.props.onPlaying) {
+      this.props.onPlaying();
     }
   }
 
   handleOnErrorOccurred = error => {
-    const { errorCode, message } = error.nativeEvent;
+    this.setState({ isError: true, isReady: false, isPlaying: false });
 
-    console.log(errorCode + " : " + message);
+    if (this.props.onErrorOccurred) {
+      this.props.onErrorOccurred(error);
+    }
 
     if (this.videoPlayer) {
-      this.setState({ isError: true, isReady: false, isLive: false });
       this.videoPlayer.stop();
     }
   }
 
   handleOnPlaybackComplete = () => {
-    if (this.videoPlayer) {
-      if (this.props.continuous) {
-        this.setState({
-          durationLeft: this.state.duration,
-          durationCompleted: 0
-        });
-  
+    if (this.props.continuous) {
+      if (this.videoPlayer) {
+        this.setState({ elapsed: 0 });
+    
         this.videoPlayer.seek(0);
         this.videoPlayer.play();
       }
     }
+
+    if (this.props.onPlaybackComplete) {
+      this.props.onPlaybackComplete();
+    }
   }
 
-  render() {
+  handleOnPlayControlPress = () => {
+    if (this.state.isPlaying) {
+      this.videoPlayer.pause();
+    } else {
+      this.videoPlayer.play();
+    }
+
+    this.setState({ isPlaying: !this.state.isPlaying });
+  }
+
+  handleOnTap = () => {
+    if (this.props.onTap) {
+      this.props.onTap();
+    }
+
+    this.setState({ showControls: !this.state.showControls });
+  }
+
+  renderControls = () => {
+    if (!this.state.showControls) {
+      return;
+    }
+
+    return (
+      <View
+      style={{
+      flex: 1,
+      flexDirection: 'row',
+      backgroundColor: 'black',
+      alignItems: 'center',
+      position: 'absolute',
+      padding: 5,
+      bottom: 0,
+    }}>
+      <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
+      <ACProgressBar barWidth={this.calculateProgress()}/>
+      <ACElapsedTime duration={this.state.duration} elapsed={this.state.elapsed}/>
+    </View>
+    );
+  }
+
+  render = () => {
+    const { width, height } = this.props.style;
+
     return(
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1 }}>
         <Video 
           ref={ ref => this.videoPlayer = ref }
           source={this.props.source}
-          onErrorOccurred={this.handleOnErrorOccurred}
+          onErrorOccurred={this.hanleOnErrorOccurred}
           onDurationChanged={this.handleOnDurationChanged}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
-          onTimedMetadata={this.handleOnTimedMetadata}
+          onTimedMetadata={this.props.onTimedMetadata}
           onPlaying={this.handleOnPlaying}
-          onPaused={this.handleOnPaused}
+          onPaused={this.props.onPaused}
           onReady={this.handleOnReady}
           {...this.props}
         />
-      </View>
+        <ACSwipe style={{ width, height }}
+          onSwipeLeft={this.props.onSwipeLeft}
+          onSwipeRight={this.props.onSwipeRight}
+          onTap={this.handleOnTap}
+        />
+        {this.renderControls()}
+       </View> 
     );
   }
 };

@@ -8,38 +8,45 @@ class ACSwipe extends PureComponent {
     const { width } = Dimensions.get('screen');
 
     this.state = {
-      direction: undefined,
+      start: undefined,
       width,
     };
   }
 
   handleOnMoveShouldSetResponder = (evt) => {
     const { width } = this.state;
+    const { pageX } = evt.nativeEvent;
 
-    const isFarLeft = evt.nativeEvent.pageX < Math.floor(width * 0.25);
-    const isFarRight = evt.nativeEvent.pageX > Math.floor(width * 0.75);
+    const isFarLeft = pageX < Math.floor(width * 0.25);
+    const isFarRight = pageX > Math.floor(width * 0.75);
+    const isMiddle = pageX > Math.floor(width * 0.25) && pageX < Math.floor(width * 0.75);
 
     if (isFarLeft || isFarRight) {
-      this.setState({ direction: isFarLeft ? 'left' : 'right' });
+      this.setState({ start: isFarLeft ? 'left' : 'right' });
+    } else if (isMiddle) {
+      this.setState({ start: 'middle' })
     }
 
-    return this.state.direction !== undefined;
+    return this.state.start !== undefined;
   }
 
   handleOnResponderRelease = (evt) => {
-    const { width } = this.state;
+    const { start, width } = this.state;
+    const { pageX } = evt.nativeEvent;
 
-    if (this.state.direction === 'left' && Math.floor(evt.nativeEvent.pageX) > width / 2) {
+    if (start === 'left' && Math.floor(pageX) > width / 2) {
       this.handleOnSwipeRight();
-    } else if (this.state.direction === 'right' && Math.floor(evt.nativeEvent.pageX) < width / 2) {
+    } else if (start === 'right' && Math.floor(pageX) < width / 2) {
       this.handleOnSwipeLeft();
+    } else if (start === 'middle') {
+      this.handleOnTap();
     }
 
-    this.setState({ direction: undefined });
+    this.setState({ start: undefined });
   }
 
   handleOnResponderTerminate = (evt) => {
-    this.setState({ direction: undefined });
+    this.setState({ start: undefined });
   }
 
   handleOnSwipeRight = () => {
@@ -54,10 +61,16 @@ class ACSwipe extends PureComponent {
     }
   }
 
+  handleOnTap = () => {
+    if (this.props.onTap) {
+      this.props.onTap();
+    }
+  }
+
   render() {
     return (
       <View
-        style={{ position: 'absolute', ...this.props.style }}
+        style={{ ...this.props.style, position: 'absolute' }}
         onMoveShouldSetResponder={this.handleOnMoveShouldSetResponder}
         onResponderRelease={this.handleOnResponderRelease}
         onResponderTerminationRequest={(evt) => true}
