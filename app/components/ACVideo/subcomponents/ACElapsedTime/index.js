@@ -15,7 +15,7 @@ export default class ACElapsedTime extends PureComponent {
       hours: Math.floor((this.props.elapsed / (1000*60*60)) % 60),
     }
 
-    if (this.props.duration < 0) {
+    if (this.props.duration <= 0) {
       return `${elapsed.hours}:${elapsed.minutes}:${elapsed.seconds}`;
     }
 

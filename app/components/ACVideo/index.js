@@ -29,7 +29,7 @@ class ACVideo extends PureComponent {
 
   calculateProgress = () => {
     const { elapsed, duration } = this.state;
-    return (elapsed / duration) * 100;
+    return duration > 0 ? (elapsed / duration) * 100 : 0;
   }
 
   handleOnCurrentTimeUpdated = currentTime => {
