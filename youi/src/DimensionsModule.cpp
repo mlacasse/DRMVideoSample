@@ -112,4 +112,3 @@ YI_RN_DEFINE_EXPORT_CONSTANT(DimensionsModule, window)
     
     return ToDynamic(windowInfo);
 }
-
