@@ -5,7 +5,7 @@ const FairPlayStream = {
   type: 'HLS',
   assetId: 'c0fe1b7d2de4e5b94dc821091e5b2150',
   drmScheme: 'fairplay',
-  drmInfo: null
+  drmInfo: null,
 };
 
 const DASHStream = {
@@ -14,12 +14,12 @@ const DASHStream = {
   drmScheme: 'widevine_modular_custom_request',
   drmInfo: {
     licenseAcquisitionUrl: 'https://widevine-proxy.appspot.com/proxy'
-  }
+  },
 };
 
 const CLEARStream = {
   uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-  type: 'HLS'
+  type: 'HLS',
 }
 
 export default (state = CLEARStream, action) => {

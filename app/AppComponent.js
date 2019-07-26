@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, FlatList, Text, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo } from '@youi/react-native-youi';
@@ -7,9 +7,13 @@ import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from '
 
 const { Dimensions } = NativeModules;
 
+const YOStream = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true',
+  type: 'HLS',
+}
 const CLEARStream = {
   uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-  type: 'HLS'
+  type: 'HLS',
 }
 
 class AppComponent extends PureComponent {
@@ -22,9 +26,10 @@ class AppComponent extends PureComponent {
       isClear: false,
       streamInfo: this.props.streamInfo,
       window: {
-        width,
+        width,  
         height,
       },
+      tags: [],
     };
 
     // 0 = Landscape
@@ -48,11 +53,11 @@ class AppComponent extends PureComponent {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
   }
 
-  toggleStreamInfo = () => {
+  toggleStreamInfo = (streamInfo) => {
     if (this.state.isClear) {
-      this.setState({ streamInfo: this.props.streamInfo, isClear: false })
+      this.setState({ streamInfo: this.props.streamInfo, isClear: false, tags: []  })
     } else {
-      this.setState({ streamInfo: CLEARStream, isClear: true })
+      this.setState({ streamInfo, isClear: true, tags: [] })
     }
   }
 
@@ -61,14 +66,42 @@ class AppComponent extends PureComponent {
   }
 
   handleOnSwipeRight = () => {
-    this.toggleStreamInfo();
+    this.toggleStreamInfo(CLEARStream);
   }
 
   handleOnSwipeLeft = () => {
-    this.toggleStreamInfo();
+    this.toggleStreamInfo(YOStream);
   }
 
-  render() {
+  handleOnTimedMetadata = (metadata) => {
+    this.setState({ tags: [...this.state.tags, metadata.nativeEvent] });
+  }
+
+  renderItemSeparator = () => {
+    return (
+      <View style={{height: 0.5, width: '100%', backgroundColor: '#C8C8C8'}}/>
+    );
+  }
+
+  renderItem = (item, index) => {
+    const elapsed = {
+      seconds: Math.floor((item.timestamp / 1000000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+      minutes: Math.floor((item.timestamp / (1000000*60)) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
+      hours: Math.floor((item.timestamp / (1000000*60*60)) % 60),
+    }
+
+    return(
+      <View style={{ flex: 1, flexDirection: 'column', padding: 10, backgroundColor: 'grey' }}>
+        <View style={{ flex: 1, alignItems: 'flex-end', paddingBottom: 10 }}>
+          <Text style={{ fontSize: 14, color: 'white' }}>@ {elapsed.hours}:{elapsed.minutes}:{elapsed.seconds}</Text>
+        </View>
+        <Text style={{ fontSize: 14, color: 'white', paddingBottom: 10 }}>{item.identifier}</Text>
+        <Text style={{ fontSize: 14, color: 'white' }}>{item.value}</Text>
+      </View>
+    );
+  }
+
+  render = () => {
     const { width, height } = this.state.window;
 
     return(
@@ -76,7 +109,7 @@ class AppComponent extends PureComponent {
         flex: 1,
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: 'grey',
+        backgroundColor: 'black',
       }}>
         <ACScaler
           xRatio={16}
@@ -86,10 +119,18 @@ class AppComponent extends PureComponent {
           <ACVideo 
             source={this.state.streamInfo}
             continuous={1}
+            onTimedMetadata={this.handleOnTimedMetadata}
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
           />
         </ACScaler>
+        <FlatList
+          style={{ width: '100%' }}
+          data={this.state.tags}
+          keyExtractor={item => "" + item.timestamp}
+          ItemSeparatorComponent={this.renderItemSeparator}
+          renderItem={({item, index}) => this.renderItem(item, index)}
+        />
       </View>
     );
   }
