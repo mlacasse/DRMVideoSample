@@ -2,15 +2,11 @@ import React, { PureComponent } from 'react';
 import { View, FlatList, Text, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { DeviceInfo } from '@youi/react-native-youi';
+import { DeviceInfo, Input } from '@youi/react-native-youi';
 import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 const { Dimensions } = NativeModules;
 
-const YOStream = {
-  uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true',
-  type: 'HLS',
-}
 const CLEARStream = {
   uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
   type: 'HLS',
@@ -25,6 +21,7 @@ class AppComponent extends PureComponent {
     this.state = {
       isClear: false,
       streamInfo: this.props.streamInfo,
+      isPortrait: height > width,
       window: {
         width,  
         height,
@@ -47,30 +44,28 @@ class AppComponent extends PureComponent {
 
   componentWillMount = () => {
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
+
+    Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
+    Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   }
 
   componentWillUnmount = () => {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
-  }
 
-  toggleStreamInfo = (streamInfo) => {
-    if (this.state.isClear) {
-      this.setState({ streamInfo: this.props.streamInfo, isClear: false, tags: []  })
-    } else {
-      this.setState({ streamInfo, isClear: true, tags: [] })
-    }
+    Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
+    Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
   }
 
   handleOnOrientationChange = ({ window }) => {
-    this.setState({ window });
+    this.setState({ window, isPortrait: window.height > window.width });
   }
 
   handleOnSwipeRight = () => {
-    this.toggleStreamInfo(CLEARStream);
+    this.setState({ streamInfo: CLEARStream, isClear: true, tags: []  })
   }
 
   handleOnSwipeLeft = () => {
-    this.toggleStreamInfo(YOStream);
+    this.setState({ streamInfo: this.props.streamInfo, isClear: false, tags: [] })
   }
 
   handleOnTimedMetadata = (metadata) => {
@@ -101,6 +96,20 @@ class AppComponent extends PureComponent {
     );
   }
 
+  renderList = () => {
+    if (!this.state.isPortrait) return <View />;
+
+    return (
+      <FlatList
+        style={{ width: '100%' }}
+        data={this.state.tags}
+        keyExtractor={item => "" + item.timestamp}
+        ItemSeparatorComponent={this.renderItemSeparator}
+        renderItem={({item, index}) => this.renderItem(item, index)}
+      />
+    );
+  }
+
   render = () => {
     const { width, height } = this.state.window;
 
@@ -124,13 +133,7 @@ class AppComponent extends PureComponent {
             onSwipeRight={this.handleOnSwipeRight}
           />
         </ACScaler>
-        <FlatList
-          style={{ width: '100%' }}
-          data={this.state.tags}
-          keyExtractor={item => "" + item.timestamp}
-          ItemSeparatorComponent={this.renderItemSeparator}
-          renderItem={({item, index}) => this.renderItem(item, index)}
-        />
+        {this.renderList()}
       </View>
     );
   }
