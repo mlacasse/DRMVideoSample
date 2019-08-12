@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import { Video } from '@youi/react-native-youi';
+import { Video, Input } from '@youi/react-native-youi';
 
 import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton } from './subcomponents';
 
@@ -25,6 +25,18 @@ class ACVideo extends PureComponent {
     };
 
     this.videoPlayer = null;
+  }
+
+  componentDidMount = () => {
+    Input.addEventListener('Play', this.handleOnPlayControlPress);
+    Input.addEventListener('Pause', this.handleOnPlayControlPress);
+    Input.addEventListener('MediaPlayPause', this.handleOnPlayControlPress);
+  }
+
+  componentDidUnmount = () => {
+    Input.addRemoveListener('Play', this.handleOnPlayControlPress);
+    Input.addRemoveListener('Pause', this.handleOnPlayControlPress);
+    Input.addRemoveListener('MediaPlayPause', this.handleOnPlayControlPress);
   }
 
   calculateProgress = () => {
@@ -91,7 +103,11 @@ class ACVideo extends PureComponent {
     }
   }
 
-  handleOnPlayControlPress = () => {
+  handleOnPlayControlPress = (event) => {
+    const { keyCode, eventType } = event;
+
+    if (keyCode !== undefined && eventType !== 'up' ) return;
+
     if (this.state.isPlaying) {
       this.videoPlayer.pause();
     } else {
