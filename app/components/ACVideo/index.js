@@ -28,15 +28,17 @@ class ACVideo extends PureComponent {
   }
 
   componentDidMount = () => {
+    Input.addEventListener('Select', this.handleOnSelect);
     Input.addEventListener('Play', this.handleOnPlayControlPress);
     Input.addEventListener('Pause', this.handleOnPlayControlPress);
-    Input.addEventListener('MediaPlayPause', this.handleOnPlayControlPress);
+    Input.addEventListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
   }
 
   componentDidUnmount = () => {
+    Input.addRemoveListener('Select', this.handleOnSelect);
     Input.addRemoveListener('Play', this.handleOnPlayControlPress);
     Input.addRemoveListener('Pause', this.handleOnPlayControlPress);
-    Input.addRemoveListener('MediaPlayPause', this.handleOnPlayControlPress);
+    Input.addRemoveListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
   }
 
   calculateProgress = () => {
@@ -103,11 +105,15 @@ class ACVideo extends PureComponent {
     }
   }
 
-  handleOnPlayControlPress = (event) => {
+  handleOnMediaPlayPausePress = (event) => {
     const { keyCode, eventType } = event;
 
     if (keyCode !== undefined && eventType !== 'up' ) return;
 
+    this.handleOnPlayControlPress();
+  }
+
+  handleOnPlayControlPress = () => {
     if (this.state.isPlaying) {
       this.videoPlayer.pause();
     } else {
@@ -115,6 +121,14 @@ class ACVideo extends PureComponent {
     }
 
     this.setState({ isPlaying: !this.state.isPlaying });
+  }
+
+  handleOnSelect = (event) => {
+    const { keyCode, eventType } = event;
+
+    if (keyCode !== undefined && eventType !== 'up' ) return;
+
+    this.handleOnTap();
   }
 
   handleOnTap = () => {
@@ -156,10 +170,10 @@ class ACVideo extends PureComponent {
         <Video 
           ref={ ref => this.videoPlayer = ref }
           source={this.props.source}
-          onErrorOccurred={this.hanleOnErrorOccurred}
-          onDurationChanged={this.handleOnDurationChanged}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
+          onDurationChanged={this.handleOnDurationChanged}
+          onErrorOccurred={this.hanleOnErrorOccurred}
           onTimedMetadata={this.props.onTimedMetadata}
           onPlaying={this.handleOnPlaying}
           onPaused={this.props.onPaused}

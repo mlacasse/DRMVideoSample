@@ -13,6 +13,7 @@ class ACSwipe extends Component {
   }
 
   handleOnMoveShouldSetResponder = (evt) => {
+
     const { scale } = Dimensions.window;
     const { width } = this.props.style;
     const { pageX } = evt.nativeEvent;
