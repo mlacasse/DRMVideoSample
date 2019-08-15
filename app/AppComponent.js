@@ -5,12 +5,9 @@ import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
 import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
-const { Dimensions } = NativeModules;
+import { CLEARStream } from './store/stream';
 
-const CLEARStream = {
-  uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-  type: 'HLS',
-}
+const { Dimensions } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -21,12 +18,10 @@ class AppComponent extends PureComponent {
     this.state = {
       isClear: false,
       streamInfo: this.props.streamInfo,
-      isPortrait: height > width,
       window: {
         width,  
         height,
       },
-      tags: [],
     };
 
     // 0 = Landscape
@@ -42,14 +37,14 @@ class AppComponent extends PureComponent {
     this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   }
 
-  componentWillUnmount = () => {
+  componentDidUnmount = () => {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
@@ -57,71 +52,24 @@ class AppComponent extends PureComponent {
   }
 
   handleOnOrientationChange = ({ window }) => {
-    this.setState({ window, isPortrait: window.height > window.width });
+    this.setState({ window });
   }
 
   handleOnSwipeRight = () => {
-    this.setState({ streamInfo: CLEARStream, isClear: true, tags: []  })
+    this.setState({ streamInfo: CLEARStream })
   }
 
   handleOnSwipeLeft = () => {
-    this.setState({ streamInfo: this.props.streamInfo, isClear: false, tags: [] })
-  }
-
-  handleOnTimedMetadata = (metadata) => {
-    this.setState({ tags: [...this.state.tags, metadata.nativeEvent] });
-  }
-
-  renderItemSeparator = () => {
-    return (
-      <View style={{height: 0.5, width: '100%', backgroundColor: '#C8C8C8'}}/>
-    );
-  }
-
-  renderItem = (item, index) => {
-    const elapsed = {
-      seconds: Math.floor((item.timestamp / 1000000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
-      minutes: Math.floor((item.timestamp / (1000000*60)) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
-      hours: Math.floor((item.timestamp / (1000000*60*60)) % 60),
-    }
-
-    return(
-      <View style={{ flex: 1, flexDirection: 'column', padding: 10, backgroundColor: 'grey' }}>
-        <View style={{ flex: 1, alignItems: 'flex-end', paddingBottom: 10 }}>
-          <Text style={{ fontSize: 14, color: 'white' }}>@ {elapsed.hours}:{elapsed.minutes}:{elapsed.seconds}</Text>
-        </View>
-        <Text style={{ fontSize: 14, color: 'white', paddingBottom: 10 }}>{item.identifier}</Text>
-        <Text style={{ fontSize: 14, color: 'white' }}>{item.value}</Text>
-      </View>
-    );
-  }
-
-  renderList = () => {
-    if (!this.state.isPortrait) return <View />;
-
-    return (
-      <FlatList
-        style={{ width: '100%' }}
-        data={this.state.tags}
-        keyExtractor={item => "" + item.timestamp}
-        ItemSeparatorComponent={this.renderItemSeparator}
-        renderItem={({item, index}) => this.renderItem(item, index)}
-      />
-    );
+    this.setState({ streamInfo: this.props.streamInfo })
   }
 
   render = () => {
     const { width, height } = this.state.window;
 
     return(
-      <View style={{
-        flex: 1,
-        flexDirection: 'column',
-        alignItems: 'center',
-        backgroundColor: 'black',
-      }}>
+      <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center' }}>
         <ACScaler
-          xRatio={16}
+          xRatio={16} 
           yRatio={9}
           screenDimensions={{ width, height }}
         >
@@ -133,7 +81,6 @@ class AppComponent extends PureComponent {
             onSwipeRight={this.handleOnSwipeRight}
           />
         </ACScaler>
-        {this.renderList()}
       </View>
     );
   }
