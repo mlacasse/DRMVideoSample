@@ -41,6 +41,12 @@ class ACVideo extends PureComponent {
     Input.addRemoveListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
   }
 
+  setVideoRef = (ref) => {
+    if (ref) {
+      this.videoPlayer = ref;
+    }
+  }
+
   calculateProgress = () => {
     const { elapsed, duration } = this.state;
     return duration > 0 ? (elapsed / duration) * 100 : 0;
@@ -51,6 +57,12 @@ class ACVideo extends PureComponent {
 
     if (this.props.onCurrentTimeUpdated) {
       this.props.onCurrentTimeUpdated(this.state.elapsed);
+    }
+
+    if (this.props.getStatistics) {
+      this.videoPlayer.getStatistics().then((statistics) => {
+        this.props.getStatistics(statistics);
+      });
     }
   };
 
@@ -168,21 +180,17 @@ class ACVideo extends PureComponent {
     return(
       <View style={{ flex: 1 }}>
         <Video 
-          ref={ ref => this.videoPlayer = ref }
-          source={this.props.source}
+          ref={this.setVideoRef}
+          {...this.props}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
           onDurationChanged={this.handleOnDurationChanged}
-          onErrorOccurred={this.hanleOnErrorOccurred}
-          onTimedMetadata={this.props.onTimedMetadata}
+          onErrorOccurred={this.handleOnErrorOccurred}
           onPlaying={this.handleOnPlaying}
-          onPaused={this.props.onPaused}
           onReady={this.handleOnReady}
-          {...this.props}
         />
         <ACSwipe style={{ width, height }}
-          onSwipeLeft={this.props.onSwipeLeft}
-          onSwipeRight={this.props.onSwipeRight}
+          {...this.props}
           onTap={this.handleOnTap}
         />
         {this.renderControls()}

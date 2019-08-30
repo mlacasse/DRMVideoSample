@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, FlatList, Text, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
@@ -55,8 +55,20 @@ class AppComponent extends PureComponent {
     this.setState({ window });
   }
 
+  handleOnStateChanged = (playerState) => {
+    console.log(playerState.nativeEvent);
+  }
+
+  getStatistics = (statistics) => {
+    console.log(statistics);
+  }
+
+  handleOnTimedMetadata = (metadata) => {
+    console.log(metadata.nativeEvent);
+  }
+
   handleOnSwipeRight = () => {
-    this.setState({ streamInfo: CLEARStream })
+    this.setState({ streamInfo: CLEARStream });
   }
 
   handleOnSwipeLeft = () => {
@@ -76,9 +88,16 @@ class AppComponent extends PureComponent {
           <ACVideo 
             source={this.state.streamInfo}
             continuous={1}
+            maxBitrate={400000}
+            bufferLength={{
+              min: 5000,
+              max: 15000,
+            }}
             onTimedMetadata={this.handleOnTimedMetadata}
+            onStateChanged={this.handleOnStateChanged}
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
+            getStatistics={this.getStatistics}
           />
         </ACScaler>
       </View>
