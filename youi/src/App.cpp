@@ -2,6 +2,7 @@
 #include "App.h"
 #include "DimensionsModule.h"
 #include "OrientationLockModule.h"
+#include "DevicePowerManagementBridgeModule.h"
 
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
@@ -10,11 +11,8 @@
 #include <logging/YiLoggerHelper.h>
 #include <framework/YiFramework.h>
 
-#if defined(YI_IOS) || defined(YI_TVOS)
 #include <youireact/modules/drm/FairPlayDrmHandlerModule.h>
-#elif defined(YI_ANDROID)
 #include <youireact/modules/drm/WidevineCustomRequestDrmHandlerModule.h>
-#endif
 
 #include <network/YiHTTPService.h>
 
@@ -101,12 +99,9 @@ bool App::UserInit()
 
     bool result = PlatformApp::UserInit();
 
-#if defined(YI_IOS) || defined(YI_TVOS)
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
-#elif defined(YI_ANDROID)
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
-#endif
-
+    GetBridge().AddModule<DevicePowerManagementBridgeModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<DimensionsModule>();
 
