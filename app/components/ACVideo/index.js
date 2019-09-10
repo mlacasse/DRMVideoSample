@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
-import { View } from 'react-native';
+import { View, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input } from '@youi/react-native-youi';
 
 import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton } from './subcomponents';
+
+const { DevicePowerManagementBridge } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -28,6 +30,8 @@ class ACVideo extends PureComponent {
   }
 
   componentDidMount = () => {
+    DevicePowerManagementBridge.keepDeviceScreenOn(true);
+
     Input.addEventListener('Select', this.handleOnSelect);
     Input.addEventListener('Play', this.handleOnPlayControlPress);
     Input.addEventListener('Pause', this.handleOnPlayControlPress);
@@ -35,6 +39,8 @@ class ACVideo extends PureComponent {
   }
 
   componentDidUnmount = () => {
+    DevicePowerManagementBridge.keepDeviceScreenOn(false);
+
     Input.addRemoveListener('Select', this.handleOnSelect);
     Input.addRemoveListener('Play', this.handleOnPlayControlPress);
     Input.addRemoveListener('Pause', this.handleOnPlayControlPress);
