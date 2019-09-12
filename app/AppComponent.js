@@ -7,7 +7,7 @@ import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from '
 
 import { CLEARStream } from './store/stream';
 
-const { Dimensions } = NativeModules;
+const { Dimensions, AccessibilityInfo } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -38,6 +38,12 @@ class AppComponent extends PureComponent {
   }
 
   componentDidMount = () => {
+    if (AccessibilityInfo) {
+      AccessibilityInfo.get().then(info => {
+        console.log({ enabled: AccessibilityInfo.enabled }, JSON.stringify(info));
+      });
+    }
+
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
@@ -49,6 +55,10 @@ class AppComponent extends PureComponent {
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
+  }
+
+  getStatistics = (statistics) => {
+    console.log(statistics);
   }
 
   handleOnOrientationChange = ({ window }) => {
@@ -72,7 +82,7 @@ class AppComponent extends PureComponent {
   }
 
   handleOnSwipeLeft = () => {
-    this.setState({ streamInfo: this.props.streamInfo })
+    this.setState({ streamInfo: this.props.streamInfo });
   }
 
   render = () => {

@@ -152,6 +152,27 @@ const HLSStream16 = {
   type: 'HLS',
 };
 
+// Live VPAID
+const YoSpaceStream1 = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true',
+  type: 'HLS',
+};
+
+const YoSpaceStream2 = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.br=false&yo.ac=true', // non-vpaid
+  type: 'HLS',
+};
+
+const YoSpaceStream3 = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.ac=true', // Test stream
+  type: 'HLS',
+};
+
+const YoSpaceStream4 = {
+  uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.br=true&yo.ac=true',
+  type: 'HLS',
+}
+
 const FairPlayStream = {
   uri: 'https://dtv-latam-abc.akamaized.net/hls/live/2003011-b/dtv/dtv-latam-boomerang/master.m3u8',
   type: 'HLS',
@@ -201,6 +222,10 @@ export {
   HLSStream14,
   HLSStream15,
   HLSStream16,
+  YoSpaceStream1,
+  YoSpaceStream2,
+  YoSpaceStream3,
+  YoSpaceStream4,
   DASHStream,
   FairPlayStream,
   CLEARStream,
