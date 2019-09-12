@@ -24,6 +24,7 @@ yi_define_module(DRMVideoSample
         "YI_PROJECT_NAME=DRMVideoSample"
         "YI_PACKAGE_NAME=tv.youi.drmvideosample"
         "YI_DISPLAY_NAME=\"DRMVideoSample\""
+        "YI_JAVA_SOURCE_DIRS=java.srcDirs = [ \"${CMAKE_CURRENT_LIST_DIR}/src/main/java\" ]"
         "YI_BUILD_NUMBER=1"
         "YI_VERSION_NUMBER=1.0.0"
         "YI_API_LEVEL=21"

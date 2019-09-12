@@ -1,8 +1,10 @@
 // © You i Labs Inc. 2000-2019. All rights reserved.
 #include "App.h"
+
+#include "AccessibilityInfoModule.h"
+#include "DevicePowerManagementBridgeModule.h"
 #include "DimensionsModule.h"
 #include "OrientationLockModule.h"
-#include "DevicePowerManagementBridgeModule.h"
 
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
@@ -54,13 +56,14 @@ bool App::UserInit()
     pPreferences->Set("TAG_CYIPersistentStorePriv_Default", "ERROR");
     pPreferences->Set("TAG_CYISceneManager", "ERROR");
     pPreferences->Set("TAG_CYITransferHandle", "ERROR");
+    pPreferences->Set("TAG_CYIScreenTransitionManager", "ERROR");
+    pPreferences->Set("TAG_CYISecureStorageBridgeDefault", "ERROR");
+    pPreferences->Set("TAG_CYITCPSocketPriv_Base", "ERROR");
+    pPreferences->Set("TAG_AccessibilityInfoModule", "ERROR");
     pPreferences->Set("TAG_DecoratorMap", "ERROR");
     pPreferences->Set("TAG_EventDispatcherModule", "ERROR");
     pPreferences->Set("TAG_NativeAnimatedNodesManager", "ERROR");
-    pPreferences->Set("TAG_CYIScreenTransitionManager", "ERROR");
-    pPreferences->Set("TAG_CYISecureStorageBridgeDefault", "ERROR");
     pPreferences->Set("TAG_ShadowTree", "ERROR");
-    pPreferences->Set("TAG_CYITCPSocketPriv_Base", "ERROR");
     pPreferences->Set("TAG_Transfer", "ERROR");
     pPreferences->Set("TAG_UIManagerModule", "ERROR");
 
@@ -102,6 +105,7 @@ bool App::UserInit()
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
+    GetBridge().AddModule<AccessibilityInfoModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<DimensionsModule>();
 
