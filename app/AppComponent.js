@@ -5,7 +5,7 @@ import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
 import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
-import { YSSessionManager, YSSessionResult, YSPlayerEvents, ProtoAjax } from '../yo-ad-management.js';
+import { YSSessionManager, YSSessionResult, YSPlayerEvents, YSParseUtils, ProtoAjax } from '../yo-ad-management.js';
 
 import { DOMParser } from 'xmldom';
 
@@ -14,7 +14,6 @@ import { CLEARStream } from './store/stream';
 const { Dimensions, OrientationLock } = NativeModules;
 
 ProtoAjax.DELEGATE = (url, callbacks) => {
-
   const options = {
     method: 'GET',
     headers: {
@@ -37,7 +36,8 @@ ProtoAjax.DELEGATE = (url, callbacks) => {
 
       callbacks.onSuccess(payload);
     });
-  }).catch(error =>{
+  }).catch(error => {
+    console.log('ProtoAjax.DELEGATE', error);
     callbacks.onFailure(response);
   });
 }
@@ -48,11 +48,13 @@ class AppComponent extends PureComponent {
 
     const { width, height } = Dimensions.window;
 
+    this.tag = {};
+
     this.state = {
       isClear: false,
       streamInfo: this.props.streamInfo,
       yospaceProps: {
-        LOW_FREQ: 4000, // 4 second intervals
+        LOW_FREQ: 10000,  // 4 second intervals
         DEBUGGING: true, // verbose logging
         AD_DEBUG: true,  // ad logging
       },
@@ -63,7 +65,7 @@ class AppComponent extends PureComponent {
     };
 
     this.yospaceSessionManager = YSSessionManager.createForLive(
-      'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.ac=true&yo.av=2&yo.sl=3&',
+      'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.ac=true&',
       this.state.yospaceProps,
       this.handleYospaceInitialized
     );
@@ -89,26 +91,24 @@ class AppComponent extends PureComponent {
         console.log(`Yospace Stream: ${this.yospaceSessionManager.isYospaceStream() ? 'YES' : 'NO'}`);
 
         this.yospaceSessionManager.registerPlayer({
-          AdBreakStart: () => console.log('AdBreakStart'),
-          AdvertStart: (mediaId) => console.log('AdvertStart', mediaId),
-          AdvertEnd: (mediaId) => console.log('AdvertEnd', mediaId),
-          AdBreakEnd: () => console.log('AdBreakEnd'),
-          UpdateTimeline: (timeline) => console.log('UpdateTimeline', timeline),
-          AnalyticsFired: (call_id, call_data) => console.log('AnalyticsFired', call_id, call_data),
+          AdBreakStart: (YSAdBreak) => { console.log('Yospace Analytics: AdBreakStart', YSAdBreak); },
+          AdvertStart: (mediaId) => { console.log('Yospace Analytics: AdvertStart', mediaId); },
+          AdvertEnd: (mediaId) => { console.log('Yospace Analytics: AdvertEnd', mediaId); },
+          AdBreakEnd: (YSAdBreak) => { console.log('Yospace Analytics: AdBreakEnd', YSAdBreak); },
+          UpdateTimeline: (timeline) => { console.log('Yospace Analytics: UpdateTimeline', timeline); },
+          AnalyticsFired: (call_id, call_data) => { console.log('Yospace Analytics: AnalyticsFired', call_id, call_data); },
         });
 
         this.setState({ streamInfo: { uri: this.yospaceSessionManager.masterPlaylist(), type: 'HLS' }});
         break;
       case NOT_INITIALISED:
         console.log(`Yospace not initialised ${state} ${result}`);
-        break;
       case NO_ANALYTICS:
-      default:
         console.log(`Yospace no analytics ${state} ${result}`);
+      default:
+        this.yospaceSessionManager.shutdown();
         break;
     }
-
-    console.log('Yospace Session Manager', this.yospaceSessionManager);
   }
 
   componentDidMount = () => {
@@ -119,6 +119,10 @@ class AppComponent extends PureComponent {
   };
 
   componentDidUnmount = () => {
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.shutdown();
+    }
+
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
@@ -137,24 +141,46 @@ class AppComponent extends PureComponent {
     console.log(playerState.nativeEvent);
   };
 
-  handleOnTimedMetadata = metadata => {
-    console.log(metadata.nativeEvent);
-  };
+  handleOnTimedMetadata = (metadata) => {
+    const { identifier, timestamp, value } = metadata.nativeEvent;
 
-  handleOnSwipeRight = () => {
-    this.setState({ streamInfo: CLEARStream });
-  };
+    if (this.yospaceSessionManager) {
+      this.tag[identifier] = value;
 
-  handleOnSwipeLeft = () => {
-    this.setState({ streamInfo: this.props.streamInfo });
-  };
+      if (this.tag.YMID && this.tag.YSEQ && this.tag.YCSP && this.tag.YTYP && this.tag.YDUR) {
+        this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.METADATA, this.tag);
+        this.tag = {};
+      }
+    }
+
+    console.log(`ID3: ${timestamp} ${identifier} ${value}`);
+  }
+
+  handleOnCurrentTimeUpdated = (currentTime) => {
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.POSITION, Math.floor(currentTime / 1000));
+    }
+  }
 
   handleOnPlaybackComplete = () => {
-    this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.END);
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.END);
+    }
   }
 
   handleOnPlaying = () => {
-    this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.START);
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.FULLSCREEN, true);
+      this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.START);
+    }
+  }
+
+  handleOnSwipeRight = () => {
+    this.setState({ streamInfo: CLEARStream });
+  }
+
+  handleOnSwipeLeft = () => {
+    this.setState({ streamInfo: this.props.streamInfo });
   }
 
   render = () => {
@@ -175,12 +201,13 @@ class AppComponent extends PureComponent {
               min: 5000,
               max: 15000,
             }}
+            onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
+            onPlaybackComplete={this.handleOnPlaybackComplete}
             onTimedMetadata={this.handleOnTimedMetadata}
             onStateChanged={this.handleOnStateChanged}
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
             getStatistics={this.getStatistics}
-            onPlaybackComplete={this.handleOnPlaybackComplete}
             onPlaying={this.handleOnPlaying}
           />
         </ACScaler>
