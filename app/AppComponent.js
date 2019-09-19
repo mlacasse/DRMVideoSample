@@ -145,7 +145,17 @@ class AppComponent extends PureComponent {
     const { identifier, timestamp, value } = metadata.nativeEvent;
 
     if (this.yospaceSessionManager) {
-      this.tag[identifier] = value;
+      switch(identifier) {
+        case 'YMID':
+        case 'YSEQ':
+        case 'YCSP':
+        case 'YTYP':
+        case 'YDUR':
+          this.tag[identifier] = value;
+          break;
+        default:
+          break;
+      }
 
       if (this.tag.YMID && this.tag.YSEQ && this.tag.YCSP && this.tag.YTYP && this.tag.YDUR) {
         this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.METADATA, this.tag);
