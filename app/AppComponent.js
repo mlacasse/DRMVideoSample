@@ -167,64 +167,6 @@ class AppComponent extends PureComponent {
   handleOnTimedMetadata = (metadata) => {
     const { identifier, timestamp, value } = metadata.nativeEvent;
 
-    /*
-      Property 'YMID' = '<03313538 37313437 3535>'
-      
-      SKIP = `<`
-      UTF-8 = 03
-      DECODE 31 = U+0031 = \u0031 = &#49; = 1
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      DECODE 38 = U+0038 = \u0038 = &#56; = 8
-      DECODE 37 = U+0037 = \u0037 = &#55; = 7
-      DECODE 31 = U+0031 = \u0031 = &#49; = 1
-      DECODE 34 = U+0034 = \u0034 = &#52; = 4
-      DECODE 37 = U+0037 = \u0037 = &#55; = 7
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      SKIP = `>`
-
-      Property 'YSEQ' = '<03313a33>'
-
-      SKIP = `<`
-      UTF-8 = 03
-      DECODE 31 = U+0031 = \u0031 = &#49; = 1
-      DECODE 3a = U+003A = \u003A = &#58; = :
-      DECODE 33 = U+0033 = \u0033 = &#51; = 3
-      SKIP = `>`
-
-      Property 'YCSP' = '<03313538 37313437 3535>'
-
-      SKIP = `<`
-      UTF-8 = 03
-      DECODE 31 = U+0031 = \u0031 = &#49; = 1
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      DECODE 38 = U+0038 = \u0038 = &#56; = 8
-      DECODE 37 = U+0037 = \u0037 = &#55; = 7
-      DECODE 31 = U+0031 = \u0031 = &#49; = 1
-      DECODE 34 = U+0034 = \u0034 = &#52; = 4
-      DECODE 37 = U+0037 = \u0037 = &#55; = 7
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      DECODE 35 = U+0035 = \u0035 = &#53; = 5
-      SKIP = `>`
-
-      Property 'YTYP' = '<034d>'
-
-      SKIP = `<`
-      UTF-8 = 03
-      DECODE 4d = U+004D = \u004D = &#77; = M 
-      SKIP = `>`
-
-      Property 'YDUR' = '<0330362e 30>’
-
-      SKIP = `<`
-      UTF-8 = 03
-      DECODE 30 = U+0030 = \u0030 = &#48; = 0
-      DECODE 36 = U+0036 = \u0036 = &#54; = 6
-      DECODE 2e = U+002E = \u002E = &#46; = .
-      DECODE 30 = U+0030 = \u0030 = &#48; = 0
-      SKIP = `>`
-    */
-
     if (this.yospaceSessionManager) {
       switch(identifier) {
         case 'YMID':
