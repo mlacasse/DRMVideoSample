@@ -13,8 +13,25 @@ import { CLEARStream } from './store/stream';
 
 const { Dimensions, OrientationLock } = NativeModules;
 
+self.Image = () => {};
+
+Object.defineProperty(Image.prototype, 'src', {
+  get() { return src; },
+  set(url) {
+    fetch(url).then(response => {
+      console.log('Image Polyfill Success!', url, response);
+    }).catch(error => {
+      console.log('Image Polyfill Failed!', url, error);
+    });
+    src = url;
+  },
+  configurable: true
+});  
+
 const isUnicode = (raw) => {
   const capture = raw.match(/^<03(.*)>$/);
+  if (!capture) return false;
+
   return capture.length === 2 ? true : false;
 }
 
@@ -184,9 +201,9 @@ class AppComponent extends PureComponent {
         this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.METADATA, this.tag);
         this.tag = {};
       }
+    } else {
+      console.log(`Timed Metadata: ${timestamp} ${identifier} ${value}`);
     }
-
-    console.log(`ID3: ${timestamp} ${identifier} ${value}`);
   }
 
   handleOnCurrentTimeUpdated = (currentTime) => {
