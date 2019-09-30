@@ -124,6 +124,9 @@ class AppComponent extends PureComponent {
       this.handleYospaceInitialized
     );
 
+     // Necessary to ensure the Image polyfill isn't stripped out when packaged.
+    _image = new Image;
+
     // 0 = Landscape
     // 1 = Portrait
     // 2 = Auto
