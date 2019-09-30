@@ -10,15 +10,14 @@
 
 using namespace yi::react;
 
-AccessibilityInfoModule::AccessibilityInfoModule():
-  genericFeedbackEnabled(false),
-  hapticFeedbackEnabled(false),
-  visualFeedbackEnabled(false),
-  brailleFeedbackEnabled(false) {
-    selectionFeedbackEnabled = UIAccessibilityIsSpeakSelectionEnabled();
-    audibleFeedbackEnabled = UIAccessibilityIsVoiceOverRunning();
-    spokenFeedbackEnabled = UIAccessibilityIsSpeakScreenEnabled();
-
-    accessibilityEnabled = selectionFeedbackEnabled || audibleFeedbackEnabled || spokenFeedbackEnabled;
+YI_RN_DEFINE_EXPORT_METHOD(AccessibilityInfoModule, get)(Callback successCallback, Callback failedCallback)
+{
+    folly::dynamic accessibilityInfo = folly::dynamic::object;
+    
+    accessibilityInfo["selection"] = ToDynamic(UIAccessibilityIsSpeakSelectionEnabled());
+    accessibilityInfo["audible"] = ToDynamic(UIAccessibilityIsVoiceOverRunning());
+    accessibilityInfo["spoken"] = ToDynamic(UIAccessibilityIsSpeakScreenEnabled());
+    
+    successCallback({ ToDynamic(accessibilityInfo) });
 }
 #endif

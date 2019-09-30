@@ -14,19 +14,7 @@ public:
 
     AccessibilityInfoModule();
 
-    YI_RN_EXPORT_CONSTANT(enabled);
     YI_RN_EXPORT_METHOD(get)(Callback successCallback, Callback failedCallback);
-
-private:
-    bool  accessibilityEnabled;
-
-    bool audibleFeedbackEnabled;
-    bool genericFeedbackEnabled;
-    bool hapticFeedbackEnabled;
-    bool spokenFeedbackEnabled;
-    bool selectionFeedbackEnabled;
-    bool visualFeedbackEnabled;
-    bool brailleFeedbackEnabled;
 };
 
 } // namespace react

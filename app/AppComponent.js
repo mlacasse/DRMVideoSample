@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, AppState, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
@@ -46,6 +46,8 @@ class AppComponent extends PureComponent {
 
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
 
+    AppState.addEventListener('change', this.handleAppStateChange);
+
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   }
@@ -53,12 +55,22 @@ class AppComponent extends PureComponent {
   componentDidUnmount = () => {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
 
+    AppState.removeEventListener('change', this.handleAppStateChange);
+
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
   }
 
   getStatistics = (statistics) => {
     console.log(statistics);
+  }
+
+  handleAppStateChange = newAppState => {
+    if (newAppState === 'active') {
+      AccessibilityInfo.get()
+        .then(info => console.log('AccessibilityInfo', info))
+        .catch(error => console.error('AccessibilityInfo', error));
+    }
   }
 
   handleOnOrientationChange = ({ window }) => {
