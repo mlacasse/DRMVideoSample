@@ -1,9 +1,6 @@
 #include "AccessibilityInfoModule.h"
 
-#include <logging/YiLogger.h>
 #include <youireact/YiReactNativeView.h>
-
-#define LOG_TAG "AccessibilityInfoModule"
 
 using namespace yi::react;
 

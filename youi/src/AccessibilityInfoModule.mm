@@ -1,22 +1,23 @@
-#if defined(YI_IOS)
+#if defined(YI_IOS) || defined(YI_TVOS)
 #include "AccessibilityInfoModule.h"
 
-#include <logging/YiLogger.h>
 #include <youireact/YiReactNativeView.h>
 
 #import <UIKit/UIKit.h>
-
-#define LOG_TAG "AccessibilityInfoModule"
 
 using namespace yi::react;
 
 YI_RN_DEFINE_EXPORT_METHOD(AccessibilityInfoModule, get)(Callback successCallback, Callback failedCallback)
 {
+    bool selectionEnabled = UIAccessibilityIsSpeakSelectionEnabled();
+    bool audibleEnabled = UIAccessibilityIsVoiceOverRunning();
+    bool spoken = UIAccessibilityIsSpeakScreenEnabled();
+
     folly::dynamic accessibilityInfo = folly::dynamic::object;
-    
-    accessibilityInfo["selection"] = ToDynamic(UIAccessibilityIsSpeakSelectionEnabled());
-    accessibilityInfo["audible"] = ToDynamic(UIAccessibilityIsVoiceOverRunning());
-    accessibilityInfo["spoken"] = ToDynamic(UIAccessibilityIsSpeakScreenEnabled());
+
+    accessibilityInfo["selection"] = ToDynamic(selectionEnabled);
+    accessibilityInfo["audible"] = ToDynamic(audibleEnabled);
+    accessibilityInfo["spoken"] = ToDynamic(spoken);
     
     successCallback({ ToDynamic(accessibilityInfo) });
 }

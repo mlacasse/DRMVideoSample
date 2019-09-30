@@ -39,9 +39,9 @@ class AppComponent extends PureComponent {
 
   componentDidMount = () => {
     if (AccessibilityInfo) {
-      AccessibilityInfo.get().then(info => {
-        console.log({ enabled: AccessibilityInfo.enabled }, JSON.stringify(info));
-      });
+      AccessibilityInfo.get()
+        .then(info => console.log('AccessibilityInfo', info))
+        .catch(error => console.error('AccessibilityInfo', error));
     }
 
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
