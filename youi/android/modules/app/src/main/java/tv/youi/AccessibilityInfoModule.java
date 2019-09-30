@@ -11,24 +11,6 @@ import java.util.List;
 public class AccessibilityInfoModule {
     private static final String TAG = "AccessibilityInfoModule";
 
-    static public boolean _enabled(Context context) {
-        boolean result = false;
-
-        try {
-            AccessibilityManager manager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-
-            if (manager != null) {
-                result = manager.isEnabled();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "_enabled: " + e.getLocalizedMessage());
-        }
-
-        Log.d(TAG, "_enabled: " + result);
-
-        return result;
-    }
-
     static public boolean _audible(Context context) {
         boolean result = false;
 
