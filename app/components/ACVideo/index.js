@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules } from 'react-native';
+import { View, AppState, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input } from '@youi/react-native-youi';
 
@@ -29,8 +29,14 @@ class ACVideo extends PureComponent {
     this.videoPlayer = null;
   }
 
+  getStatistics = (statistics) => {
+    console.log(statistics);
+  }
+
   componentDidMount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
+
+    AppState.addEventListener('change', this.handleAppStateChange);
 
     Input.addEventListener('Select', this.handleOnSelect);
     Input.addEventListener('Play', this.handleOnPlayControlPress);
@@ -40,6 +46,8 @@ class ACVideo extends PureComponent {
 
   componentDidUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
+
+    AppState.removeEventListener('change', this.handleAppStateChange);
 
     Input.addRemoveListener('Select', this.handleOnSelect);
     Input.addRemoveListener('Play', this.handleOnPlayControlPress);
@@ -56,6 +64,14 @@ class ACVideo extends PureComponent {
   calculateProgress = () => {
     const { elapsed, duration } = this.state;
     return duration > 0 ? (elapsed / duration) * 100 : 0;
+  }
+
+  handleAppStateChange = newAppState => {
+    if (newAppState === 'active') {
+      if (this.state.isPlaying) {
+        this.videoPlayer.play();
+      }
+    }
   }
 
   handleOnCurrentTimeUpdated = currentTime => {
