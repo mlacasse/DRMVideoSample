@@ -1,7 +1,6 @@
 // © You i Labs Inc. 2000-2019. All rights reserved.
 #include "App.h"
 
-#include "AccessibilityInfoModule.h"
 #include "DevicePowerManagementBridgeModule.h"
 #include "DimensionsModule.h"
 #include "OrientationLockModule.h"
@@ -105,7 +104,6 @@ bool App::UserInit()
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
-    GetBridge().AddModule<AccessibilityInfoModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<DimensionsModule>();
 
