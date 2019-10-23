@@ -1,19 +1,19 @@
 import React, { PureComponent } from 'react';
-import { View, AppState, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { DeviceInfo, Input } from '@youi/react-native-youi';
+import { DeviceInfo, Dimensions, Input } from '@youi/react-native-youi';
 import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 import { CLEARStream } from './store/stream';
 
-const { Dimensions, AccessibilityInfo } = NativeModules;
+const { OrientationLock } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
     super(props);
 
-    const { width, height } = Dimensions.window;
+    const { width, height } = Dimensions.get('window');
 
     this.state = {
       isClear: false,
@@ -32,30 +32,18 @@ class AppComponent extends PureComponent {
     // 5 = PortraitUpright
     // 6 = AutoUpright
 
-    NativeModules.OrientationLock.setRotationMode(6);
-
-    this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
+    OrientationLock.setRotationMode(6);
   }
 
   componentDidMount = () => {
-    if (AccessibilityInfo) {
-      AccessibilityInfo.get()
-        .then(info => console.log('AccessibilityInfo', info))
-        .catch(error => console.error('AccessibilityInfo', error));
-    }
-
-    this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
-
-    AppState.addEventListener('change', this.handleAppStateChange);
+    Dimensions.addEventListener('change', this.handleOnOrientationChange);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   }
 
   componentDidUnmount = () => {
-    this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
-
-    AppState.removeEventListener('change', this.handleAppStateChange);
+    Dimensions.addEventListener('change', this.handleOnOrientationChange);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
@@ -63,14 +51,6 @@ class AppComponent extends PureComponent {
 
   getStatistics = (statistics) => {
     console.log(statistics);
-  }
-
-  handleAppStateChange = newAppState => {
-    if (newAppState === 'active') {
-      AccessibilityInfo.get()
-        .then(info => console.log('AccessibilityInfo', info))
-        .catch(error => console.error('AccessibilityInfo', error));
-    }
   }
 
   handleOnOrientationChange = ({ window }) => {

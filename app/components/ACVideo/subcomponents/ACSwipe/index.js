@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { View, NativeModules } from 'react-native';
-
-const { Dimensions } = NativeModules;
+import { View } from 'react-native';
 
 class ACSwipe extends Component {
   constructor(props) {
@@ -13,14 +11,14 @@ class ACSwipe extends Component {
   }
 
   handleOnMoveShouldSetResponder = (evt) => {
-
-    const { scale } = Dimensions.window;
     const { width } = this.props.style;
     const { pageX } = evt.nativeEvent;
 
-    const isFarLeft = pageX < Math.floor(width * scale * 0.25);
-    const isFarRight = pageX > Math.floor(width * scale * 0.75);
-    const isMiddle = pageX > Math.floor(width * scale * 0.25) && pageX < Math.floor(width * scale * 0.75);
+    console.log(pageX);
+
+    const isFarLeft = pageX < Math.floor(width * 0.25);
+    const isFarRight = pageX > Math.floor(width * 0.75);
+    const isMiddle = pageX > Math.floor(width * 0.25) && pageX < Math.floor(width * 0.75);
 
     if (isFarLeft || isFarRight) {
       this.setState({ start: isFarLeft ? 'left' : 'right' });
@@ -33,13 +31,12 @@ class ACSwipe extends Component {
 
   handleOnResponderRelease = (evt) => {
     const { start } = this.state;
-    const { scale } = Dimensions.window;
     const { width } = this.props.style;
     const { pageX } = evt.nativeEvent;
 
-    if (start === 'left' && Math.floor(pageX) > width * scale / 2) {
+    if (start === 'left' && Math.floor(pageX) > width / 2) {
       this.handleOnSwipeRight();
-    } else if (start === 'right' && Math.floor(pageX) < width * scale / 2) {
+    } else if (start === 'right' && Math.floor(pageX) < width / 2) {
       this.handleOnSwipeLeft();
     } else if (start === 'middle') {
       this.handleOnTap();
@@ -76,7 +73,7 @@ class ACSwipe extends Component {
         style={{ ...this.props.style, position: 'absolute' }}
         onMoveShouldSetResponder={this.handleOnMoveShouldSetResponder}
         onResponderRelease={this.handleOnResponderRelease}
-        onResponderTerminationRequest={(evt) => true}
+        onResponderTerminationRequest={evt => true}
         onResponderTerminate={this.handleOnResponderTerminate}
       />
     );
