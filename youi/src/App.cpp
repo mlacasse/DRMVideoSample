@@ -3,6 +3,7 @@
 
 #include "DevicePowerManagementBridgeModule.h"
 #include "OrientationLockModule.h"
+#include "TrackpadModule.h"
 
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
@@ -104,6 +105,7 @@ bool App::UserInit()
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
     GetBridge().AddModule<OrientationLockModule>();
+    GetBridge().AddModule<TrackpadModule>();
 
     return result;
 }
