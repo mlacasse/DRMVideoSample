@@ -2,7 +2,6 @@
 #include "App.h"
 
 #include "DevicePowerManagementBridgeModule.h"
-#include "DimensionsModule.h"
 #include "OrientationLockModule.h"
 
 #include <cxxreact/JSBigString.h>
@@ -105,7 +104,6 @@ bool App::UserInit()
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
     GetBridge().AddModule<OrientationLockModule>();
-    GetBridge().AddModule<DimensionsModule>();
 
     return result;
 }
