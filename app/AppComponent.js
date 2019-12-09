@@ -42,24 +42,42 @@ Object.defineProperty(Image.prototype, 'src', {
   configurable: true
 });  
 
-const isUnicode = (raw) => {
-  const capture = raw.match(/^<03(.*)>$/);
-  if (!capture) return false;
+// Based on platform and OS version you will either get this
 
-  return capture.length === 2 ? true : false;
-}
+// Property 'YMID' = '<03313538 37313436 3539>'
+// Property 'YSEQ' = '<03313a31>'
+// Property 'YCSP' = '<03313538 37313436 3539>'
+// Property 'YTYP' = '<034d>'
+// Property 'YDUR' = '<0330352e 36>'
 
-const unicode2text = (raw) => {
+// or that
+
+// Property 'YMID' = '{length = 10, bytes = 0x03313538373134363539}'
+// Property 'YSEQ' = '{length = 4, bytes = 0x03313a31}'
+// Property 'YCSP' = '{length = 10, bytes = 0x03313538373134363539}'
+// Property 'YTYP' = '{length = 2, bytes = 0x034d}'
+// Property 'YDUR' = '{length = 5, bytes = 0x0330352e36}'
+
+const isUnicode = raw => {
+  const capture = raw.match(/03(.*)[}|>]$/);
+  if (!capture) {
+    return false;
+  }
+
+  return capture.length === 2;
+};
+
+const unicode2text = raw => {
   let ret = '';
 
   try {
-    const capture = raw.replace(/\s/gi,'').match(/^<03(.*)>$/);
+    const capture = raw.replace(/\s/gi,'').match(/03(.*)[}|>]$/);
     const array = capture[1].match(/.{1,2}/g);
   
     array.forEach(data => {
       ret += String.fromCharCode(parseInt(data, 16));
     });
-  } catch(error) {
+  } catch (error) {
     console.log('unicode2text', error);
     return '';
   }
@@ -204,6 +222,10 @@ class AppComponent extends PureComponent {
     if (this.yospaceSessionManager) {
       switch(identifier) {
         case 'YMID':
+          if (this.tag.YMID && this.tag.YSEQ && this.tag.YCSP && this.tag.YTYP && this.tag.YDUR) {
+            this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.METADATA, this.tag);
+            this.tag = {};
+          }      
         case 'YSEQ':
         case 'YCSP':
         case 'YTYP':
@@ -212,11 +234,6 @@ class AppComponent extends PureComponent {
           break;
         default:
           break;
-      }
-
-      if (this.tag.YMID && this.tag.YSEQ && this.tag.YCSP && this.tag.YTYP && this.tag.YDUR) {
-        this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.METADATA, this.tag);
-        this.tag = {};
       }
     } else {
       console.log(`Timed Metadata: ${timestamp} ${identifier} ${value}`);
@@ -243,10 +260,18 @@ class AppComponent extends PureComponent {
   }
 
   handleOnSwipeRight = () => {
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.shutdown();
+    }
+
     this.setState({ streamInfo: CLEARStream });
   }
 
   handleOnSwipeLeft = () => {
+    if (this.yospaceSessionManager) {
+      this.yospaceSessionManager.shutdown();
+    }
+
     this.setState({ streamInfo: this.props.streamInfo });
   }
 
