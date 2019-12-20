@@ -5,6 +5,8 @@
 #include "OrientationLockModule.h"
 #include "TrackpadModule.h"
 
+#include <appium/YiWebDriverLocator.h>
+
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
 
@@ -27,6 +29,13 @@ using namespace yi::react;
 
 bool App::UserInit()
 {
+    // Start the web driver for allowing the use of Appium.
+    CYIWebDriver *pWebDriver = CYIWebDriverLocator::GetWebDriver();
+    if (pWebDriver)
+    {
+        pWebDriver->Start();
+    }
+
     enum
     {
       /** This value was picked through trial and error.
