@@ -32,20 +32,20 @@ TrackpadModule::~TrackpadModule()
 void TrackpadModule::StartObserving()
 {
     auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
-    pSceneManager->AddGlobalEventListener(YI_TRACKPAD_MOVE, this);
+    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
 }
 
 void TrackpadModule::StopObserving()
 {
     auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
-    pSceneManager->RemoveGlobalEventListener(YI_TRACKPAD_MOVE, this);
+    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
 }
 
 bool TrackpadModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent)
 {
     YI_UNUSED(pDispatcher);
     
-    if (!pEvent->IsTrackpadEvent() || (pEvent->m_pTarget != pEvent->m_pCurrentTarget) || pEvent->GetType() != YI_TRACKPAD_MOVE)
+    if (!pEvent->IsTrackpadEvent() || (pEvent->m_pTarget != pEvent->m_pCurrentTarget) || pEvent->GetType() !=  CYIEvent::Type::TrackpadMove)
     {
         return false;
     }

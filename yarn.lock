@@ -730,10 +730,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@youi/react-native-youi@5.7.0":
-  version "5.7.0"
-  resolved "https://youi.jfrog.io/youi/api/npm/jspkg/@youi/react-native-youi/-/@youi/react-native-youi-5.7.0.tgz#de512a12976076df3b20b61a299a7dbe599a58a9"
-  integrity sha1-3lEqEpdgdt87ILYaKZp9vlmaWKk=
+"@youi/react-native-youi@5.8.0":
+  version "5.8.0"
+  resolved "https://youi.jfrog.io/youi/api/npm/jspkg/@youi/react-native-youi/-/@youi/react-native-youi-5.8.0.tgz#5eda8ab822b2c8dc78c5e6cfe8379d1b27a2810f"
+  integrity sha1-XtqKuCKyyNx4xebP6DedGyeigQ8=
   dependencies:
     "@babel/core" "7.0.0"
     create-react-class "^15.6.3"
