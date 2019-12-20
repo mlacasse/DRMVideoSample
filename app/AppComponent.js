@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { View, NativeModules } from 'react-native';
+import { BackHandler } from '@youi/react-native-youi';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Dimensions, Input } from '@youi/react-native-youi';
@@ -37,47 +38,49 @@ class AppComponent extends PureComponent {
 
   componentDidMount = () => {
     Dimensions.addEventListener('change', this.handleOnOrientationChange);
+    BackHandler.addEventListener('hardwareBackPress', this.handleOnBackPress);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
-  }
+  };
 
   componentDidUnmount = () => {
     Dimensions.addEventListener('change', this.handleOnOrientationChange);
+    BackHandler.removeEventListener('hardwareBackPress', this.handleOnBackPress);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
-  }
+  };
 
-  getStatistics = (statistics) => {
+  getStatistics = statistics => {
     console.log(statistics);
-  }
+  };
+
+  handleOnBackPress = () => {
+    console.log('handleOnBackPress');
+  };
 
   handleOnOrientationChange = ({ window }) => {
     this.setState({ window });
-  }
+  };
 
-  handleOnStateChanged = (playerState) => {
+  handleOnStateChanged = playerState => {
     console.log(playerState.nativeEvent);
-  }
+  };
 
-  getStatistics = (statistics) => {
-    console.log(statistics);
-  }
-
-  handleOnTimedMetadata = (metadata) => {
+  handleOnTimedMetadata = metadata => {
     console.log(metadata.nativeEvent);
-  }
+  };
 
   handleOnSwipeRight = () => {
     this.setState({ streamInfo: CLEARStream });
-  }
+  };
 
   handleOnSwipeLeft = () => {
     this.setState({ streamInfo: this.props.streamInfo });
-  }
+  };
 
-  render = () => {
+  render() {
     const { width, height } = this.state.window;
 
     return(
