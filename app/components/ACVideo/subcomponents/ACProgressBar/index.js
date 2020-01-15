@@ -1,6 +1,7 @@
 import React from 'react';
+import { View } from 'react-native';
 import PropTypes from 'prop-types';
-import { View, FormFactor } from '@youi/react-native-youi';
+import { FormFactor } from '@youi/react-native-youi';
 
 import { ACVideoStyles } from '../styles';
 

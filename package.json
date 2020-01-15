@@ -8,7 +8,7 @@
 	},
 	"dependencies": {
 		"@babel/core": "7.0.0",
-		"@youi/react-native-youi": "5.8.0",
+		"@youi/react-native-youi": "5.9.1",
 		"babel-preset-react-native": "4.0.0",
 		"base-64": "^0.1.0",
 		"metro-react-native-babel-preset": "^0.45.0",
@@ -23,17 +23,25 @@
 		"babel-preset-env": "^1.7.0",
 		"babel-preset-react": "^6.24.1",
 		"babel-register": "^6.26.0",
-		"jest": "^23.4.1",
+		"jest": "^24.0.0",
 		"react-test-renderer": "^16.6.3"
 	},
 	"jest": {
-		"preset": "@youi/react-native-youi",
-		"transform": {
-			"^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
-		},
-		"testPathIgnorePatterns": [
-			"/node_modules/",
-			"/appium/"
-		]
+    "preset": "./jest-config/jest-preset.json",
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/appium/"
+    ],
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!react-native|react-navigation|@youi)"
+    ],
+    "collectCoverageFrom": [
+      "**/**/*.js",
+      "!/node_modules/**"
+    ],
+    "setupTestFrameworkScriptFile": "./jest-config"
 	}
 }
