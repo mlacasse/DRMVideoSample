@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, Dimensions, NativeModules } from 'react-native';
+import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
@@ -7,13 +7,13 @@ import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from '
 
 import { CLEARStream } from './store/stream';
 
-const { OrientationLock } = NativeModules;
+const { Dimensions, OrientationLock } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
     super(props);
 
-    const { width, height } = Dimensions.get('window');
+    const { width, height } = Dimensions.window;
 
     this.state = {
       isClear: false,
@@ -33,17 +33,19 @@ class AppComponent extends PureComponent {
     // 6 = AutoUpright
 
     OrientationLock.setRotationMode(6);
+
+    this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
   }
 
   componentDidMount = () => {
-    Dimensions.addEventListener('change', this.handleOnOrientationChange);
+    this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   };
 
   componentDidUnmount = () => {
-    Dimensions.addEventListener('change', this.handleOnOrientationChange);
+    this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
@@ -53,7 +55,7 @@ class AppComponent extends PureComponent {
     console.log(statistics);
   };
 
-  handleOnOrientationChange = ({ window }) => {
+  handleOnOrientationChange = ({ window })=> {
     this.setState({ window });
   };
 

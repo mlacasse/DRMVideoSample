@@ -12,8 +12,8 @@ const ACVideoStyles = {
     marginRight: 5,
   },
   playBackIcon: {
-    width: FormFactor.isHandset ? 20 : 40,
-    height: FormFactor.isHandset ? 20 : 40,
+    width: 40,
+    height: 40,
   },
   progressBarStyle: {
     flex: 1,
@@ -24,12 +24,12 @@ const ACVideoStyles = {
   },
   trackStyle: {
     backgroundColor: '#DEDEDE',
-    height: FormFactor.isHandset ? 5 : 10,
+    height: 10,
     width: '100%'
   },
   trackFillStyle: {
     backgroundColor: 'red',
-    height: FormFactor.isHandset ? 5 : 10,
+    height: 10,
     width: '100%'
   },
 };
