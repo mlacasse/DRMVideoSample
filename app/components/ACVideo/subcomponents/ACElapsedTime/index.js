@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Text } from '@youi/react-native-youi';
+import { Text } from 'react-native';
 import PropTypes from 'prop-types';
 
 import { ACVideoStyles } from '../styles';

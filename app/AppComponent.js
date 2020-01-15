@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules } from 'react-native';
-import { BackHandler } from '@youi/react-native-youi';
+import { View, BackHandler, Dimensions, NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { DeviceInfo, Dimensions, Input } from '@youi/react-native-youi';
+import { DeviceInfo, Input } from '@youi/react-native-youi';
 import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 import { CLEARStream } from './store/stream';
