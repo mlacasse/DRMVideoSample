@@ -64,14 +64,6 @@ const DASHStream6 = {
   type: 'DASH',
 };
 
-const HLSFairPlayStream = {
-  uri: 'https://dtv-latam-abc.akamaized.net/hls/live/2003011-b/dtv/dtv-latam-boomerang/master.m3u8',
-  type: 'HLS',
-  assetId: 'c0fe1b7d2de4e5b94dc821091e5b2150',
-  drmScheme: 'fairplay',
-  drmInfo: null,
-};
-
 const HLSStream1 = {
   uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
   type: 'HLS',
