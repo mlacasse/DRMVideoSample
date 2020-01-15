@@ -86,7 +86,7 @@ class AppComponent extends PureComponent {
         this.yospaceSessionManager.shutdown();
         break;
     }
-  }
+  };
 
   componentDidMount = () => {
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
@@ -115,7 +115,7 @@ class AppComponent extends PureComponent {
     console.log(playerState.nativeEvent);
   };
 
-  handleOnTimedMetadata = (metadata) => {
+  handleOnTimedMetadata = metadata => {
     const { identifier, timestamp, value } = metadata.nativeEvent;
 
     if (this.yospaceSessionManager) {
@@ -137,26 +137,26 @@ class AppComponent extends PureComponent {
     } else {
       console.log(`Timed Metadata: ${timestamp} ${identifier} ${value}`);
     }
-  }
+  };
 
-  handleOnCurrentTimeUpdated = (currentTime) => {
+  handleOnCurrentTimeUpdated = currentTime => {
     if (this.yospaceSessionManager) {
       this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.POSITION, Math.floor(currentTime / 1000));
     }
-  }
+  };
 
   handleOnPlaybackComplete = () => {
     if (this.yospaceSessionManager) {
       this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.END);
     }
-  }
+  };
 
   handleOnPlaying = () => {
     if (this.yospaceSessionManager) {
       this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.FULLSCREEN, true);
       this.yospaceSessionManager.reportPlayerEvent(YSPlayerEvents.START);
     }
-  }
+  };
 
   handleOnSwipeRight = () => {
     if (this.yospaceSessionManager) {
@@ -164,7 +164,7 @@ class AppComponent extends PureComponent {
     }
 
     this.setState({ streamInfo: CLEARStream });
-  }
+  };
 
   handleOnSwipeLeft = () => {
     if (this.yospaceSessionManager) {
@@ -172,9 +172,9 @@ class AppComponent extends PureComponent {
     }
 
     this.setState({ streamInfo: this.props.streamInfo });
-  }
+  };
 
-  render = () => {
+  render() {
     const { width, height } = this.state.window;
 
     return(
@@ -205,7 +205,7 @@ class AppComponent extends PureComponent {
       </View>
     );
   }
-};
+}
 
 const mapStateToProps = state => {
   const { streamInfo } = state;

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { createRef, PureComponent } from 'react';
 import { View, AppState, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input } from '@youi/react-native-youi';
@@ -11,6 +11,14 @@ class ACVideo extends PureComponent {
   static propTypes = {
     source: PropTypes.object.isRequired,
     style: PropTypes.object.isRequired,
+    continuous: PropTypes.bool,
+    onCurrentTimeUpdated: PropTypes.func,
+    onPlaybackComplete: PropTypes.func,
+    onDurationChanged: PropTypes.func,
+    onErrorOccurred: PropTypes.func,
+    onPlaying: PropTypes.func,
+    onTap: PropTypes.func,
+    getStatistics: PropTypes.func,
   };
 
   constructor(props) {
@@ -26,7 +34,7 @@ class ACVideo extends PureComponent {
       isLive: false,
     };
 
-    this.videoPlayer = null;
+    this.videoPlayer = createRef();
   }
 
   componentDidMount = () => {
@@ -55,12 +63,6 @@ class ACVideo extends PureComponent {
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
   }
 
-  setVideoRef = (ref) => {
-    if (ref) {
-      this.videoPlayer = ref;
-    }
-  }
-
   calculateProgress = () => {
     const { elapsed, duration } = this.state;
     return duration > 0 ? (elapsed / duration) * 100 : 0;
@@ -69,7 +71,7 @@ class ACVideo extends PureComponent {
   handleAppStateChange = newAppState => {
     if (newAppState === 'active') {
       if (this.state.isPlaying) {
-        this.videoPlayer.play();
+        this.videoPlayer.current.play();
       }
     }
   }
@@ -82,7 +84,7 @@ class ACVideo extends PureComponent {
     }
 
     if (this.props.getStatistics) {
-      this.videoPlayer.getStatistics().then((statistics) => {
+      this.videoPlayer.current.getStatistics().then((statistics) => {
         this.props.getStatistics(statistics);
       });
     }
@@ -100,7 +102,7 @@ class ACVideo extends PureComponent {
     this.setState({ isReady: true });
 
     if (this.videoPlayer) {
-      this.videoPlayer.play();
+      this.videoPlayer.current.play();
     }
   }
 
@@ -120,7 +122,7 @@ class ACVideo extends PureComponent {
     }
 
     if (this.videoPlayer) {
-      this.videoPlayer.stop();
+      this.videoPlayer.current.stop();
     }
   }
 
@@ -129,8 +131,8 @@ class ACVideo extends PureComponent {
       if (this.videoPlayer) {
         this.setState({ elapsed: 0 });
     
-        this.videoPlayer.seek(0);
-        this.videoPlayer.play();
+        this.videoPlayer.current.seek(0);
+        this.videoPlayer.current.play();
       }
     }
 
@@ -149,9 +151,9 @@ class ACVideo extends PureComponent {
 
   handleOnPlayControlPress = () => {
     if (this.state.isPlaying) {
-      this.videoPlayer.pause();
+      this.videoPlayer.current.pause();
     } else {
-      this.videoPlayer.play();
+      this.videoPlayer.current.play();
     }
 
     this.setState({ isPlaying: !this.state.isPlaying });
@@ -202,7 +204,7 @@ class ACVideo extends PureComponent {
     return(
       <View style={{ flex: 1 }}>
         <Video 
-          ref={this.setVideoRef}
+          ref={this.videoPlayer}
           {...this.props}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
