@@ -14,8 +14,6 @@ class ACSwipe extends Component {
     const { width } = this.props.style;
     const { pageX } = evt.nativeEvent;
 
-    console.log(pageX);
-
     const isFarLeft = pageX < Math.floor(width * 0.25);
     const isFarRight = pageX > Math.floor(width * 0.75);
     const isMiddle = pageX > Math.floor(width * 0.25) && pageX < Math.floor(width * 0.75);

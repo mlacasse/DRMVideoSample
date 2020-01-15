@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, BackHandler, Dimensions, NativeModules } from 'react-native';
+import { View, Dimensions, NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input } from '@youi/react-native-youi';
@@ -37,7 +37,6 @@ class AppComponent extends PureComponent {
 
   componentDidMount = () => {
     Dimensions.addEventListener('change', this.handleOnOrientationChange);
-    BackHandler.addEventListener('hardwareBackPress', this.handleOnBackPress);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
@@ -45,7 +44,6 @@ class AppComponent extends PureComponent {
 
   componentDidUnmount = () => {
     Dimensions.addEventListener('change', this.handleOnOrientationChange);
-    BackHandler.removeEventListener('hardwareBackPress', this.handleOnBackPress);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
@@ -53,10 +51,6 @@ class AppComponent extends PureComponent {
 
   getStatistics = statistics => {
     console.log(statistics);
-  };
-
-  handleOnBackPress = () => {
-    console.log('handleOnBackPress');
   };
 
   handleOnOrientationChange = ({ window }) => {

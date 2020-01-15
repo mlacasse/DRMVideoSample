@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, AppState, NativeModules } from 'react-native';
+import { View, AppState, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input } from '@youi/react-native-youi';
 
@@ -42,6 +42,8 @@ class ACVideo extends PureComponent {
     Input.addEventListener('Play', this.handleOnPlayControlPress);
     Input.addEventListener('Pause', this.handleOnPlayControlPress);
     Input.addEventListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
+
+    BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
   }
 
   componentDidUnmount = () => {
@@ -53,6 +55,8 @@ class ACVideo extends PureComponent {
     Input.addRemoveListener('Play', this.handleOnPlayControlPress);
     Input.addRemoveListener('Pause', this.handleOnPlayControlPress);
     Input.addRemoveListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
+
+    BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
   }
 
   setVideoRef = (ref) => {
