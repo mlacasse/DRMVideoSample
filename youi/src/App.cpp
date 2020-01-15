@@ -2,6 +2,7 @@
 #include "App.h"
 
 #include "DevicePowerManagementBridgeModule.h"
+#include "DimensionsModule.h"
 #include "OrientationLockModule.h"
 #include "TrackpadModule.h"
 
@@ -113,6 +114,7 @@ bool App::UserInit()
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
+    GetBridge().AddModule<DimensionsModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<TrackpadModule>();
 

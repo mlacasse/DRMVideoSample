@@ -29,10 +29,6 @@ class ACVideo extends PureComponent {
     this.videoPlayer = null;
   }
 
-  getStatistics = (statistics) => {
-    console.log(statistics);
-  }
-
   componentDidMount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 

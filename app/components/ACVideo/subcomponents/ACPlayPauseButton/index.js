@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Image } from 'react-native';
-
-import ACTouchable from '../../../ACTouchable';
+import { Image, TouchableOpacity } from 'react-native';
 
 import { ACVideoStyles } from '../styles';
 
@@ -13,9 +11,9 @@ const ACPlayPauseButton = props => {
   const { onPlayControlPress, isPlaying } = props;
 
   return (
-    <ACTouchable style={ACVideoStyles.playPauseStyle} onPress={onPlayControlPress}>
+    <TouchableOpacity style={ACVideoStyles.playPauseStyle} onPress={onPlayControlPress}>
       <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={ACVideoStyles.playBackIcon} />
-    </ACTouchable>
+    </TouchableOpacity>
   );
 };
 
