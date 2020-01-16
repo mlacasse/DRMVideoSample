@@ -1,9 +1,11 @@
-import React, { PureComponent } from 'react';
+import React, { createRef, PureComponent } from 'react';
 import { View, AppState, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input } from '@youi/react-native-youi';
 
-import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton } from './subcomponents';
+import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton, ACClosedCaptionsButton } from './subcomponents';
+
+import { ACVideoStyles } from '../ACVideo/subcomponents/styles';
 
 const { DevicePowerManagementBridge } = NativeModules;
 
@@ -17,6 +19,9 @@ class ACVideo extends PureComponent {
     super(props);
 
     this.state = {
+      selectedClosedCaptionsTrack: -1,
+      closedCaptionTracks: [],
+      hasClosedCaptions: false,
       duration: 0,
       elapsed: 0,
       showControls: false,
@@ -26,7 +31,8 @@ class ACVideo extends PureComponent {
       isLive: false,
     };
 
-    this.videoPlayer = null;
+    this.videoPlayer = createRef();
+    this.timer = null;
   }
 
   componentDidMount = () => {
@@ -53,11 +59,9 @@ class ACVideo extends PureComponent {
     Input.addRemoveListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
-  }
 
-  setVideoRef = (ref) => {
-    if (ref) {
-      this.videoPlayer = ref;
+    if (this.timer) {
+      clearTimeout(this.timer);
     }
   }
 
@@ -69,7 +73,7 @@ class ACVideo extends PureComponent {
   handleAppStateChange = newAppState => {
     if (newAppState === 'active') {
       if (this.state.isPlaying) {
-        this.videoPlayer.play();
+        this.videoPlayer.current.play();
       }
     }
   }
@@ -82,7 +86,7 @@ class ACVideo extends PureComponent {
     }
 
     if (this.props.getStatistics) {
-      this.videoPlayer.getStatistics().then((statistics) => {
+      this.videoPlayer.current.getStatistics().then((statistics) => {
         this.props.getStatistics(statistics);
       });
     }
@@ -99,9 +103,7 @@ class ACVideo extends PureComponent {
   handleOnReady = () => {
     this.setState({ isReady: true });
 
-    if (this.videoPlayer) {
-      this.videoPlayer.play();
-    }
+    this.videoPlayer.current.play();
   }
 
   handleOnPlaying = () => {
@@ -119,25 +121,47 @@ class ACVideo extends PureComponent {
       this.props.onErrorOccurred(error);
     }
 
-    if (this.videoPlayer) {
-      this.videoPlayer.stop();
-    }
+    this.videoPlayer.current.stop();
   }
 
   handleOnPlaybackComplete = () => {
     if (this.props.continuous) {
-      if (this.videoPlayer) {
-        this.setState({ elapsed: 0 });
-    
-        this.videoPlayer.seek(0);
-        this.videoPlayer.play();
-      }
+
+      this.setState({ elapsed: 0 });
+  
+      this.videoPlayer.current.seek(0);
+      this.videoPlayer.current.play();
     }
 
     if (this.props.onPlaybackComplete) {
       this.props.onPlaybackComplete();
     }
   }
+
+  handleOnAvailableClosedCaptionsTracksChanged = availableTracksEvent => {
+    const { getClosedCaptionsOffId } = Video;
+
+    const closedCaptionTracks = [];
+
+    availableTracksEvent.nativeEvent.map(({ id, name, language }) => {
+      closedCaptionTracks.push({ id, name, language });
+    });
+
+    let closedCaptionOffTrack = -1;
+
+    if (closedCaptionTracks.length > 0) {
+      closedCaptionOffTrack = closedCaptionTracks.map(track => track.id).indexOf(getClosedCaptionsOffId());
+    }
+
+    // Set 'selectedClosedCaptionsTrack' to the position of the disabled track
+    // in the array, for simpler tracking of the selected track position.
+    this.setState({
+      selectedClosedCaptionsTrack: closedCaptionOffTrack,
+      closedCaptionOffTrack,
+      closedCaptionTracks,
+      hasClosedCaptions: closedCaptionTracks.length > 1,
+    });
+  };
 
   handleOnMediaPlayPausePress = (event) => {
     const { keyCode, eventType } = event;
@@ -147,11 +171,21 @@ class ACVideo extends PureComponent {
     this.handleOnPlayControlPress();
   }
 
+  handleOnCCControlPress = () => {
+    const { selectedClosedCaptionsTrack, closedCaptionOffTrack, hasClosedCaptions } = this.state;
+
+    if (hasClosedCaptions && selectedClosedCaptionsTrack === closedCaptionOffTrack) {
+      this.setState({ selectedClosedCaptionsTrack: 0 });
+    } else {
+      this.setState({ selectedClosedCaptionsTrack: closedCaptionOffTrack });
+    }
+  };
+
   handleOnPlayControlPress = () => {
     if (this.state.isPlaying) {
-      this.videoPlayer.pause();
+      this.videoPlayer.current.pause();
     } else {
-      this.videoPlayer.play();
+      this.videoPlayer.current.play();
     }
 
     this.setState({ isPlaying: !this.state.isPlaying });
@@ -166,44 +200,50 @@ class ACVideo extends PureComponent {
   }
 
   handleOnTap = () => {
+    const { showControls } = this.state;
+
     if (this.props.onTap) {
       this.props.onTap();
     }
 
-    this.setState({ showControls: !this.state.showControls });
+    if (!showControls) {
+      this.timer = setTimeout(() => { this.setState({ showControls: false })}, 5000);
+      this.setState({ showControls: true });
+    }
   }
 
   renderControls = () => {
-    if (!this.state.showControls) {
-      return;
+    const { hasClosedCaptions, showControls } = this.state;
+
+    if (!showControls) {
+      return null;
     }
 
     return (
-      <View
-      style={{
-      flex: 1,
-      flexDirection: 'row',
-      backgroundColor: 'black',
-      alignItems: 'center',
-      position: 'absolute',
-      padding: 5,
-      bottom: 0,
-    }}>
-      <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
-      <ACProgressBar barWidth={this.calculateProgress()}/>
-      <ACElapsedTime duration={this.state.duration} elapsed={this.state.elapsed}/>
-    </View>
+      <View style={ACVideoStyles.playerControlsStyle}>
+        <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
+        <ACProgressBar barWidth={this.calculateProgress()}/>
+        <ACClosedCaptionsButton hasClosedCaptions={hasClosedCaptions} onCCControlPress={this.handleOnCCControlPress} />
+        <ACElapsedTime duration={this.state.duration} elapsed={this.state.elapsed}/>
+      </View>
     );
   }
 
   render = () => {
     const { width, height } = this.props.style;
 
+    const { getClosedCaptionsTrackId, getAudioTrackId } = Video;
+
+    const { selectedClosedCaptionsTrack, closedCaptionTracks, selectedAudioTrack, audioTracks } = this.state;
+
     return(
       <View style={{ flex: 1 }}>
         <Video 
-          ref={this.setVideoRef}
+          ref={this.videoPlayer}
           {...this.props}
+          selectedClosedCaptionsTrack={getClosedCaptionsTrackId(closedCaptionTracks.map(track => track.id), selectedClosedCaptionsTrack)}
+          onAvailableClosedCaptionsTracksChanged={this.handleOnAvailableClosedCaptionsTracksChanged}
+          handleOnAvailableAudioTracksChanged={this.handleOnAvailableAudioTracksChanged}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
           onDurationChanged={this.handleOnDurationChanged}

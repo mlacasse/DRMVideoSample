@@ -1,26 +1,81 @@
 import { FormFactor } from '@youi/react-native-youi';
 
 const ACVideoStyles = {
-  elapsedStyle: {
-    fontSize: FormFactor.isHandset ? 14 : 25,
-    marginLeft: 10,
-    marginRight: 10,
-    color: '#FAFAFA',
-  },
-  playPauseStyle : {
-    marginLeft: 15,
-    marginRight: 5,
-  },
-  playBackIcon: {
-    width: 40,
-    height: 40,
-  },
+  elapsedStyle: FormFactor.select({
+    Handset: {
+      fontSize: 14,
+      marginLeft: 5,
+      color: '#FAFAFA',
+    },
+    Tablet: {
+      fontSize: 18,
+      marginLeft: 10,
+      color: '#FAFAFA',
+    },
+    default: {
+      fontSize: 25,
+      marginLeft: 10,
+      color: '#FAFAFA',
+    },
+  }),
+  playPauseStyle : FormFactor.select({
+    Handset: {
+      marginRight: 5,
+    },
+    Tablet: {
+      marginRight: 10,
+    },
+    default: {
+      marginRight: 15,
+    },
+  }),
+  playBackIcon: FormFactor.select({
+    Handset: {
+      width: 20,
+      height: 20,
+    },
+    Tablet: {
+      width: 25,
+      height: 25,
+    },
+    default: {
+      width: 40,
+      height: 40,
+    },
+  }),
+  ccStyle : FormFactor.select({
+    Handset: {
+      marginRight: 5,
+      marginLeft: 5,
+    },
+    Tablet: {
+      marginRight: 10,
+      marginLeft: 10,
+    },
+    default: {
+      marginRight: 15,
+      marginLeft: 15,
+    },
+  }),
+  ccIcon: FormFactor.select({
+    Handset: {
+      width: 20,
+      height: 10,
+    },
+    Tablet: {
+      width: 25,
+      height: 20,
+    },
+    default: {
+      width: 30,
+      height: 25,
+    },
+  }),
   progressBarStyle: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'stretch',
-    marginLeft: 10,
-    marginRight: 10,
+    marginLeft: 5,
   },
   trackStyle: {
     backgroundColor: '#DEDEDE',
@@ -31,6 +86,16 @@ const ACVideoStyles = {
     backgroundColor: 'red',
     height: 10,
     width: '100%'
+  },
+  playerControlsStyle: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'black',
+    alignItems: 'center',
+    position: 'absolute',
+    padding: 5,
+    marginBottom: 20,
+    bottom: 0,
   },
 };
 
