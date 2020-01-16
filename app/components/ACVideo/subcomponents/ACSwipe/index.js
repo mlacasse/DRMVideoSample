@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, TouchableWithoutFeedback } from 'react-native';
+import { FormFactor } from '@youi/react-native-youi';
 import PropTypes from 'prop-types';
 
 class ACSwipe extends Component {
@@ -114,6 +115,8 @@ class ACSwipe extends Component {
   }
 
   render() {
+    if (FormFactor.isTV) return null;
+
     const responderStyle = { ...this.props.style, position: 'absolute' };
 
     const responderProps = {

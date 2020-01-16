@@ -13,11 +13,33 @@ class ACPlayPauseButton extends PureComponent {
     onPlayControlPress: PropTypes.func.isRequired,
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      focused: false,
+    };
+  }
+
+  handleOnFocus = () => {
+    this.setState({ focused: true });
+  }
+
+  handleOnBlur = () => {
+    this.setState({ focused: false });
+  }
+
   render() {
     const { onPlayControlPress, isPlaying } = this.props;
 
+    const touchableStyle = this.state.focused ? {
+      ...ACVideoStyles.playPauseStyle,
+      borderColor: 'white',
+      borderWidth: 1,
+    } : ACVideoStyles.playPauseStyle;
+
     return (
-      <TouchableOpacity style={ACVideoStyles.playPauseStyle} onPress={onPlayControlPress}>
+      <TouchableOpacity style={touchableStyle} onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onPlayControlPress}>
         <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={ACVideoStyles.playBackIcon} />
       </TouchableOpacity>
     );

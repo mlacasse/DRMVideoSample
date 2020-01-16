@@ -18,6 +18,7 @@ class AppComponent extends PureComponent {
     this.state = {
       isClear: false,
       streamInfo: this.props.streamInfo,
+      controlsUp: false,
       window: {
         width,  
         height,
@@ -68,12 +69,20 @@ class AppComponent extends PureComponent {
   };
 
   handleOnSwipeRight = () => {
+    if (this.state.controlsUp) return;
+
     this.setState({ streamInfo: CLEARStream });
   };
 
   handleOnSwipeLeft = () => {
+    if (this.state.controlsUp) return;
+
     this.setState({ streamInfo: this.props.streamInfo });
   };
+
+  handleOnTap = () => {
+    this.setState({ controlsUp: !this.state.controlsUp });
+  }
 
   render() {
     const { width, height } = this.state.window;
@@ -97,6 +106,7 @@ class AppComponent extends PureComponent {
             onStateChanged={this.handleOnStateChanged}
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
+            onTap={this.handleOnTap}
             getStatistics={this.getStatistics}
           />
         </ACScaler>

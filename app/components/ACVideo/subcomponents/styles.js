@@ -21,12 +21,15 @@ const ACVideoStyles = {
   playPauseStyle : FormFactor.select({
     Handset: {
       marginRight: 5,
+      padding: 5,
     },
     Tablet: {
       marginRight: 10,
+      padding: 5,
     },
     default: {
       marginRight: 15,
+      padding: 5,
     },
   }),
   playBackIcon: FormFactor.select({
@@ -47,14 +50,12 @@ const ACVideoStyles = {
     Handset: {
       marginRight: 5,
       marginLeft: 5,
-    },
-    Tablet: {
-      marginRight: 10,
-      marginLeft: 10,
+      padding: 5,
     },
     default: {
-      marginRight: 15,
-      marginLeft: 15,
+      marginRight: 10,
+      marginLeft: 10,
+      padding: 5,
     },
   }),
   ccIcon: FormFactor.select({
@@ -63,12 +64,12 @@ const ACVideoStyles = {
       height: 10,
     },
     Tablet: {
-      width: 25,
-      height: 20,
+      width: 20,
+      height: 10,
     },
     default: {
-      width: 30,
-      height: 25,
+      width: 35,
+      height: 18,
     },
   }),
   progressBarStyle: {
