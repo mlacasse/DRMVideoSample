@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>${YI_IPA_EXPORT_METHOD}</string>
+	${YI_PROVISIONING_PROFILE_EXPORTOPTIONS_STRING}
+	<key>signingStyle</key>
+	<string>${YI_EXPORTOPTIONS_SIGNING_STYLE}</string>
+	<key>stripSwiftSymbols</key>
+	<true/>
+	<key>teamID</key>
+	<string>${YI_DEVELOPMENT_TEAM}</string>
+	<key>uploadBitcode</key>
+	<false/>
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>

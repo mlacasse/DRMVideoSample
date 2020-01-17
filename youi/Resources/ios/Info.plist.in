@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleDisplayName</key>
+    <string>${YI_DISPLAY_NAME}</string>
+    <key>CFBundleExecutable</key>
+    <string>${EXECUTABLE_NAME}</string>
+    <key>CFBundleIdentifier</key>
+    <string>${YI_PACKAGE_NAME}</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>${PRODUCT_NAME}</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>${YI_VERSION_NUMBER}</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>${YI_BUILD_NUMBER}</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    ${IOS_UI_STATUS_BAR_OPTIONS}
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        ${IOS_UI_INTERFACE_ORIENTATION_PORTRAIT_IPHONE}
+        ${IOS_UI_INTERFACE_ORIENTATION_PORTRAIT_UPSIDEDOWN_IPHONE}
+        ${IOS_UI_INTERFACE_ORIENTATION_LANDSCAPE_LEFT_IPHONE}
+        ${IOS_UI_INTERFACE_ORIENTATION_LANDSCAPE_RIGHT_IPHONE}
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        ${IOS_UI_INTERFACE_ORIENTATION_PORTRAIT_IPAD}
+        ${IOS_UI_INTERFACE_ORIENTATION_PORTRAIT_UPSIDEDOWN_IPAD}
+        ${IOS_UI_INTERFACE_ORIENTATION_LANDSCAPE_LEFT_IPAD}
+        ${IOS_UI_INTERFACE_ORIENTATION_LANDSCAPE_RIGHT_IPAD}
+    </array>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <false/>
+    <key>UIRequiresFullScreen</key>
+    <${YI_UI_REQUIRES_FULLSCREEN}/>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    ${IOS_TRANSPORT_SECURITY}
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                ${IOS_BUNDLE_URL_SCHEME}
+            </array>
+        </dict>
+    </array>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>${PRODUCT_NAME} uses location to offer you specific programming for your area and share it with third parties for advertising and analysis.</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>${PRODUCT_NAME} uses microphone access to listen for ultrasonic tokens when pairing with nearby Cast devices.</string>
+</dict>
+</plist>
