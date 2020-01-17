@@ -18,11 +18,19 @@ macro(yi_configure_platform)
 
     _yi_configure_platform(PROJECT_TARGET ${_ARGS_PROJECT_TARGET})
 
+    set(_DEFAULT_CHROMECAST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/${YI_PLATFORM_LOWER}/Frameworks/GoogleCast.framework")
+
     include(Modules/apple/YiConfigureFramework)
     yi_configure_framework(TARGET ${_ARGS_PROJECT_TARGET}
-        FRAMEWORK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/${YI_PLATFORM_LOWER}/Frameworks/GoogleCast.framework"
+        FRAMEWORK_PATH ${_DEFAULT_CHROMECAST_DIR}
         CODE_SIGN_IDENTITY ${YI_CODE_SIGN_IDENTITY}
         EMBEDDED
+    )
+
+    # Strip the simulator architectures, these are not permitted in app-store builds.
+    add_custom_command(TARGET ${_ARGS_PROJECT_TARGET}
+        POST_BUILD COMMAND
+        "${_DEFAULT_CHROMECAST_DIR}/strip_unused_archs.sh"
     )
 
     include(Modules/apple/YiFindFrameworkHelper)

@@ -63,6 +63,8 @@
     </array>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>${PRODUCT_NAME} uses location to offer you specific programming for your area and share it with third parties for advertising and analysis.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
     <string>${PRODUCT_NAME} uses Bluetooth to discover nearby Cast devices.</string>
     <key>NSMicrophoneUsageDescription</key>
