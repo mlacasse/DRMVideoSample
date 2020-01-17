@@ -18,7 +18,7 @@ class AppComponent extends PureComponent {
     this.state = {
       isClear: false,
       streamInfo: this.props.streamInfo,
-      controlsUp: false,
+      ignoreSwipe: false,
       window: {
         width,  
         height,
@@ -69,19 +69,19 @@ class AppComponent extends PureComponent {
   };
 
   handleOnSwipeRight = () => {
-    if (this.state.controlsUp) return;
+    if (this.state.ignoreSwipe) return;
 
     this.setState({ streamInfo: CLEARStream });
   };
 
   handleOnSwipeLeft = () => {
-    if (this.state.controlsUp) return;
+    if (this.state.ignoreSwipe) return;
 
     this.setState({ streamInfo: this.props.streamInfo });
   };
 
   handleOnTap = () => {
-    this.setState({ controlsUp: !this.state.controlsUp });
+    this.setState({ ignoreSwipe: !this.state.ignoreSwipe });
   }
 
   render() {

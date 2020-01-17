@@ -1,9 +1,15 @@
 import React, { createRef, PureComponent } from 'react';
-import { View, AppState, BackHandler, NativeModules } from 'react-native';
+import { View, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
-import { Video, Input } from '@youi/react-native-youi';
+import { Video, Input, FormFactor } from '@youi/react-native-youi';
 
-import { ACSwipe, ACElapsedTime, ACProgressBar, ACPlayPauseButton, ACClosedCaptionsButton } from './subcomponents';
+import {
+  ACSwipe,
+  ACElapsedTime,
+  ACProgressBar,
+  ACPlayPauseButton,
+  ACClosedCaptionsButton
+} from './subcomponents';
 
 import { ACVideoStyles } from '../ACVideo/subcomponents/styles';
 
@@ -27,22 +33,17 @@ class ACVideo extends PureComponent {
       isPlaying: false,
       isError: false,
       isReady: false,
-      isLive: false,
     };
 
     this.videoPlayer = createRef();
-    this.timer = null;
   }
 
   componentDidMount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 
-    AppState.addEventListener('change', this.handleAppStateChange);
-
-    Input.addEventListener('Select', this.handleOnSelect);
-    Input.addEventListener('Play', this.handleOnPlayControlPress);
-    Input.addEventListener('Pause', this.handleOnPlayControlPress);
-    Input.addEventListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
+    Input.addEventListener('Play', this.handleOnPlayPausePress);
+    Input.addEventListener('Pause', this.handleOnPlayPausePress);
+    Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
   }
@@ -50,31 +51,16 @@ class ACVideo extends PureComponent {
   componentDidUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
 
-    AppState.removeEventListener('change', this.handleAppStateChange);
-
-    Input.addRemoveListener('Select', this.handleOnSelect);
-    Input.addRemoveListener('Play', this.handleOnPlayControlPress);
-    Input.addRemoveListener('Pause', this.handleOnPlayControlPress);
-    Input.addRemoveListener('MediaPlayPause', this.handleOnMediaPlayPausePress);
+    Input.addRemoveListener('Play', this.handleOnPlayPausePress);
+    Input.addRemoveListener('Pause', this.handleOnPlayPausePress);
+    Input.addRemoveListener('MediaPlayPause', this.handleOnPlayPausePress);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
-
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
   }
 
   calculateProgress = () => {
     const { elapsed, duration } = this.state;
     return duration > 0 ? (elapsed / duration) * 100 : 0;
-  }
-
-  handleAppStateChange = newAppState => {
-    if (newAppState === 'active') {
-      if (this.state.isPlaying) {
-        this.videoPlayer.current.play();
-      }
-    }
   }
 
   handleOnCurrentTimeUpdated = currentTime => {
@@ -100,7 +86,7 @@ class ACVideo extends PureComponent {
   }
 
   handleOnReady = () => {
-    this.setState({ isReady: true });
+    this.setState({ isReady: true, isError: false, isPlaying: false });
 
     this.videoPlayer.current.play();
   }
@@ -130,6 +116,8 @@ class ACVideo extends PureComponent {
   
       this.videoPlayer.current.seek(0);
       this.videoPlayer.current.play();
+    } else {
+      this.setState({ isPlaying: false });
     }
 
     if (this.props.onPlaybackComplete) {
@@ -161,14 +149,6 @@ class ACVideo extends PureComponent {
     });
   };
 
-  handleOnMediaPlayPausePress = event => {
-    const { keyCode, eventType } = event;
-
-    if (keyCode !== undefined && eventType !== 'up' ) return;
-
-    this.handleOnPlayControlPress();
-  }
-
   handleOnCCControlPress = () => {
     const {
       selectedClosedCaptionsTrack,
@@ -176,37 +156,29 @@ class ACVideo extends PureComponent {
       closedCaptionOffTrack,
     } = this.state;
 
+    // Set closed captions track to first English language found
     if (closedCaptionTracks.length > 1 && selectedClosedCaptionsTrack === closedCaptionOffTrack) {
-      this.setState({ selectedClosedCaptionsTrack: closedCaptionTracks.map(track => track.language).indexOf('en') });
+      this.setState({ selectedClosedCaptionsTrack: closedCaptionTracks.map(track => track.language).lastIndexOf('en') });
     } else {
       this.setState({ selectedClosedCaptionsTrack: closedCaptionOffTrack });
     }
   };
 
-  handleOnPlayControlPress = () => {
-    if (this.state.isPlaying) {
+  handleOnPlayPausePress = event => {
+    const { keyCode, eventType } = event;
+
+    if (keyCode !== undefined && eventType !== 'up' ) return;
+
+    const { isPlaying } = this.state;
+
+    if (isPlaying) {
       this.videoPlayer.current.pause();
     } else {
       this.videoPlayer.current.play();
     }
 
-    this.setState({ isPlaying: !this.state.isPlaying });
+    this.setState({ isPlaying: !isPlaying });
   }
-
-  handleOnSelect = event => {
-    const { showControls } = this.state;
-    const { keyCode, eventType } = event;
-
-    if (keyCode !== undefined && eventType !== 'up' ) return;
-
-    if (!showControls) {
-      this.handleOnTap();
-    }
-  }
-
-  handleOnBack = () => {
-    this.setState({ showControls: false });
-  };
 
   handleOnTap = () => {
     const { showControls } = this.state;
@@ -218,8 +190,43 @@ class ACVideo extends PureComponent {
     this.setState({ showControls: !showControls });
   }
 
-  renderControls = () => {
-    const { closedCaptionTracks, showControls } = this.state;
+  renderTVControls = () => {
+    const {
+      closedCaptionTracks,
+      showControls,
+      isPlaying,
+      duration,
+      elapsed
+    } = this.state;
+
+    if (!showControls) {
+      return null;
+    }
+
+    const { width, height } = this.props.style;
+
+    return (
+      <View style={{ width, height, position: 'absolute' }}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <ACPlayPauseButton isPlaying={isPlaying} onPlayControlPress={this.handleOnPlayPausePress} />
+          <ACClosedCaptionsButton hasClosedCaptions={closedCaptionTracks.length > 1} onCCControlPress={this.handleOnCCControlPress} />
+        </View>
+        <View style={ACVideoStyles.playerControlsStyle}>
+          <ACProgressBar barWidth={this.calculateProgress()}/>
+          <ACElapsedTime duration={duration} elapsed={elapsed}/>
+        </View>
+      </View>
+    );
+  };
+
+  renderMobileControls = () => {
+    const {
+      closedCaptionTracks,
+      showControls,
+      isPlaying,
+      duration,
+      elapsed
+    } = this.state;
 
     if (!showControls) {
       return null;
@@ -227,10 +234,10 @@ class ACVideo extends PureComponent {
 
     return (
       <View style={ACVideoStyles.playerControlsStyle}>
-        <ACPlayPauseButton isPlaying={this.state.isPlaying} onPlayControlPress={this.handleOnPlayControlPress} />
+        <ACPlayPauseButton isPlaying={isPlaying} onPlayControlPress={this.handleOnPlayPausePress} />
         <ACProgressBar barWidth={this.calculateProgress()}/>
         <ACClosedCaptionsButton hasClosedCaptions={closedCaptionTracks.length > 1} onCCControlPress={this.handleOnCCControlPress} />
-        <ACElapsedTime duration={this.state.duration} elapsed={this.state.elapsed}/>
+        <ACElapsedTime duration={duration} elapsed={elapsed}/>
       </View>
     );
   }
@@ -238,9 +245,9 @@ class ACVideo extends PureComponent {
   render = () => {
     const { width, height } = this.props.style;
 
-    const { getClosedCaptionsTrackId, getAudioTrackId } = Video;
+    const { getClosedCaptionsTrackId } = Video;
 
-    const { selectedClosedCaptionsTrack, closedCaptionTracks, selectedAudioTrack, audioTracks } = this.state;
+    const { selectedClosedCaptionsTrack, closedCaptionTracks } = this.state;
 
     return(
       <View style={{ flex: 1 }}>
@@ -261,7 +268,7 @@ class ACVideo extends PureComponent {
           {...this.props}
           onTap={this.handleOnTap}
         />
-        {this.renderControls()}
+        {FormFactor.isTV ? this.renderTVControls() : this.renderMobileControls()}
        </View> 
     );
   }

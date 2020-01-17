@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 
 import { ACVideoStyles } from '../styles';
 
@@ -33,15 +33,13 @@ class ACCClosedCaptionsButton extends PureComponent {
 
     if (!hasClosedCaptions) return null;
 
-    const touchableStyle = this.state.focused ? {
-      ...ACVideoStyles.ccStyle,
-      borderColor: 'white',
-      borderWidth: 1,
-    } : ACVideoStyles.ccStyle;
+    const touchableStyle = this.state.focused ? ACVideoStyles.buttonFocusedStyle : ACVideoStyles.buttonStyle;
 
     return (
-      <TouchableOpacity style={touchableStyle} onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onCCControlPress}>
-        <Image source={{ 'uri': CCIcon }} style={ACVideoStyles.ccIcon} />
+      <TouchableOpacity onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onCCControlPress}>
+        <View style={touchableStyle}>
+          <Image source={{ 'uri': CCIcon }} style={ACVideoStyles.ccIcon} />
+          </View>
       </TouchableOpacity>
     );
   }

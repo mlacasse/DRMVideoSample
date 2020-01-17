@@ -18,20 +18,6 @@ const ACVideoStyles = {
       color: '#FAFAFA',
     },
   }),
-  playPauseStyle : FormFactor.select({
-    Handset: {
-      marginRight: 5,
-      padding: 5,
-    },
-    Tablet: {
-      marginRight: 10,
-      padding: 5,
-    },
-    default: {
-      marginRight: 15,
-      padding: 5,
-    },
-  }),
   playBackIcon: FormFactor.select({
     Handset: {
       width: 20,
@@ -42,20 +28,8 @@ const ACVideoStyles = {
       height: 25,
     },
     default: {
-      width: 40,
-      height: 40,
-    },
-  }),
-  ccStyle : FormFactor.select({
-    Handset: {
-      marginRight: 5,
-      marginLeft: 5,
-      padding: 5,
-    },
-    default: {
-      marginRight: 10,
-      marginLeft: 10,
-      padding: 5,
+      width: 250,
+      height: 250,
     },
   }),
   ccIcon: FormFactor.select({
@@ -68,8 +42,56 @@ const ACVideoStyles = {
       height: 10,
     },
     default: {
-      width: 35,
-      height: 18,
+      width: 250,
+      height: 140,
+    },
+  }),
+  buttonStyle: FormFactor.select({
+    Handset: {
+      marginLeft: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 40,
+      height: 40,
+    },
+    Tablet: {
+      marginLeft: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 50,
+      height: 50,
+    },
+    default: {
+      marginRight: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 300,
+      height: 300,
+    },
+  }),
+  buttonFocusedStyle: FormFactor.select({
+    Handset: {
+      marginLeft: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 40,
+      height: 40,
+    },
+    Tablet: {
+      marginLeft: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 50,
+      height: 50,
+    },
+    default: {
+      marginRight: 5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 300,
+      height: 300,
+      borderColor: 'white',
+      borderWidth: 5,
     },
   }),
   progressBarStyle: {

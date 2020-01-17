@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity } from 'react-native';
 
 import { ACVideoStyles } from '../styles';
 
@@ -32,15 +32,13 @@ class ACPlayPauseButton extends PureComponent {
   render() {
     const { onPlayControlPress, isPlaying } = this.props;
 
-    const touchableStyle = this.state.focused ? {
-      ...ACVideoStyles.playPauseStyle,
-      borderColor: 'white',
-      borderWidth: 1,
-    } : ACVideoStyles.playPauseStyle;
+    const touchableStyle = this.state.focused ? ACVideoStyles.buttonFocusedStyle : ACVideoStyles.buttonStyle;
 
     return (
-      <TouchableOpacity style={touchableStyle} onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onPlayControlPress}>
-        <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={ACVideoStyles.playBackIcon} />
+      <TouchableOpacity onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onPlayControlPress}>
+        <View style={touchableStyle}>
+          <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={ACVideoStyles.playBackIcon} />
+        </View>
       </TouchableOpacity>
     );
   }
