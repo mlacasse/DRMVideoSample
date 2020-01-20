@@ -34,10 +34,12 @@ class ACPlayPauseButton extends PureComponent {
 
     const touchableStyle = this.state.focused ? ACVideoStyles.buttonFocusedStyle : ACVideoStyles.buttonStyle;
 
+    const buttonStyle = isPlaying ? ACVideoStyles.pauseIcon : ACVideoStyles.playIcon;
+
     return (
       <TouchableOpacity onFocus={this.handleOnFocus} onBlur={this.handleOnBlur} onPress={onPlayControlPress}>
         <View style={touchableStyle}>
-          <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={ACVideoStyles.playBackIcon} />
+          <Image source={{ 'uri': isPlaying ? PauseIcon : PlayIcon }} style={buttonStyle} />
         </View>
       </TouchableOpacity>
     );

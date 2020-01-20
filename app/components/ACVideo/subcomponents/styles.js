@@ -18,32 +18,46 @@ const ACVideoStyles = {
       color: '#FAFAFA',
     },
   }),
-  playBackIcon: FormFactor.select({
+  pauseIcon: FormFactor.select({
     Handset: {
-      width: 20,
-      height: 20,
+      width: 12.5,
+      height: 18,
     },
     Tablet: {
       width: 25,
-      height: 25,
+      height: 36,
     },
     default: {
       width: 250,
-      height: 250,
+      height: 360,
+    },
+  }),
+  playIcon: FormFactor.select({
+    Handset: {
+      width: 12.5,
+      height: 14.5,
+    },
+    Tablet: {
+      width: 25,
+      height: 29,
+    },
+    default: {
+      width: 250,
+      height: 290,
     },
   }),
   ccIcon: FormFactor.select({
     Handset: {
-      width: 20,
-      height: 10,
+      width: 25,
+      height: 25,
     },
     Tablet: {
-      width: 20,
-      height: 10,
+      width: 50,
+      height: 50,
     },
     default: {
       width: 250,
-      height: 140,
+      height: 250,
     },
   }),
   buttonStyle: FormFactor.select({

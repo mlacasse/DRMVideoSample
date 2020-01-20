@@ -7,7 +7,7 @@ import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from '
 
 import { CLEARStream } from './store/stream';
 
-const { Dimensions, OrientationLock } = NativeModules;
+const { Dimensions, OrientationLock, GoogleCast } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -39,6 +39,10 @@ class AppComponent extends PureComponent {
   }
 
   componentDidMount = () => {
+    GoogleCast.getAvailableDevices().then(
+      devices => console.log('GoogleCast', devices)
+    );
+
     this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);

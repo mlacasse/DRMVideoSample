@@ -5,6 +5,7 @@
 #include "DimensionsModule.h"
 #include "OrientationLockModule.h"
 #include "TrackpadModule.h"
+#include "GoogleCastModule.h"
 
 #include <automation/YiWebDriverLocator.h>
 
@@ -117,6 +118,7 @@ bool App::UserInit()
     GetBridge().AddModule<DimensionsModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<TrackpadModule>();
+    GetBridge().AddModule<GoogleCastModule>();
 
     return result;
 }
