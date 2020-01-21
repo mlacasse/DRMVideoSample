@@ -13,7 +13,7 @@ import {
 
 import { ACVideoStyles } from '../ACVideo/subcomponents/styles';
 
-const { DevicePowerManagementBridge } = NativeModules;
+const { DevicePowerManagementBridge, GoogleCast } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -36,9 +36,17 @@ class ACVideo extends PureComponent {
     };
 
     this.videoPlayer = createRef();
+
+    this.receivers = null;
+    this.interval = null;
   }
 
   componentDidMount = () => {
+    this.interval = setInterval(() => {
+      GoogleCast.getAvailableDevices().then(
+        devices => this.receivers = Object.values(devices)
+      )}, 5000);
+
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 
     Input.addEventListener('Play', this.handleOnPlayPausePress);
@@ -49,6 +57,8 @@ class ACVideo extends PureComponent {
   }
 
   componentDidUnmount = () => {
+    clearInterval(this.interval);
+
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
 
     Input.addRemoveListener('Play', this.handleOnPlayPausePress);

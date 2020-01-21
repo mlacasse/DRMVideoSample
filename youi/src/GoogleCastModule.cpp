@@ -1,14 +1,14 @@
 #include "GoogleCastModule.h"
 
-using namespace yi::react;
-
 #define LOG_TAG "GoogleCastModule"
+
+using namespace yi::react;
 
 YI_RN_INSTANTIATE_MODULE(GoogleCastModule, EventEmitterModule);
 
 #ifndef YI_IOS
 GoogleCastModule::GoogleCastModule() {
-  YI_LOGD(LOG_TAG, "GoogleCastModule is not supported on this platform.");
+  YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
 GoogleCastModule::~GoogleCastModule()
@@ -19,6 +19,16 @@ void GoogleCastModule::StartObserving()
 
 void GoogleCastModule::StopObserving()
 {}
+
+YI_RN_EXPORT_METHOD(connect)(std::string uniqueId)
+{
+    YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
+}
+
+YI_RN_EXPORT_METHOD(disconnect)()
+{
+    YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
+}
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, getAvailableDevices)(Callback successCallback, Callback failedCallback)
 {

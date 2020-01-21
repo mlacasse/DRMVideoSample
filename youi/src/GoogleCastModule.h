@@ -17,7 +17,9 @@ public:
     YI_RN_EXPORT_NAME(GoogleCast);
 
     YI_RN_EXPORT_METHOD(getAvailableDevices)(Callback successCallback, Callback failedCallback);
-
+    YI_RN_EXPORT_METHOD(connect)(std::string uniqueId);
+    YI_RN_EXPORT_METHOD(disconnect)();
+    
 private:
     virtual void StartObserving() override;
     virtual void StopObserving() override;
