@@ -20,22 +20,25 @@ void GoogleCastModule::StartObserving()
 void GoogleCastModule::StopObserving()
 {}
 
-YI_RN_EXPORT_METHOD(connect)(std::string uniqueId)
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, connect)(std::string uniqueId)
 {
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
-YI_RN_EXPORT_METHOD(disconnect)()
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
 {
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
-YI_RN_EXPORT_METHOD(play)()
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)(folly::dynamic source, folly::dynamic metadata)
 {
+    YI_UNUSED(source);
+    YI_UNUSED(metadata);
+
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
-YI_RN_EXPORT_METHOD(pause)()
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, pause)()
 {
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }

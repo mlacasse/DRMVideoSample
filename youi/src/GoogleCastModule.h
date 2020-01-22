@@ -19,7 +19,10 @@ public:
     YI_RN_EXPORT_METHOD(getAvailableDevices)(Callback successCallback, Callback failedCallback);
     YI_RN_EXPORT_METHOD(connect)(std::string uniqueId);
     YI_RN_EXPORT_METHOD(disconnect)();
-    
+
+    YI_RN_EXPORT_METHOD(play)(folly::dynamic source, folly::dynamic metadata);
+    YI_RN_EXPORT_METHOD(pause)();
+
 private:
     virtual void StartObserving() override;
     virtual void StopObserving() override;

@@ -24,6 +24,7 @@ class ACVideo extends PureComponent {
       duration: 0,
       elapsed: 0,
       showControls: false,
+      isCasting: false,
       isPlaying: false,
       isError: false,
       isReady: false,
@@ -173,12 +174,31 @@ class ACVideo extends PureComponent {
 
     if (keyCode !== undefined && eventType !== 'up' ) return;
 
-    const { isPlaying } = this.state;
+    const { isPlaying, isCasting } = this.state;
 
     if (isPlaying) {
       this.videoPlayer.current.pause();
+
+      if (isCasting) {
+        GoogleCast.pause();        
+      }
     } else {
       this.videoPlayer.current.play();
+
+      if (isCasting) {
+        const source = {
+          uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
+          type: 'application/x-mpegURL',
+        };
+    
+        const metadata = {
+          title: 'Bip-Bop [16x9]',
+          description: 'Bip-Bop sample video with captions',
+          image: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
+        };
+
+        GoogleCast.play(source, metadata);        
+      }
     }
 
     this.setState({ isPlaying: !isPlaying });
@@ -189,7 +209,19 @@ class ACVideo extends PureComponent {
 
     if (keyCode !== undefined && eventType !== 'up' ) return;
 
+    const { isCasting } = this.state;
+
     console.log('GoogleCast', this.receivers);
+
+    if (!isCasting) {
+      GoogleCast.connect('com.google.cast.CastDevice:3cd6f8e9dc13c2c6915ea65f94de15b6');
+    } else {
+      GoogleCast.disconnect();
+    }
+
+    this.videoPlayer.current.pause();
+
+    this.setState({ isCasting: !isCasting, isPlaying: false });
   };
 
   handleOnTap = () => {
