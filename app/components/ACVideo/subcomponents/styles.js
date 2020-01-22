@@ -1,5 +1,10 @@
 import { FormFactor } from '@youi/react-native-youi';
 
+const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
+const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
+const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
+const CCIcon = { 'uri': 'res://drawable/default/cc.png' };
+
 const ACVideoStyles = {
   elapsedStyle: FormFactor.select({
     Handset: {
@@ -24,7 +29,7 @@ const ACVideoStyles = {
       height: 18,
     },
     Tablet: {
-      width: 25,
+      width: 30,
       height: 36,
     },
     default: {
@@ -34,8 +39,8 @@ const ACVideoStyles = {
   }),
   playIcon: FormFactor.select({
     Handset: {
-      width: 12.5,
-      height: 14.5,
+      width: 14,
+      height: 16,
     },
     Tablet: {
       width: 25,
@@ -50,6 +55,20 @@ const ACVideoStyles = {
     Handset: {
       width: 25,
       height: 25,
+    },
+    Tablet: {
+      width: 50,
+      height: 50,
+    },
+    default: {
+      width: 250,
+      height: 250,
+    },
+  }),
+  googleCastIcon: FormFactor.select({
+    Handset: {
+      width: 25,
+      height: 20,
     },
     Tablet: {
       width: 50,
@@ -136,4 +155,4 @@ const ACVideoStyles = {
   },
 };
 
-export { ACVideoStyles };
+export { ACVideoStyles, GoogleCastIcon, PlayIcon, PauseIcon, CCIcon };

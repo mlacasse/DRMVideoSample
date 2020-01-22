@@ -1,17 +1,11 @@
 import React, { createRef, PureComponent } from 'react';
 import { View, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
-import { Video, Input, FormFactor } from '@youi/react-native-youi';
+import { Video, Input } from '@youi/react-native-youi';
+import { ACSwipe, ACElapsedTime, ACProgressBar } from './subcomponents';
+import ACButton from '../ACButton';
 
-import {
-  ACSwipe,
-  ACElapsedTime,
-  ACProgressBar,
-  ACPlayPauseButton,
-  ACClosedCaptionsButton
-} from './subcomponents';
-
-import { ACVideoStyles } from '../ACVideo/subcomponents/styles';
+import { ACVideoStyles, GoogleCastIcon, PlayIcon, PauseIcon, CCIcon } from '../ACVideo/subcomponents/styles';
 
 const { DevicePowerManagementBridge, GoogleCast } = NativeModules;
 
@@ -159,7 +153,7 @@ class ACVideo extends PureComponent {
     });
   };
 
-  handleOnCCControlPress = () => {
+  handleOnClosedCaptionPress = () => {
     const {
       selectedClosedCaptionsTrack,
       closedCaptionTracks,
@@ -190,6 +184,14 @@ class ACVideo extends PureComponent {
     this.setState({ isPlaying: !isPlaying });
   }
 
+  handleOnGoogleCastPress = event => {
+    const { keyCode, eventType } = event;
+
+    if (keyCode !== undefined && eventType !== 'up' ) return;
+
+    console.log('GoogleCast', this.receivers);
+  };
+
   handleOnTap = () => {
     const { showControls } = this.state;
 
@@ -200,9 +202,22 @@ class ACVideo extends PureComponent {
     this.setState({ showControls: !showControls });
   }
 
-  renderTVControls = () => {
+  renderClosedCaptionButton = () => {
+    const {closedCaptionTracks } = this.state;
+
+    if (closedCaptionTracks.length > 1) {
+      return (
+        <ACButton
+          source={CCIcon}
+          style={ACVideoStyles.ccIcon}
+          onPress={this.handleOnClosedCaptionPress}
+        />
+      );
+    }
+  }
+
+  renderControls = () => {
     const {
-      closedCaptionTracks,
       showControls,
       isPlaying,
       duration,
@@ -213,40 +228,15 @@ class ACVideo extends PureComponent {
       return null;
     }
 
-    const { width, height } = this.props.style;
-
-    return (
-      <View style={{ width, height, position: 'absolute' }}>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-          <ACPlayPauseButton isPlaying={isPlaying} onPlayControlPress={this.handleOnPlayPausePress} />
-          <ACClosedCaptionsButton hasClosedCaptions={closedCaptionTracks.length > 1} onCCControlPress={this.handleOnCCControlPress} />
-        </View>
-        <View style={ACVideoStyles.playerControlsStyle}>
-          <ACProgressBar barWidth={this.calculateProgress()}/>
-          <ACElapsedTime duration={duration} elapsed={elapsed}/>
-        </View>
-      </View>
-    );
-  };
-
-  renderMobileControls = () => {
-    const {
-      closedCaptionTracks,
-      showControls,
-      isPlaying,
-      duration,
-      elapsed
-    } = this.state;
-
-    if (!showControls) {
-      return null;
-    }
+    const playPauseIcon = isPlaying ? PauseIcon : PlayIcon;
+    const playPauseStyle = isPlaying ? ACVideoStyles.pauseIcon : ACVideoStyles.playIcon;
 
     return (
       <View style={ACVideoStyles.playerControlsStyle}>
-        <ACPlayPauseButton isPlaying={isPlaying} onPlayControlPress={this.handleOnPlayPausePress} />
+        <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
         <ACProgressBar barWidth={this.calculateProgress()}/>
-        <ACClosedCaptionsButton hasClosedCaptions={closedCaptionTracks.length > 1} onCCControlPress={this.handleOnCCControlPress} />
+        {this.renderClosedCaptionButton()}
+        <ACButton source={GoogleCastIcon} style={ACVideoStyles.googleCastIcon} onPress={this.handleOnGoogleCastPress} />
         <ACElapsedTime duration={duration} elapsed={elapsed}/>
       </View>
     );
@@ -278,7 +268,7 @@ class ACVideo extends PureComponent {
           {...this.props}
           onTap={this.handleOnTap}
         />
-        {FormFactor.isTV ? this.renderTVControls() : this.renderMobileControls()}
+        {this.renderControls()}
        </View> 
     );
   }

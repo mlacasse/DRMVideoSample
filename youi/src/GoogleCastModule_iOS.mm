@@ -60,7 +60,7 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
     
     if (sessionManager.currentSession != nil)
     {
-        [sessionManager endSessionAndStopCasting:NO];
+        [sessionManager endSessionAndStopCasting:YES];
     }
 }
 

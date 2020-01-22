@@ -30,6 +30,16 @@ YI_RN_EXPORT_METHOD(disconnect)()
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
+YI_RN_EXPORT_METHOD(play)()
+{
+    YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
+}
+
+YI_RN_EXPORT_METHOD(pause)()
+{
+    YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
+}
+
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, getAvailableDevices)(Callback successCallback, Callback failedCallback)
 {
     folly::dynamic errorInfo = folly::dynamic::object;
