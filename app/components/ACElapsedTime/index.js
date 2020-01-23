@@ -1,13 +1,12 @@
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { Text } from 'react-native';
 import PropTypes from 'prop-types';
 
-import { ACVideoStyles } from '../styles';
-
-export default class ACElapsedTime extends PureComponent {
+class ACElapsedTime extends PureComponent {
   static propTypes = {
     duration: PropTypes.number.isRequired,
     elapsed: PropTypes.number.isRequired,
+    style: PropTypes.object.isRequired,
   };
 
   createElapsedTimeText = () => {
@@ -31,8 +30,14 @@ export default class ACElapsedTime extends PureComponent {
   }
 
   render() {
+    const { style } = this.props
+
     return (
-        <Text style={ACVideoStyles.elapsedStyle}>{this.createElapsedTimeText()}</Text>
+      <Fragment>
+        <Text style={style}>{this.createElapsedTimeText()}</Text>
+      </Fragment>
     );
   }
-}
+};
+
+export default ACElapsedTime;

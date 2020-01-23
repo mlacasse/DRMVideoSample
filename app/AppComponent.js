@@ -16,9 +16,8 @@ class AppComponent extends PureComponent {
     const { width, height } = Dimensions.window;
 
     this.state = {
-      isClear: false,
-      streamInfo: this.props.streamInfo,
       ignoreSwipe: false,
+      streamInfo: this.props.streamInfo,
       window: {
         width,  
         height,
@@ -52,20 +51,8 @@ class AppComponent extends PureComponent {
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
   };
 
-  getStatistics = statistics => {
-    console.log(statistics);
-  };
-
   handleOnOrientationChange = ({ window })=> {
     this.setState({ window });
-  };
-
-  handleOnStateChanged = playerState => {
-    console.log(playerState.nativeEvent);
-  };
-
-  handleOnTimedMetadata = metadata => {
-    console.log(metadata.nativeEvent);
   };
 
   handleOnSwipeRight = () => {
@@ -102,12 +89,9 @@ class AppComponent extends PureComponent {
               min: 5000,
               max: 15000,
             }}
-            onTimedMetadata={this.handleOnTimedMetadata}
-            onStateChanged={this.handleOnStateChanged}
             onSwipeLeft={this.handleOnSwipeLeft}
             onSwipeRight={this.handleOnSwipeRight}
             onTap={this.handleOnTap}
-            getStatistics={this.getStatistics}
           />
         </ACScaler>
       </View>

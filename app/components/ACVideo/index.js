@@ -1,11 +1,15 @@
 import React, { createRef, PureComponent } from 'react';
 import { View, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
-import { Video, Input } from '@youi/react-native-youi';
-import { ACSwipe, ACElapsedTime, ACProgressBar } from './subcomponents';
+import { Video, Input, FormFactor } from '@youi/react-native-youi';
 import ACButton from '../ACButton';
+import ACElapsedTime from '../ACElapsedTime';
+import ACProgressBar from '../ACProgressBar';
+import ACSwipe from '../ACSwipe';
 
-import { ACVideoStyles, GoogleCastIcon, PlayIcon, PauseIcon, CCIcon } from '../ACVideo/subcomponents/styles';
+const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
+const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
+const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
 const { DevicePowerManagementBridge, GoogleCast } = NativeModules;
 
@@ -19,15 +23,11 @@ class ACVideo extends PureComponent {
     super(props);
 
     this.state = {
-      selectedClosedCaptionsTrack: -1,
-      closedCaptionTracks: [],
       duration: 0,
       elapsed: 0,
       showControls: false,
       isCasting: false,
       isPlaying: false,
-      isError: false,
-      isReady: false,
     };
 
     this.videoPlayer = createRef();
@@ -49,7 +49,7 @@ class ACVideo extends PureComponent {
     Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
-  }
+  };
 
   componentDidUnmount = () => {
     clearInterval(this.interval);
@@ -61,58 +61,15 @@ class ACVideo extends PureComponent {
     Input.addRemoveListener('MediaPlayPause', this.handleOnPlayPausePress);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
-  }
-
-  calculateProgress = () => {
-    const { elapsed, duration } = this.state;
-    return duration > 0 ? (elapsed / duration) * 100 : 0;
-  }
-
-  handleOnCurrentTimeUpdated = currentTime => {
-    this.setState({ elapsed: currentTime });
-
-    if (this.props.onCurrentTimeUpdated) {
-      this.props.onCurrentTimeUpdated(this.state.elapsed);
-    }
-
-    if (this.props.getStatistics) {
-      this.videoPlayer.current.getStatistics().then((statistics) => {
-        this.props.getStatistics(statistics);
-      });
-    }
   };
 
-  handleOnDurationChanged = duration => {
-    this.setState({ duration, elapsed: 0 });
-
-    if (this.props.onDurationChanged) {
-      this.props.onDurationChanged(this.state.duration);
-    }
-  }
-
-  handleOnReady = () => {
-    this.setState({ isReady: true, isError: false, isPlaying: false });
-
-    this.videoPlayer.current.play();
-  }
-
-  handleOnPlaying = () => {
-    this.setState({ isPlaying: true });
-
-    if (this.props.onPlaying) {
-      this.props.onPlaying();
-    }
-  }
-
   handleOnErrorOccurred = error => {
-    this.setState({ isError: true, isReady: false, isPlaying: false });
+    this.setState({ isPlaying: false });
 
-    if (this.props.onErrorOccurred) {
-      this.props.onErrorOccurred(error);
-    }
+    console.log(error);
 
     this.videoPlayer.current.stop();
-  }
+  };
 
   handleOnPlaybackComplete = () => {
     if (this.props.continuous) {
@@ -123,49 +80,6 @@ class ACVideo extends PureComponent {
       this.videoPlayer.current.play();
     } else {
       this.setState({ isPlaying: false });
-    }
-
-    if (this.props.onPlaybackComplete) {
-      this.props.onPlaybackComplete();
-    }
-  }
-
-  handleOnAvailableClosedCaptionsTracksChanged = availableTracksEvent => {
-    const { getClosedCaptionsOffId } = Video;
-
-    const closedCaptionTracks = [];
-
-    availableTracksEvent.nativeEvent.map(({ id, name, language }) => {
-      closedCaptionTracks.push({ id, name, language });
-    });
-
-    let closedCaptionOffTrack = -1;
-
-    if (closedCaptionTracks.length > 0) {
-      closedCaptionOffTrack = closedCaptionTracks.map(track => track.id).indexOf(getClosedCaptionsOffId());
-    }
-
-    // Set 'selectedClosedCaptionsTrack' to the position of the disabled track
-    // in the array, for simpler tracking of the selected track position.
-    this.setState({
-      selectedClosedCaptionsTrack: closedCaptionOffTrack,
-      closedCaptionOffTrack,
-      closedCaptionTracks,
-    });
-  };
-
-  handleOnClosedCaptionPress = () => {
-    const {
-      selectedClosedCaptionsTrack,
-      closedCaptionTracks,
-      closedCaptionOffTrack,
-    } = this.state;
-
-    // Set closed captions track to first English language found
-    if (closedCaptionTracks.length > 1 && selectedClosedCaptionsTrack === closedCaptionOffTrack) {
-      this.setState({ selectedClosedCaptionsTrack: closedCaptionTracks.map(track => track.language).lastIndexOf('en') });
-    } else {
-      this.setState({ selectedClosedCaptionsTrack: closedCaptionOffTrack });
     }
   };
 
@@ -202,7 +116,7 @@ class ACVideo extends PureComponent {
     }
 
     this.setState({ isPlaying: !isPlaying });
-  }
+  };
 
   handleOnGoogleCastPress = event => {
     const { keyCode, eventType } = event;
@@ -210,8 +124,6 @@ class ACVideo extends PureComponent {
     if (keyCode !== undefined && eventType !== 'up' ) return;
 
     const { isCasting } = this.state;
-
-    console.log('GoogleCast', this.receivers);
 
     if (!isCasting) {
       GoogleCast.connect('com.google.cast.CastDevice:3cd6f8e9dc13c2c6915ea65f94de15b6');
@@ -232,21 +144,7 @@ class ACVideo extends PureComponent {
     }
 
     this.setState({ showControls: !showControls });
-  }
-
-  renderClosedCaptionButton = () => {
-    const {closedCaptionTracks } = this.state;
-
-    if (closedCaptionTracks.length > 1) {
-      return (
-        <ACButton
-          source={CCIcon}
-          style={ACVideoStyles.ccIcon}
-          onPress={this.handleOnClosedCaptionPress}
-        />
-      );
-    }
-  }
+  };
 
   renderControls = () => {
     const {
@@ -261,40 +159,34 @@ class ACVideo extends PureComponent {
     }
 
     const playPauseIcon = isPlaying ? PauseIcon : PlayIcon;
-    const playPauseStyle = isPlaying ? ACVideoStyles.pauseIcon : ACVideoStyles.playIcon;
+    const playPauseStyle = isPlaying ? Styles.pauseIconStyle : Styles.playIconStyle;
+
+    const playBackProgress = duration > 0 ? (elapsed / duration) * 100 : 0;
 
     return (
-      <View style={ACVideoStyles.playerControlsStyle}>
+      <View style={Styles.playerControlsStyle}>
         <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
-        <ACProgressBar barWidth={this.calculateProgress()}/>
-        {this.renderClosedCaptionButton()}
-        <ACButton source={GoogleCastIcon} style={ACVideoStyles.googleCastIcon} onPress={this.handleOnGoogleCastPress} />
-        <ACElapsedTime duration={duration} elapsed={elapsed}/>
+        <ACProgressBar barWidth={playBackProgress}/>
+        <ACButton source={GoogleCastIcon} style={Styles.googleCastIconStyle} onPress={this.handleOnGoogleCastPress} />
+        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed}/>
       </View>
     );
-  }
+  };
 
-  render = () => {
+  render() {
     const { width, height } = this.props.style;
-
-    const { getClosedCaptionsTrackId } = Video;
-
-    const { selectedClosedCaptionsTrack, closedCaptionTracks } = this.state;
 
     return(
       <View style={{ flex: 1 }}>
         <Video 
           ref={this.videoPlayer}
           {...this.props}
-          selectedClosedCaptionsTrack={getClosedCaptionsTrackId(closedCaptionTracks.map(track => track.id), selectedClosedCaptionsTrack)}
-          onAvailableClosedCaptionsTracksChanged={this.handleOnAvailableClosedCaptionsTracksChanged}
-          handleOnAvailableAudioTracksChanged={this.handleOnAvailableAudioTracksChanged}
-          onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
+          onCurrentTimeUpdated={currentTime => this.setState({ elapsed: currentTime })}
           onPlaybackComplete={this.handleOnPlaybackComplete}
-          onDurationChanged={this.handleOnDurationChanged}
+          onDurationChanged={duration => this.setState({ duration, elapsed: 0 })}
           onErrorOccurred={this.handleOnErrorOccurred}
-          onPlaying={this.handleOnPlaying}
-          onReady={this.handleOnReady}
+          onPlaying={() => this.setState({ isPlaying: true })}
+          onReady={() => this.videoPlayer.current.play()}
         />
         <ACSwipe style={{ width, height }}
           {...this.props}
@@ -304,6 +196,38 @@ class ACVideo extends PureComponent {
        </View> 
     );
   }
+};
+
+const Styles = {
+  googleCastIconStyle: {
+    width: FormFactor.isTV ? 187 : 37.5,
+    height: FormFactor.isTV ? 180 : 30,
+  },
+  playIconStyle: {
+    width: FormFactor.isTV ? 180 : 34,
+    height: FormFactor.isTV ? 180 : 40,
+  },
+  pauseIconStyle: {
+    width: FormFactor.isTV ? 180 : 28,
+    height: FormFactor.isTV ? 180 : 38,
+  },
+  elapsedStyle: {
+    fontSize: FormFactor.isTV ? 25 : 18,
+    marginLeft: FormFactor.isTV ? 10 : 5,
+    color: '#FAFAFA',
+  },
+  playerControlsStyle: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'black',
+    alignItems: 'center',
+    position: 'absolute',
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    bottom: 0,
+  },
 };
 
 export default ACVideo;

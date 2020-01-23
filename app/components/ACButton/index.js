@@ -48,7 +48,7 @@ const Styles = {
     justifyContent: 'center',
     width: FormFactor.isTV ? 300 : 40,
     height: FormFactor.isTV ? 300 : 40,
-    borderColor: 'white',
+    borderColor: '#DEDEDE',
     borderWidth: FormFactor.isTV ? 1 : 0,
   },
   unfocused: {
