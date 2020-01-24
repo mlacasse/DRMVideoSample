@@ -1,6 +1,7 @@
 #ifndef _GOOGLECAST_MODULE_H_
 #define _GOOGLECAST_MODULE_H_
 
+#include <utility/YiTimer.h>
 #include <youireact/NativeModule.h>
 #include <youireact/modules/EventEmitter.h>
 
@@ -20,12 +21,17 @@ public:
     YI_RN_EXPORT_METHOD(connect)(std::string uniqueId);
     YI_RN_EXPORT_METHOD(disconnect)();
 
-    YI_RN_EXPORT_METHOD(play)(folly::dynamic source, folly::dynamic metadata);
+    YI_RN_EXPORT_METHOD(prepare)(folly::dynamic source, folly::dynamic metadata);
+    YI_RN_EXPORT_METHOD(play)();
     YI_RN_EXPORT_METHOD(pause)();
 
 private:
     virtual void StartObserving() override;
     virtual void StopObserving() override;
+    
+    void OnTimeout();
+
+    CYITimer m_timer;
 };
 
 } // namespace react

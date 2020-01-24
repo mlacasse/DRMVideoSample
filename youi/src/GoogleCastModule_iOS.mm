@@ -2,6 +2,8 @@
 
 #define LOG_TAG "GoogleCastModule"
 
+#define INTERVAL 1000
+
 #ifdef YI_IOS
 
 #include "apple/FollyUtils.h"
@@ -12,11 +14,15 @@ using namespace yi::react;
 
 GoogleCastModule::GoogleCastModule()
 {
+    SetSupportedEvents({ "update" });
+
     GCKDiscoveryCriteria *criteria = [[GCKDiscoveryCriteria alloc]
                                       initWithApplicationID:kGCKDefaultMediaReceiverApplicationID];
 
     GCKCastOptions *options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
     [GCKCastContext setSharedInstanceWithOptions:options];
+
+    m_timer.SetInterval(INTERVAL);
 }
 
 GoogleCastModule::~GoogleCastModule()
@@ -27,6 +33,18 @@ void GoogleCastModule::StartObserving()
 
 void GoogleCastModule::StopObserving()
 {}
+
+void GoogleCastModule::OnTimeout()
+{
+    GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
+    
+    if (sessionManager.currentSession != nil)
+    {
+        double approximateStreamPosition = [sessionManager.currentSession.remoteMediaClient approximateStreamPosition];
+
+        EmitEvent("change", folly::dynamic::object("position", approximateStreamPosition));
+    }
+}
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, connect)(std::string uniqueId)
 {
@@ -66,7 +84,7 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
     }
 }
 
-YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)(folly::dynamic source, folly::dynamic details)
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)(folly::dynamic source, folly::dynamic details)
 {
     id streamDictionary = convertFollyDynamic(source);
     id metadataDictionary = convertFollyDynamic(details);
@@ -97,11 +115,7 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)(folly::dynamic source, folly:
         if (remoteMediaClient != nil)
         {
             GCKRequest *request = [remoteMediaClient loadMedia:mediaInformation];
-            if (request != nil)
-            {
-                [remoteMediaClient play];
-            }
-            else
+            if (request == nil)
             {
                 YI_LOGE(LOG_TAG, "GoogleCast request failed!");
             }
@@ -117,6 +131,21 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)(folly::dynamic source, folly:
     }
 }
 
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)()
+{
+    GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
+    if (sessionManager.currentSession != nil)
+    {
+        GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
+        if (remoteMediaClient != nil)
+        {
+            [remoteMediaClient play];
+        }
+    }
+
+    m_timer.Start();
+}
+
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, pause)()
 {
     GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
@@ -128,6 +157,8 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, pause)()
             [remoteMediaClient pause];
         }
     }
+
+    m_timer.Stop();
 }
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, getAvailableDevices)(Callback successCallback, Callback failedCallback)

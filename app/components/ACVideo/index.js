@@ -7,11 +7,10 @@ import ACElapsedTime from '../ACElapsedTime';
 import ACProgressBar from '../ACProgressBar';
 import ACSwipe from '../ACSwipe';
 
-const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
 const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
-const { DevicePowerManagementBridge, GoogleCast } = NativeModules;
+const { DevicePowerManagementBridge } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -26,22 +25,13 @@ class ACVideo extends PureComponent {
       duration: 0,
       elapsed: 0,
       showControls: false,
-      isCasting: false,
       isPlaying: false,
     };
 
     this.videoPlayer = createRef();
-
-    this.receivers = null;
-    this.interval = null;
   }
 
   componentDidMount = () => {
-    this.interval = setInterval(() => {
-      GoogleCast.getAvailableDevices().then(
-        devices => this.receivers = Object.values(devices)
-      )}, 5000);
-
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 
     Input.addEventListener('Play', this.handleOnPlayPausePress);
@@ -51,9 +41,7 @@ class ACVideo extends PureComponent {
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
   };
 
-  componentDidUnmount = () => {
-    clearInterval(this.interval);
-
+  componentWillUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
 
     Input.addRemoveListener('Play', this.handleOnPlayPausePress);
@@ -64,11 +52,11 @@ class ACVideo extends PureComponent {
   };
 
   handleOnErrorOccurred = error => {
-    this.setState({ isPlaying: false });
-
     console.log(error);
 
     this.videoPlayer.current.stop();
+
+    this.setState({ isPlaying: false });
   };
 
   handleOnPlaybackComplete = () => {
@@ -88,52 +76,15 @@ class ACVideo extends PureComponent {
 
     if (keyCode !== undefined && eventType !== 'up' ) return;
 
-    const { isPlaying, isCasting } = this.state;
+    const { isPlaying } = this.state;
 
     if (isPlaying) {
       this.videoPlayer.current.pause();
-
-      if (isCasting) {
-        GoogleCast.pause();        
-      }
     } else {
       this.videoPlayer.current.play();
-
-      if (isCasting) {
-        const source = {
-          uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-          type: 'application/x-mpegURL',
-        };
-    
-        const metadata = {
-          title: 'Bip-Bop [16x9]',
-          description: 'Bip-Bop sample video with captions',
-          image: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
-        };
-
-        GoogleCast.play(source, metadata);        
-      }
     }
 
     this.setState({ isPlaying: !isPlaying });
-  };
-
-  handleOnGoogleCastPress = event => {
-    const { keyCode, eventType } = event;
-
-    if (keyCode !== undefined && eventType !== 'up' ) return;
-
-    const { isCasting } = this.state;
-
-    if (!isCasting) {
-      GoogleCast.connect('com.google.cast.CastDevice:3cd6f8e9dc13c2c6915ea65f94de15b6');
-    } else {
-      GoogleCast.disconnect();
-    }
-
-    this.videoPlayer.current.pause();
-
-    this.setState({ isCasting: !isCasting, isPlaying: false });
   };
 
   handleOnTap = () => {
@@ -167,7 +118,6 @@ class ACVideo extends PureComponent {
       <View style={Styles.playerControlsStyle}>
         <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
         <ACProgressBar barWidth={playBackProgress}/>
-        <ACButton source={GoogleCastIcon} style={Styles.googleCastIconStyle} onPress={this.handleOnGoogleCastPress} />
         <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed}/>
       </View>
     );
@@ -178,7 +128,7 @@ class ACVideo extends PureComponent {
 
     return(
       <View style={{ flex: 1 }}>
-        <Video 
+        <Video
           ref={this.videoPlayer}
           {...this.props}
           onCurrentTimeUpdated={currentTime => this.setState({ elapsed: currentTime })}
@@ -199,10 +149,6 @@ class ACVideo extends PureComponent {
 };
 
 const Styles = {
-  googleCastIconStyle: {
-    width: FormFactor.isTV ? 187 : 37.5,
-    height: FormFactor.isTV ? 180 : 30,
-  },
   playIconStyle: {
     width: FormFactor.isTV ? 180 : 34,
     height: FormFactor.isTV ? 180 : 40,

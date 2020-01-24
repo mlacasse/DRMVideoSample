@@ -44,7 +44,7 @@ class AppComponent extends PureComponent {
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   };
 
-  componentDidUnmount = () => {
+  componentWillUnmount = () => {
     this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
