@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 class ACElapsedTime extends PureComponent {
   static propTypes = {
-    duration: PropTypes.number.isRequired,
     elapsed: PropTypes.number.isRequired,
     style: PropTypes.object.isRequired,
+    duration: PropTypes.number,
   };
 
   createElapsedTimeText = () => {

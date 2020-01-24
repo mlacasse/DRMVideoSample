@@ -35,6 +35,8 @@ class ACScaler extends PureComponent {
   cloneStyleOnToChildren = ({ width, height }) => {
     const { children } = this.props;
 
+    if (children === undefined) return null;
+
     return React.cloneElement(children, { style: { ...children.props.style, width, height }});
   }
 

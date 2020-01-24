@@ -12,6 +12,7 @@ import withWidevine from './withWidevine';
 export {
   ACButton,
   ACElapsedTime,
+  ACGoogleCast,
   ACProgressBar,
   ACScaler,
   ACSwipe,

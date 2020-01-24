@@ -21,14 +21,11 @@ public:
     YI_RN_EXPORT_METHOD(connect)(std::string uniqueId);
     YI_RN_EXPORT_METHOD(disconnect)();
 
-    YI_RN_EXPORT_METHOD(prepare)(folly::dynamic source, folly::dynamic metadata);
+    YI_RN_EXPORT_METHOD(prepare)(Callback successCallback, Callback failedCallback, folly::dynamic source, folly::dynamic metadata);
     YI_RN_EXPORT_METHOD(play)();
     YI_RN_EXPORT_METHOD(pause)();
 
 private:
-    virtual void StartObserving() override;
-    virtual void StopObserving() override;
-    
     void OnTimeout();
 
     CYITimer m_timer;

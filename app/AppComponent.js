@@ -1,13 +1,15 @@
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { DeviceInfo, Input } from '@youi/react-native-youi';
-import { ACVideo, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
+import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
+import { ACButton, ACVideo, ACGoogleCast, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 import { CLEARStream } from './store/stream';
 
-const { Dimensions, OrientationLock } = NativeModules;
+const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
+
+const { Dimensions, OrientationLock, GoogleCast } = NativeModules;
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -17,6 +19,7 @@ class AppComponent extends PureComponent {
 
     this.state = {
       ignoreSwipe: false,
+      isCasting: false,
       streamInfo: this.props.streamInfo,
       window: {
         width,  
@@ -35,6 +38,7 @@ class AppComponent extends PureComponent {
     OrientationLock.setRotationMode(6);
 
     this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
+    this.interval = null;
   }
 
   componentDidMount = () => {
@@ -42,6 +46,11 @@ class AppComponent extends PureComponent {
 
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
+
+    this.interval = setInterval(() => {
+      GoogleCast.getAvailableDevices()
+        .then(devices => console.log('GoogleCast', Object.values(devices)))
+    }, 5000);
   };
 
   componentWillUnmount = () => {
@@ -49,6 +58,8 @@ class AppComponent extends PureComponent {
 
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
+
+    clearInterval(this.interval);
   };
 
   handleOnOrientationChange = ({ window })=> {
@@ -69,10 +80,55 @@ class AppComponent extends PureComponent {
 
   handleOnTap = () => {
     this.setState({ ignoreSwipe: !this.state.ignoreSwipe });
-  }
+  };
+
+  handleOnCast = () => {
+    this.setState({ isCasting: !this.state.isCasting, ignoreSwipe: false });  
+  };
+
+  renderGoogleCastControl = () => {
+    const { width } = this.state.window;
+
+    if (!this.state.isCasting && !this.state.ignoreSwipe) return null;
+
+    return (
+      <View style={{ width, position: 'absolute', alignItems: 'flex-end' }}>
+        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnCast} />
+      </View>
+    );
+  };
+
+  renderVideoPlayer = () => {
+    const { streamInfo } = this.state;
+
+    return (
+      <ACVideo 
+        source={streamInfo}
+        continuous={1}
+        maxBitrate={400000}
+        bufferLength={{
+          min: 5000,
+          max: 15000,
+        }}
+        onSwipeLeft={this.handleOnSwipeLeft}
+        onSwipeRight={this.handleOnSwipeRight}
+        onTap={this.handleOnTap}
+      />
+    );
+  };
+
+  renderGoogleCastPlayer = () => {
+    const { streamInfo } = this.state;
+
+    return (
+      <ACGoogleCast source={streamInfo} />
+    );
+  };
 
   render() {
-    const { width, height } = this.state.window;
+    const { isCasting, window } = this.state;
+
+    const { width, height } = window;
 
     return(
       <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center' }}>
@@ -81,22 +137,21 @@ class AppComponent extends PureComponent {
           yRatio={9}
           screenDimensions={{ width, height }}
         >
-          <ACVideo 
-            source={this.state.streamInfo}
-            continuous={1}
-            maxBitrate={400000}
-            bufferLength={{
-              min: 5000,
-              max: 15000,
-            }}
-            onSwipeLeft={this.handleOnSwipeLeft}
-            onSwipeRight={this.handleOnSwipeRight}
-            onTap={this.handleOnTap}
-          />
+          {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}          
         </ACScaler>
+        {this.renderGoogleCastControl()}
       </View>
     );
   }
+};
+
+const Styles = {
+  GoogleCastIconStyle: {
+    width: FormFactor.isTV ? 180 : 50,
+    height: FormFactor.isTV ? 144 : 40,
+    marginRight: 40,
+    marginTop: 30,
+  },
 };
 
 const mapStateToProps = state => {

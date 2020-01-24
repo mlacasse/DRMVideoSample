@@ -44,9 +44,9 @@ class ACVideo extends PureComponent {
   componentWillUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
 
-    Input.addRemoveListener('Play', this.handleOnPlayPausePress);
-    Input.addRemoveListener('Pause', this.handleOnPlayPausePress);
-    Input.addRemoveListener('MediaPlayPause', this.handleOnPlayPausePress);
+    Input.removeEventListener('Play', this.handleOnPlayPausePress);
+    Input.removeEventListener('Pause', this.handleOnPlayPausePress);
+    Input.removeEventListener('MediaPlayPause', this.handleOnPlayPausePress);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
   };

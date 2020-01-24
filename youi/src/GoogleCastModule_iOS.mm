@@ -2,8 +2,6 @@
 
 #define LOG_TAG "GoogleCastModule"
 
-#define INTERVAL 1000
-
 #ifdef YI_IOS
 
 #include "apple/FollyUtils.h"
@@ -22,17 +20,15 @@ GoogleCastModule::GoogleCastModule()
     GCKCastOptions *options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
     [GCKCastContext setSharedInstanceWithOptions:options];
 
-    m_timer.SetInterval(INTERVAL);
+    m_timer.TimedOut.Connect(*this, &GoogleCastModule::OnTimeout, EYIConnectionType::Async);
+    m_timer.SetSingleShot(false);
+    m_timer.SetInterval(1000);
 }
 
 GoogleCastModule::~GoogleCastModule()
-{}
-
-void GoogleCastModule::StartObserving()
-{}
-
-void GoogleCastModule::StopObserving()
-{}
+{
+    m_timer.TimedOut.Disconnect(*this);
+}
 
 void GoogleCastModule::OnTimeout()
 {
@@ -40,9 +36,13 @@ void GoogleCastModule::OnTimeout()
     
     if (sessionManager.currentSession != nil)
     {
-        double approximateStreamPosition = [sessionManager.currentSession.remoteMediaClient approximateStreamPosition];
+        GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
+        if (remoteMediaClient != nil)
+        {
+            double approximateStreamPosition = [remoteMediaClient approximateStreamPosition];
 
-        EmitEvent("change", folly::dynamic::object("position", approximateStreamPosition));
+            EmitEvent("update", folly::dynamic::object("elapsed", approximateStreamPosition));
+        }
     }
 }
 
@@ -56,20 +56,16 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, connect)(std::string uniqueId)
 
     if (device == nil)
     {
-        YI_LOGD(LOG_TAG, "GoogleCast could not connect to %s!", uniqueId.c_str());
+        YI_LOGE(LOG_TAG, "GoogleCast could not connect to device!");
     }
     else
     {
         GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
 
         BOOL bSuccess = [sessionManager startSessionWithDevice:device];
-        if (bSuccess)
+        if (!bSuccess)
         {
-            YI_LOGD(LOG_TAG, "GoogleCast connected to %s", uniqueId.c_str());
-        }
-        else
-        {
-            YI_LOGE(LOG_TAG, "GoogleCast could not connect to %s!", uniqueId.c_str());
+            YI_LOGE(LOG_TAG, "GoogleCast could not connect to device!");
         }
     }
 }
@@ -84,29 +80,10 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
     }
 }
 
-YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)(folly::dynamic source, folly::dynamic details)
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)
+(Callback successCallback, Callback failedCallback, folly::dynamic source, folly::dynamic details)
 {
-    id streamDictionary = convertFollyDynamic(source);
-    id metadataDictionary = convertFollyDynamic(details);
-
-    GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]
-                                    initWithMetadataType:GCKMediaMetadataTypeMovie];
-    [metadata setString: metadataDictionary[@"title"] forKey:kGCKMetadataKeyTitle];
-    [metadata setString: metadataDictionary[@"description"] forKey:kGCKMetadataKeySubtitle];
-    [metadata addImage:[[GCKImage alloc]
-                        initWithURL:[[NSURL alloc] initWithString: metadataDictionary[@"image"]]
-                        width:640
-                        height:360]];
-
-    GCKMediaInformationBuilder *mediaInfoBuilder =
-      [[GCKMediaInformationBuilder alloc] initWithContentURL:
-       [NSURL URLWithString:streamDictionary[@"uri"]]];
-
-    mediaInfoBuilder.streamType = GCKMediaStreamTypeNone;
-    mediaInfoBuilder.contentType = streamDictionary[@"type"];
-    mediaInfoBuilder.metadata = metadata;
-
-    GCKMediaInformation *mediaInformation = [mediaInfoBuilder build];
+    m_timer.Stop();
 
     GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
     if (sessionManager.currentSession != nil)
@@ -114,20 +91,54 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)(folly::dynamic source, fol
         GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
         if (remoteMediaClient != nil)
         {
-            GCKRequest *request = [remoteMediaClient loadMedia:mediaInformation];
-            if (request == nil)
+            id streamDictionary = convertFollyDynamic(source);
+            id metadataDictionary = convertFollyDynamic(details);
+
+            GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]
+                                            initWithMetadataType:GCKMediaMetadataTypeMovie];
+            [metadata setString: metadataDictionary[@"title"] forKey:kGCKMetadataKeyTitle];
+            [metadata setString: metadataDictionary[@"description"] forKey:kGCKMetadataKeySubtitle];
+            [metadata addImage:[[GCKImage alloc]
+                                initWithURL:[[NSURL alloc] initWithString: metadataDictionary[@"image"]]
+                                width: [metadataDictionary[@"width"] integerValue]
+                                height: [metadataDictionary[@"height"] integerValue]]];
+
+            GCKMediaInformationBuilder *mediaInfoBuilder =
+              [[GCKMediaInformationBuilder alloc] initWithContentURL:
+               [NSURL URLWithString:streamDictionary[@"uri"]]];
+
+            mediaInfoBuilder.streamType = GCKMediaStreamTypeNone;
+            mediaInfoBuilder.contentType = streamDictionary[@"type"];
+            mediaInfoBuilder.metadata = metadata;
+
+            GCKMediaInformation *mediaInformation = [mediaInfoBuilder build];
+
+            GCKRequest *request = [remoteMediaClient loadMedia:mediaInformation autoplay:YES];
+            if (request != nil)
             {
-                YI_LOGE(LOG_TAG, "GoogleCast request failed!");
+                m_timer.Start();
+
+                successCallback({});
+            }
+            else
+            {
+                YI_LOGE(LOG_TAG, "GoogleCast request for media failed!");
+
+                failedCallback({});
             }
         }
         else
         {
-            YI_LOGE(LOG_TAG, "No remote media client!");
+            YI_LOGE(LOG_TAG, "GoogleCast no remote media client!");
+
+            failedCallback({});
         }
     }
     else
     {
-        YI_LOGE(LOG_TAG, "No session!");
+        YI_LOGE(LOG_TAG, "GoogleCast no session!");
+
+        failedCallback({});
     }
 }
 
