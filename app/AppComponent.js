@@ -1,15 +1,20 @@
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
-import { ACButton, ACVideo, ACGoogleCast, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
+import { ACButton, ACVideo, ACGoogleCast, ACPicker, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
 import { CLEARStream } from './store/stream';
 
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 
 const { Dimensions, OrientationLock, GoogleCast } = NativeModules;
+
+const localDevice = {
+  uniqueId: undefined,
+  friendlyName: `${FormFactor.isHandset ? 'Phone' : 'Tablet'} (this device)`,
+};
 
 class AppComponent extends PureComponent {
   constructor(props) {
@@ -18,6 +23,7 @@ class AppComponent extends PureComponent {
     const { width, height } = Dimensions.window;
 
     this.state = {
+      showReceivers: false,
       ignoreSwipe: false,
       isCasting: false,
       streamInfo: this.props.streamInfo,
@@ -25,6 +31,8 @@ class AppComponent extends PureComponent {
         width,  
         height,
       },
+      receivers: [],
+      receiver: undefined,
     };
 
     // 0 = Landscape
@@ -49,8 +57,10 @@ class AppComponent extends PureComponent {
 
     this.interval = setInterval(() => {
       GoogleCast.getAvailableDevices()
-        .then(devices => console.log('GoogleCast', Object.values(devices)))
-    }, 5000);
+        .then(devices => {
+          this.setState({ receivers: Object.values(devices) })
+        })
+    }, 1000);
   };
 
   componentWillUnmount = () => {
@@ -82,8 +92,28 @@ class AppComponent extends PureComponent {
     this.setState({ ignoreSwipe: !this.state.ignoreSwipe });
   };
 
-  handleOnCast = () => {
-    this.setState({ isCasting: !this.state.isCasting, ignoreSwipe: false });  
+  handleOnPressGoogleCastControl = () => {
+    const { showReceivers } = this.state;
+
+    this.setState({ showReceivers: !showReceivers });
+  };
+
+  handleOnCast = uniqueId => {
+    const isCasting = uniqueId ? true : false;
+
+    this.setState({ isCasting, receiver: uniqueId, showReceivers: false, ignoreSwipe: false });  
+  };
+
+  renderGoogleCastReceivers = () => {
+    const { receivers, showReceivers } = this.state;
+
+    if (!showReceivers) return null;
+
+    const devices = [ localDevice, ...receivers ];
+
+    return (
+      <ACPicker style={Styles.PickerStyle} data={devices} onPress={this.handleOnCast} />
+    );
   };
 
   renderGoogleCastControl = () => {
@@ -93,7 +123,8 @@ class AppComponent extends PureComponent {
 
     return (
       <View style={{ width, position: 'absolute', alignItems: 'flex-end' }}>
-        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnCast} />
+        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
+        {this.renderGoogleCastReceivers()}
       </View>
     );
   };
@@ -118,10 +149,10 @@ class AppComponent extends PureComponent {
   };
 
   renderGoogleCastPlayer = () => {
-    const { streamInfo } = this.state;
+    const { streamInfo, receiver } = this.state;
 
     return (
-      <ACGoogleCast source={streamInfo} />
+      <ACGoogleCast source={streamInfo} receiver={receiver}/>
     );
   };
 
@@ -137,7 +168,7 @@ class AppComponent extends PureComponent {
           yRatio={9}
           screenDimensions={{ width, height }}
         >
-          {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}          
+          {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}
         </ACScaler>
         {this.renderGoogleCastControl()}
       </View>
@@ -146,11 +177,23 @@ class AppComponent extends PureComponent {
 };
 
 const Styles = {
+  PickerStyle: {
+    borderRadius: '5',
+    borderColor: '#DEDEDE',
+    borderWidth: '1',
+    padding: '10',
+    backgroundColor: 'black',
+    marginRight: FormFactor.isTV ? 50 : 90,
+    marginTop: FormFactor.isTV ? 0 : 30,
+    height: '300',
+  },
   GoogleCastIconStyle: {
-    width: FormFactor.isTV ? 180 : 50,
-    height: FormFactor.isTV ? 144 : 40,
-    marginRight: 40,
-    marginTop: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: FormFactor.isTV ? 100 : 50,
+    height: FormFactor.isTV ? 80 : 40,
+    marginRight: FormFactor.isTV ? 0 : 40,
+    marginTop: FormFactor.isTV ? 0 : 30,
   },
 };
 

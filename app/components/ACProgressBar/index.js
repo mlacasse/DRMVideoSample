@@ -23,13 +23,15 @@ const Styles = {
     marginLeft: FormFactor.isTV ? 15 : 10,
   },
   trackStyle: {
+    borderRadius: FormFactor.isTV ? 12 : 6,
     backgroundColor: '#DEDEDE',
-    height: FormFactor.isTV ? 25 : 15,
+    height: FormFactor.isTV ? 40 : 15,
     width: '100%'
   },
   trackFillStyle: {
+    borderRadius: FormFactor.isTV ? 12 : 6,
     backgroundColor: 'red',
-    height: FormFactor.isTV ? 25 : 15,
+    height: FormFactor.isTV ? 40 : 15,
     width: '100%'
   },
 };

@@ -37,15 +37,20 @@ class ACGoogleCast extends PureComponent {
       isReady: false,
     };
 
-    this.receiver = 'com.google.cast.CastDevice:cca69f33518bfec53dcfa3bd829cb101';
-
     this.receiverUpdateEvent = new NativeEventEmitter(GoogleCast);
   }
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (this.props.receiver != prevProps.receiver) {
+      GoogleCast.disconnect();
+      GoogleCast.connect(this.props.receiver);
+    }
+  };
 
   componentDidMount = () => {
     this.receiverUpdateEvent.addListener('update', this.handleOnReceiverUpdate);
 
-    GoogleCast.connect(this.receiver);
+    GoogleCast.connect(this.props.receiver);
   };
 
   componentWillUnmount = () => {
@@ -91,8 +96,8 @@ class ACGoogleCast extends PureComponent {
     return (
       <View style={Styles.playerControlsStyle}>
         <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
-        <ACProgressBar barWidth={playBackProgress}/>
-        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed}/>
+        <ACProgressBar barWidth={playBackProgress} />
+        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed} />
       </View>
     );
   }
@@ -100,12 +105,12 @@ class ACGoogleCast extends PureComponent {
 
 const Styles = {
   playIconStyle: {
-    width: FormFactor.isTV ? 180 : 34,
-    height: FormFactor.isTV ? 180 : 40,
+    width: FormFactor.isTV ? 95 : 34,
+    height: FormFactor.isTV ? 110 : 40,
   },
   pauseIconStyle: {
-    width: FormFactor.isTV ? 180 : 28,
-    height: FormFactor.isTV ? 180 : 38,
+    width: FormFactor.isTV ? 68 : 28,
+    height: FormFactor.isTV ? 100 : 38,
   },
   elapsedStyle: {
     fontSize: FormFactor.isTV ? 25 : 18,

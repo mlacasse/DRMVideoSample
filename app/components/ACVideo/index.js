@@ -117,8 +117,8 @@ class ACVideo extends PureComponent {
     return (
       <View style={Styles.playerControlsStyle}>
         <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
-        <ACProgressBar barWidth={playBackProgress}/>
-        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed}/>
+        <ACProgressBar barWidth={playBackProgress} />
+        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed} />
       </View>
     );
   };
@@ -150,12 +150,12 @@ class ACVideo extends PureComponent {
 
 const Styles = {
   playIconStyle: {
-    width: FormFactor.isTV ? 180 : 34,
-    height: FormFactor.isTV ? 180 : 40,
+    width: FormFactor.isTV ? 95 : 34,
+    height: FormFactor.isTV ? 110 : 40,
   },
   pauseIconStyle: {
-    width: FormFactor.isTV ? 180 : 28,
-    height: FormFactor.isTV ? 180 : 38,
+    width: FormFactor.isTV ? 68 : 28,
+    height: FormFactor.isTV ? 100 : 38,
   },
   elapsedStyle: {
     fontSize: FormFactor.isTV ? 25 : 18,

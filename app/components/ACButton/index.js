@@ -46,17 +46,17 @@ const Styles = {
     marginLeft: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    width: FormFactor.isTV ? 300 : 40,
-    height: FormFactor.isTV ? 300 : 40,
+    width: FormFactor.isTV ? 120 : 40,
+    height: FormFactor.isTV ? 120 : 40,
     borderColor: '#DEDEDE',
-    borderWidth: FormFactor.isTV ? 1 : 0,
+    borderWidth: FormFactor.isTV ? 3 : 0,
   },
   unfocused: {
     marginLeft: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    width: FormFactor.isTV ? 300 : 40,
-    height: FormFactor.isTV ? 300 : 40,
+    width: FormFactor.isTV ? 120 : 40,
+    height: FormFactor.isTV ? 120 : 40,
   },
 };
 

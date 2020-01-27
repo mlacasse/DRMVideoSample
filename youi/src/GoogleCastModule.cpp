@@ -2,8 +2,6 @@
 
 #define LOG_TAG "GoogleCastModule"
 
-#define INTERVAL 1000
-
 using namespace yi::react;
 
 YI_RN_INSTANTIATE_MODULE(GoogleCastModule, EventEmitterModule);
@@ -11,16 +9,11 @@ YI_RN_INSTANTIATE_MODULE(GoogleCastModule, EventEmitterModule);
 #ifndef YI_IOS
 GoogleCastModule::GoogleCastModule() {
     SetSupportedEvents({ "update" });
-
-    m_timer.SetInterval(INTERVAL);
     
     YI_LOGD(LOG_TAG, "GoogleCast is not supported on this platform.");
 }
 
 GoogleCastModule::~GoogleCastModule()
-{}
-
-void GoogleCastModule::StopObserving()
 {}
 
 void GoogleCastModule::OnTimeout()
