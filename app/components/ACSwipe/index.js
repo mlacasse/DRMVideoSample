@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
-import { View, TouchableWithoutFeedback } from 'react-native';
+import {
+  View,
+  TouchableWithoutFeedback,
+  NativeModules,
+  NativeEventEmitter
+} from 'react-native';
 import { FormFactor } from '@youi/react-native-youi';
 import PropTypes from 'prop-types';
+
+const { Dimensions } = NativeModules;
 
 class ACSwipe extends Component {
   static propTypes = {
@@ -18,6 +25,8 @@ class ACSwipe extends Component {
 
     const { distThreshold, angleThreshold, velocityThreshold } = props;
 
+    const { width, height } = Dimensions.window;
+    
     this.state = {
       start: undefined,
       finished: false,
@@ -26,8 +35,26 @@ class ACSwipe extends Component {
       distThreshold: distThreshold || 180.0,
       angleThreshold: angleThreshold || 10.0,
       velocityThreshold: velocityThreshold || 300.0,
+      window: {
+        width,  
+        height,
+      },
     };
+
+    this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
   }
+
+  componentDidMount = () => {
+    this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
+  };
+
+  componentWillUnmount = () => {
+    this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
+  };
+
+  handleOnOrientationChange = ({ window })=> {
+    this.setState({ window });
+  };
 
   handleOnMoveShouldSetResponder = evt => {
     const { pageX, pageY, timestamp } = evt.nativeEvent;
@@ -117,7 +144,7 @@ class ACSwipe extends Component {
   render() {
     if (FormFactor.isTV) return null;
 
-    const responderStyle = { ...this.props.style, position: 'absolute' };
+    const responderStyle = { ...this.props.style, ...this.state.window, position: 'absolute' };
 
     const responderProps = {
       onMoveShouldSetResponder: this.handleOnMoveShouldSetResponder,

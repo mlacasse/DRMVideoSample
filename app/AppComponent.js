@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules, NativeEventEmitter } from 'react-native';
+import { View, NativeModules } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
@@ -9,7 +9,7 @@ import { nextStream, prevStream } from './store/stream/actions';
 
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 
-const { Dimensions, OrientationLock, GoogleCast } = NativeModules;
+const { OrientationLock, GoogleCast } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -19,8 +19,6 @@ const localDevice = {
 class AppComponent extends PureComponent {
   constructor(props) {
     super(props);
-
-    const { width, height } = Dimensions.window;
 
     this.state = {
       showReceivers: false,
@@ -44,13 +42,10 @@ class AppComponent extends PureComponent {
 
     OrientationLock.setRotationMode(6);
 
-    this.dimensionsChangeEvent = new NativeEventEmitter(Dimensions);
     this.interval = null;
   }
 
   componentDidMount = () => {
-    this.dimensionsChangeEvent.addListener('change', this.handleOnOrientationChange);
-
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
 
@@ -63,16 +58,10 @@ class AppComponent extends PureComponent {
   };
 
   componentWillUnmount = () => {
-    this.dimensionsChangeEvent.removeListener('change', this.handleOnOrientationChange);
-
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
 
     clearInterval(this.interval);
-  };
-
-  handleOnOrientationChange = ({ window })=> {
-    this.setState({ window });
   };
 
   handleOnSwipeRight = () => {
@@ -116,12 +105,10 @@ class AppComponent extends PureComponent {
   };
 
   renderGoogleCastControl = () => {
-    const { width } = this.state.window;
-
     if (!this.state.isCasting && !this.state.ignoreSwipe) return null;
 
     return (
-      <View style={{ width, position: 'absolute', alignItems: 'flex-end' }}>
+      <View style={{ width: '100%', position: 'absolute', alignItems: 'flex-end' }}>
         <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
         {this.renderGoogleCastReceivers()}
       </View>
@@ -133,6 +120,7 @@ class AppComponent extends PureComponent {
 
     return (
       <ACVideo 
+        style={{ flex: 1 }}
         source={streamInfo}
         continuous={1}
         maxBitrate={400000}
@@ -156,16 +144,13 @@ class AppComponent extends PureComponent {
   };
 
   render() {
-    const { isCasting, window } = this.state;
-
-    const { width, height } = window;
+    const { isCasting } = this.state;
 
     return(
       <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center' }}>
         <ACScaler
           xRatio={16} 
           yRatio={9}
-          screenDimensions={{ width, height }}
         >
           {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}
         </ACScaler>

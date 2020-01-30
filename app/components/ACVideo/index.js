@@ -132,8 +132,6 @@ class ACVideo extends PureComponent {
   };
 
   render() {
-    const { width, height } = this.props.style;
-
     return(
       <View style={{ flex: 1 }}>
         <Video
@@ -146,10 +144,7 @@ class ACVideo extends PureComponent {
           onPlaying={() => this.setState({ isPlaying: true })}
           onReady={() => this.videoPlayer.current.play()}
         />
-        <ACSwipe style={{ width, height }}
-          {...this.props}
-          onTap={this.handleOnTap}
-        />
+        <ACSwipe {...this.props} onTap={this.handleOnTap} />
         {this.renderControls()}
        </View> 
     );
