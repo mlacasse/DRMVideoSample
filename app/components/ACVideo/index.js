@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from 'react';
-import { View, AppState, BackHandler, NativeModules } from 'react-native';
+import { findNodeHandle, View, AppState, BackHandler, NativeModules } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input, FormFactor } from '@youi/react-native-youi';
 import ACButton from '../ACButton';
@@ -10,7 +10,7 @@ import ACSwipe from '../ACSwipe';
 const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
 const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
-const { DevicePowerManagementBridge } = NativeModules;
+const { DevicePowerManagementBridge, Airplay } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -34,6 +34,8 @@ class ACVideo extends PureComponent {
   componentDidMount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 
+    Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), true);
+
     Input.addEventListener('Play', this.handleOnPlayPausePress);
     Input.addEventListener('Pause', this.handleOnPlayPausePress);
     Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
@@ -44,6 +46,8 @@ class ACVideo extends PureComponent {
 
   componentWillUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
+
+    Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), false);
 
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);

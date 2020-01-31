@@ -43,7 +43,7 @@ class ACButton extends PureComponent {
 
 const Styles = {
   focused: {
-    marginLeft: 5,
+    margin: FormFactor.isTV ? 15 : 10,
     alignItems: 'center',
     justifyContent: 'center',
     width: FormFactor.isTV ? 120 : 40,
@@ -52,11 +52,13 @@ const Styles = {
     borderWidth: FormFactor.isTV ? 3 : 0,
   },
   unfocused: {
-    marginLeft: 5,
+    margin: FormFactor.isTV ? 15 : 10,
     alignItems: 'center',
     justifyContent: 'center',
     width: FormFactor.isTV ? 120 : 40,
     height: FormFactor.isTV ? 120 : 40,
+    borderColor: 'transparent',
+    borderWidth: FormFactor.isTV ? 3 : 0,
   },
 };
 

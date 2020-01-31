@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules } from 'react-native';
+import { View, NativeModules, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
@@ -8,8 +8,9 @@ import { ACButton, ACVideo, ACGoogleCast, ACPicker, ACScaler, withFairplay, with
 import { nextStream, prevStream } from './store/stream/actions';
 
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
+const AirplayIcon = { 'uri': 'res://drawable/default/airplay.png' };
 
-const { OrientationLock, GoogleCast } = NativeModules;
+const { OrientationLock, GoogleCast, PlatformConstants } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -86,6 +87,10 @@ class AppComponent extends PureComponent {
     this.setState({ showReceivers: !showReceivers });
   };
 
+  handleOnPressAirplayControl = () => {
+
+  };
+
   handleOnCast = uniqueId => {
     const isCasting = uniqueId ? true : false;
 
@@ -108,9 +113,10 @@ class AppComponent extends PureComponent {
     if (!this.state.isCasting && !this.state.ignoreSwipe) return null;
 
     return (
-      <View style={{ width: '100%', position: 'absolute', alignItems: 'flex-end' }}>
-        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
+      <View style={{ width: '100%', position: 'absolute', flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
         {this.renderGoogleCastReceivers()}
+        <ACButton source ={AirplayIcon} style={Styles.AirplayIconStyle} onPress={this.handleOnPressAirplayControl} />
+        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
       </View>
     );
   };
@@ -162,13 +168,12 @@ class AppComponent extends PureComponent {
 
 const Styles = {
   PickerStyle: {
+    margin: FormFactor.isTV ? 15 : 10,
     borderRadius: '5',
     borderColor: '#DEDEDE',
     borderWidth: '1',
     padding: '10',
     backgroundColor: 'black',
-    marginRight: FormFactor.isTV ? 50 : 90,
-    marginTop: FormFactor.isTV ? 0 : 30,
     height: '300',
   },
   GoogleCastIconStyle: {
@@ -176,8 +181,13 @@ const Styles = {
     justifyContent: 'center',
     width: FormFactor.isTV ? 100 : 50,
     height: FormFactor.isTV ? 80 : 40,
-    marginRight: FormFactor.isTV ? 0 : 40,
-    marginTop: FormFactor.isTV ? 0 : 30,
+  },
+  AirplayIconStyle: {
+    opacity: PlatformConstants.platform === 'ios' ? 1 : 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: FormFactor.isTV ? 100 : 50,
+    height: FormFactor.isTV ? 80 : 40,
   },
 };
 

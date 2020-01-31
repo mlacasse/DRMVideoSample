@@ -1,11 +1,12 @@
 // © You i Labs Inc. 2000-2019. All rights reserved.
 #include "App.h"
 
+#include "AirplayModule.h"
 #include "DevicePowerManagementBridgeModule.h"
 #include "DimensionsModule.h"
+#include "GoogleCastModule.h"
 #include "OrientationLockModule.h"
 #include "TrackpadModule.h"
-#include "GoogleCastModule.h"
 
 #include <automation/YiWebDriverLocator.h>
 
@@ -116,9 +117,10 @@ bool App::UserInit()
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
     GetBridge().AddModule<DimensionsModule>();
+    GetBridge().AddModule<AirplayModule>();
+    GetBridge().AddModule<GoogleCastModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<TrackpadModule>();
-    GetBridge().AddModule<GoogleCastModule>();
 
     return result;
 }
