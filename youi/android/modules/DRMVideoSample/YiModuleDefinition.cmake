@@ -28,7 +28,7 @@ yi_define_module(DRMVideoSample
         "YI_BUILD_NUMBER=1"
         "YI_VERSION_NUMBER=1.0.0"
         "YI_API_LEVEL=21"
-        "YI_TARGET_SDK_API_LEVEL=27"
+        "YI_TARGET_SDK_API_LEVEL=28"
         "YI_IP_CONFIG=${YI_IP_CONFIG}"
         ${USE_LOCAL_JS}
         ${USE_JS_INLINE}

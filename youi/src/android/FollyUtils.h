@@ -1,19 +1,37 @@
 #ifdef YI_ANDROID
 
-#ifndef FOLLY_UTILS_H
-#define FOLLY_UTILS_H
-
-#include "JniGlobalRefsManager.h"
+#ifndef _FOLLY_UTILS_H_
+#define _FOLLY_UTILS_H_
 
 #include <jni.h>
+
 #include <android/log.h>
+
+#include <folly/json.h>
+#include <folly/dynamic.h>
+
+class FollyUtils
+{
+public:
+    FollyUtils(const folly::dynamic &dyn);
+    ~FollyUtils();
+    typedef std::shared_ptr<FollyUtils> Ptr;
+
+    jobject get() const;
+    bool isJsonKind() const;
+private:
+    void follyDynamicObjectToJavaHashMap(const folly::dynamic &dyn);
+
+    jobject mGlobalRef;
+    bool mIsJsonKind;
+};
+
+typedef FollyUtils JniGlobal;
 
 JniGlobal::Ptr getDictionaryObject(const folly::dynamic &dyn);
 std::shared_ptr<std::string> getStringFromJString(const jstring& jStr);
 
-# define LOGD(tag,...) __android_log_print(ANDROID_LOG_DEBUG, tag, __VA_ARGS__)
-
 #endif
 
-#endif  //FOLLY_UTILS_H
+#endif  //_FOLLY_UTILS_H_
 

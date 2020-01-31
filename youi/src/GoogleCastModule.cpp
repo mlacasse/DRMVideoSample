@@ -1,3 +1,5 @@
+#ifndef YI_IOS
+
 #include "GoogleCastModule.h"
 
 #define LOG_TAG "GoogleCastModule"
@@ -6,7 +8,6 @@ using namespace yi::react;
 
 YI_RN_INSTANTIATE_MODULE(GoogleCastModule, EventEmitterModule);
 
-#ifndef YI_IOS
 GoogleCastModule::GoogleCastModule() {
     SetSupportedEvents({ "update" });
     

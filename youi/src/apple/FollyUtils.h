@@ -1,7 +1,7 @@
 #if defined(YI_IOS) || defined(YI_TVOS) || defined(YI_OSX)
 
-#ifndef FOLLY_UTILS_H
-#define FOLLY_UTILS_H
+#ifndef _FOLLY_UTILS_H_
+#define _FOLLY_UTILS_H_
 
 #include <folly/dynamic.h>
 
@@ -11,6 +11,6 @@
 id convertFollyDynamic(const folly::dynamic &dyn);
 @end
 
-#endif /* FOLLY_UTILS_H */
+#endif /* _FOLLY_UTILS_H_ */
 
 #endif

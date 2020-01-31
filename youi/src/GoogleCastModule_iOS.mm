@@ -1,14 +1,16 @@
+#ifdef YI_IOS
+
 #include "GoogleCastModule.h"
 
 #define LOG_TAG "GoogleCastModule"
-
-#ifdef YI_IOS
 
 #include "apple/FollyUtils.h"
 
 #import <GoogleCast/GoogleCast.h>
 
 using namespace yi::react;
+
+YI_RN_INSTANTIATE_MODULE(GoogleCastModule, EventEmitterModule);
 
 GoogleCastModule::GoogleCastModule()
 {
