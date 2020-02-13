@@ -2,7 +2,7 @@
 #define _AIRPLAY_MODULE_H_
 
 #include <youireact/NativeModule.h>
-#include <youireact/modules/VideoModule.h>
+#include <youireact/modules/components/VideoModule.h>
 #include <youireact/nodes/ShadowVideo.h>
 
 namespace yi

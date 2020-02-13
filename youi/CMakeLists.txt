@@ -116,6 +116,10 @@ set(YI_PROJECT_CODE_FILES
     ${YI_PROJECT_HEADERS}
 )
 
+if (IOS)
+    list(REMOVE_ITEM YI_PROJECT_CODE_FILES "${YouiEngine_DIR}/templates/mains/src/Apple/main.mm")
+endif()
+
 # Not all platforms will need to perform some kind of initialization. Because this is optional,
 # we first check to see if the command actually exists. If not, we can safely ignore it.
 #
