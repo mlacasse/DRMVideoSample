@@ -18,6 +18,9 @@ public:
     YI_RN_EXPORT_NAME(Airplay);
 
     YI_RN_EXPORT_METHOD(setExternalAutoPlayback)(uint64_t tag, bool bEnable);
+    YI_RN_EXPORT_METHOD(showAirplayDeviceOptions)();
+    YI_RN_EXPORT_METHOD(isAirplayAvailable)(Callback successCallback, Callback failedCallback);
+    YI_RN_EXPORT_METHOD(isAirplayConnected)(Callback successCallback, Callback failedCallback);
 };
 
 } // namespace react

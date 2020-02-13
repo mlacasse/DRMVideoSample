@@ -2,6 +2,8 @@
 
 #include "AirplayModule.h"
 
+#include "AirplayService.h"
+
 #include <player/YiAVPlayer.h>
 #include <youireact/ShadowTree.h>
 #include <youireact/nodes/ShadowVideo.h>
@@ -47,6 +49,34 @@ YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, setExternalAutoPlayback)(uint64_t tag,
     {
         pAVPlayer->EnableAutoExternalPlaybackWhenAvailable(bEnable);
     }
+}
+
+YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, showAirplayDeviceOptions)()
+{
+    YI_FLOAT_RECT frame;
+    
+    frame.left = 0;
+    frame.top = 0;
+    frame.right = 100;
+    frame.bottom = 100;
+
+    AirplayService::GetInstance().ShowAirplayDeviceOptions(frame);
+}
+
+YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, isAirplayAvailable)
+    (Callback successCallback, Callback failedCallback)
+{
+    YI_UNUSED(failedCallback);
+
+    successCallback({ ToDynamic(AirplayService::GetInstance().IsAirplayAvailable()) });
+}
+
+YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, isAirplayConnected)
+    (Callback successCallback, Callback failedCallback)
+{
+    YI_UNUSED(failedCallback);
+
+    successCallback({ ToDynamic(AirplayService::GetInstance().IsAirplayConnected()) });
 }
 
 #endif

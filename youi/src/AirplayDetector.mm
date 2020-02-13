@@ -100,7 +100,6 @@
 - (void)wirelessRouteActive:(NSNotification*)aNotification
 {
     NSLog(@"%s: %@",__FUNCTION__, aNotification);
-
     AirplayService::GetInstance().AirplayConnectionStatusChanged([self isAirplayConnected]);
 }
 

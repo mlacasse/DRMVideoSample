@@ -10,7 +10,7 @@ import { nextStream, prevStream } from './store/stream/actions';
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 const AirplayIcon = { 'uri': 'res://drawable/default/airplay.png' };
 
-const { OrientationLock, GoogleCast, PlatformConstants } = NativeModules;
+const { OrientationLock, GoogleCast, Airplay, PlatformConstants } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -87,8 +87,8 @@ class AppComponent extends PureComponent {
     this.setState({ showReceivers: !showReceivers });
   };
 
-  handleOnPressAirplayControl = () => {
-
+  handleOnAirplay = () => {
+    Airplay.showAirplayDeviceOptions();
   };
 
   handleOnCast = uniqueId => {
@@ -109,13 +109,23 @@ class AppComponent extends PureComponent {
     );
   };
 
-  renderGoogleCastControl = () => {
+  renderAirplayControl = () => {
+    if (Airplay.isAirplayAvailable()) {
+      return (
+        <ACButton source ={AirplayIcon} style={Styles.AirplayIconStyle} onPress={this.handleOnAirplay} />
+      );
+    }
+
+    return null;
+  };
+
+  renderBroadcastControls = () => {
     if (!this.state.isCasting && !this.state.ignoreSwipe) return null;
 
     return (
       <View style={{ width: '100%', position: 'absolute', flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
         {this.renderGoogleCastReceivers()}
-        <ACButton source ={AirplayIcon} style={Styles.AirplayIconStyle} onPress={this.handleOnPressAirplayControl} />
+        {this.renderAirplayControl()}
         <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
       </View>
     );
@@ -160,7 +170,7 @@ class AppComponent extends PureComponent {
         >
           {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}
         </ACScaler>
-        {this.renderGoogleCastControl()}
+        {this.renderBroadcastControls()}
       </View>
     );
   }

@@ -4,6 +4,7 @@
 #include "AppDelegate.h"
 
 #include <glm/glm.hpp>
+#include <platform/YiAppLifeCycleBridgeLocator.h>
 
 #import "AirplayDetector.h"
 
@@ -18,38 +19,31 @@ AirplayService &AirplayService::GetInstance()
 }
 
 AirplayService::AirplayService() :
-    m_connectedDeviceName("Unknown"),
-    m_bIsAirplaying(false),
-    m_bIsMonitoringAirplayStatus(false),
-    m_bIsAirplayObserverForegroundRestartRequired(false)
-{}
-
-AirplayService::~AirplayService() = default;
-
-void AirplayService::StartAirplayObserver()
+    m_bIsAirplayObserverForegroundRestartRequired(true)
 {
-    if (!m_bIsMonitoringAirplayStatus)
+    // This is not for general usage across the app but this is the first responder
+    // to perform getting ready to stable state of application.
+    // Use PlatformEventBridge::BackgroundEntered and PlatformEventBridge::ForegroundEntered signal instead.
+    CYIAppLifeCycleBridge *pAppLifeCycleBridge = CYIAppLifeCycleBridgeLocator::GetAppLifeCycleBridge();
+    if (pAppLifeCycleBridge)
     {
-        std::lock_guard<std::mutex> lockGuard(s_AirplayServiceClientMutex);
-        if(!m_bIsMonitoringAirplayStatus)
-        {
-            m_bIsMonitoringAirplayStatus = true;
-            [[AirplayDetector getSharedAirplayDetector] startAirplayObserver];
-        }
+        pAppLifeCycleBridge->ForegroundEntered.Connect(*this, &AirplayService::StartObserver);
+        pAppLifeCycleBridge->BackgroundEntered.Connect(*this, &AirplayService::StopObserver);
     }
+
+    StartObserver();
 }
 
-void AirplayService::StopAirplayObserver()
+AirplayService::~AirplayService()
 {
-    if (m_bIsMonitoringAirplayStatus)
+    CYIAppLifeCycleBridge *pAppLifeCycleBridge = CYIAppLifeCycleBridgeLocator::GetAppLifeCycleBridge();
+    if (pAppLifeCycleBridge)
     {
-        std::lock_guard<std::mutex> lockGuard(s_AirplayServiceClientMutex);
-        if (m_bIsMonitoringAirplayStatus)
-        {
-            m_bIsMonitoringAirplayStatus = false;
-            [[AirplayDetector getSharedAirplayDetector] stopAirplayObserver];
-        }
+        pAppLifeCycleBridge->ForegroundEntered.Disconnect(*this, &AirplayService::StartObserver);
+        pAppLifeCycleBridge->BackgroundEntered.Disconnect(*this, &AirplayService::StopObserver);
     }
+
+    StopObserver();
 }
 
 void AirplayService::ShowAirplayDeviceOptions(const YI_FLOAT_RECT &rAirplayButtonFrame)
@@ -64,35 +58,21 @@ void AirplayService::ShowAirplayDeviceOptions(const YI_FLOAT_RECT &rAirplayButto
     [delegate showAirplayDeviceOptions:airplayButtonFrame];
 }
 
-bool AirplayService::ValidateIsAirplaying()
-{
-    // Same iOS 9 and 9.0.2 reasoning as above
-    // Force to query IsAirplayConnected() as long as we query the airplay status
-    m_bIsAirplaying = ValidateIsAirplayConnected();
-    return  m_bIsAirplaying;
-}
-
-bool AirplayService::ValidateIsAirplayAvailable()
+bool AirplayService::IsAirplayAvailable()
 {
     // It has been observed on iOS 9 and 9.0.2 that we have to force query IsAirplayConnected() in order
     // to get a correct value of the airplay device availability
     // We need to do this as long as we need to query the airplay status
-    ValidateIsAirplayConnected();
+    IsAirplayConnected();
     return [[AirplayDetector getSharedAirplayDetector] isAirplayAvailable];
 }
 
-bool AirplayService::ValidateIsAirplayConnected()
+bool AirplayService::IsAirplayConnected()
 {
-    m_bIsAirplaying = [[AirplayDetector getSharedAirplayDetector] isAirplayConnected];
-    return m_bIsAirplaying;
+    return [[AirplayDetector getSharedAirplayDetector] isAirplayConnected];
 }
 
-bool AirplayService::IsAirplayMonitoringActive() const
-{
-    return m_bIsMonitoringAirplayStatus;
-}
-
-void AirplayService::OnBackgroundEntered()
+void AirplayService::StopObserver()
 {
     if ([[AirplayDetector getSharedAirplayDetector] isAirplayObserverActive])
     {
@@ -101,7 +81,7 @@ void AirplayService::OnBackgroundEntered()
     }
 }
 
-void AirplayService::OnForegroundEntered()
+void AirplayService::StartObserver()
 {
     if (m_bIsAirplayObserverForegroundRestartRequired)
     {
