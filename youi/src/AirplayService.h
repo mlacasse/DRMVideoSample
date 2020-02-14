@@ -11,18 +11,15 @@ public:
     static AirplayService &GetInstance();
     ~AirplayService();
 
-    void ShowAirplayDeviceOptions(const YI_FLOAT_RECT &rAirplayButtonFrame);
+    void ShowAirplayDeviceOptions();
 
-    bool IsAirplayAvailable();
-    bool IsAirplayConnected();
+    void StartObserving();
+    void StopObserving();
 
     CYISignal<bool> AirplayAvailabilityStatusChanged;
     CYISignal<bool> AirplayConnectionStatusChanged;
 
 private:
-    void StartObserver();
-    void StopObserver();
-
     AirplayService();
 
     bool m_bIsAirplayObserverForegroundRestartRequired;

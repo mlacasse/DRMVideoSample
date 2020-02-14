@@ -9,7 +9,7 @@ namespace yi
 {
 namespace react
 {
-class YI_RN_MODULE(AirplayModule, VideoModule)
+class YI_RN_MODULE(AirplayModule, EventEmitterModule)
 {
 public:
     AirplayModule();
@@ -19,8 +19,13 @@ public:
 
     YI_RN_EXPORT_METHOD(setExternalAutoPlayback)(uint64_t tag, bool bEnable);
     YI_RN_EXPORT_METHOD(showAirplayDeviceOptions)();
-    YI_RN_EXPORT_METHOD(isAirplayAvailable)(Callback successCallback, Callback failedCallback);
-    YI_RN_EXPORT_METHOD(isAirplayConnected)(Callback successCallback, Callback failedCallback);
+
+    void OnAvailabilityStatusChanged(bool bStatus);
+    void OnConnectionStatusChanged(bool bStatus);
+
+private:
+    virtual void StartObserving() override;
+    virtual void StopObserving() override;
 };
 
 } // namespace react

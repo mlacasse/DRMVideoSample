@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { View, NativeModules, Platform } from 'react-native';
+import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
@@ -25,9 +25,16 @@ class AppComponent extends PureComponent {
       showReceivers: false,
       ignoreSwipe: false,
       isCasting: false,
+<<<<<<< HEAD
       window: {
         width,  
         height,
+=======
+      streamInfo: this.props.streamInfo,
+      airplay: {
+        available: false,
+        connected: false,
+>>>>>>> Refactored Airplay to use observer
       },
       receivers: [],
       receiver: undefined,
@@ -43,26 +50,37 @@ class AppComponent extends PureComponent {
 
     OrientationLock.setRotationMode(6);
 
-    this.interval = null;
+    this.airplayStatusChangeEvent = new NativeEventEmitter(Airplay);
   }
 
   componentDidMount = () => {
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
 
-    this.interval = setInterval(() => {
-      GoogleCast.getAvailableDevices()
-        .then(devices => {
-          this.setState({ receivers: Object.values(devices) })
-        })
-    }, 1000);
+    this.airplayStatusChangeEvent.addListener('update', this.handleAirplayStatusChange);
   };
 
   componentWillUnmount = () => {
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
 
-    clearInterval(this.interval);
+    this.airplayStatusChangeEvent.addRemoveListener('update', this.handleAirplayStatusChange);
+  };
+
+  handleAirplayStatusChange = event => {
+    const { available, connected } = event;
+
+    const { airplay } = this.state;
+
+    if (available) {
+      airplay.available = available;
+    }
+
+    if (connected) {
+      airplay.connected = connected;
+    }
+
+    this.setState({ airplay });
   };
 
   handleOnSwipeRight = () => {
@@ -83,8 +101,11 @@ class AppComponent extends PureComponent {
 
   handleOnPressGoogleCastControl = () => {
     const { showReceivers } = this.state;
-
-    this.setState({ showReceivers: !showReceivers });
+  
+    GoogleCast.getAvailableDevices()
+      .then(devices => {
+        this.setState({ receivers: Object.values(devices), showReceivers: !showReceivers })
+      });
   };
 
   handleOnAirplay = () => {
@@ -110,7 +131,7 @@ class AppComponent extends PureComponent {
   };
 
   renderAirplayControl = () => {
-    if (Airplay.isAirplayAvailable()) {
+    if (this.state.airplay.available) {
       return (
         <ACButton source ={AirplayIcon} style={Styles.AirplayIconStyle} onPress={this.handleOnAirplay} />
       );

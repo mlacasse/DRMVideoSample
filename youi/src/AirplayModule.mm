@@ -13,13 +13,23 @@
 
 using namespace yi::react;
 
-YI_RN_INSTANTIATE_MODULE(AirplayModule, VideoModule);
+YI_RN_INSTANTIATE_MODULE(AirplayModule, EventEmitterModule);
 
 AirplayModule::AirplayModule()
-{}
+{
+    SetSupportedEvents({ "update" });
+    
+    AirplayService::GetInstance().AirplayAvailabilityStatusChanged.Connect(*this, &AirplayModule::OnAvailabilityStatusChanged);
+    AirplayService::GetInstance().AirplayConnectionStatusChanged.Connect(*this, &AirplayModule::OnConnectionStatusChanged);
+}
 
 AirplayModule::~AirplayModule()
-{}
+{
+    StopObserving();
+
+    AirplayService::GetInstance().AirplayAvailabilityStatusChanged.Disconnect(*this, &AirplayModule::OnAvailabilityStatusChanged);
+    AirplayService::GetInstance().AirplayConnectionStatusChanged.Disconnect(*this, &AirplayModule::OnConnectionStatusChanged);
+}
 
 YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, setExternalAutoPlayback)(uint64_t tag, bool bEnable)
 {
@@ -53,30 +63,27 @@ YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, setExternalAutoPlayback)(uint64_t tag,
 
 YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, showAirplayDeviceOptions)()
 {
-    YI_FLOAT_RECT frame;
-    
-    frame.left = 0;
-    frame.top = 0;
-    frame.right = 100;
-    frame.bottom = 100;
-
-    AirplayService::GetInstance().ShowAirplayDeviceOptions(frame);
+    AirplayService::GetInstance().ShowAirplayDeviceOptions();
 }
 
-YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, isAirplayAvailable)
-    (Callback successCallback, Callback failedCallback)
+void AirplayModule::OnAvailabilityStatusChanged(bool bStatus)
 {
-    YI_UNUSED(failedCallback);
-
-    successCallback({ ToDynamic(AirplayService::GetInstance().IsAirplayAvailable()) });
+    EmitEvent("update", folly::dynamic::object("available", bStatus));
 }
 
-YI_RN_DEFINE_EXPORT_METHOD(AirplayModule, isAirplayConnected)
-    (Callback successCallback, Callback failedCallback)
+void AirplayModule::OnConnectionStatusChanged(bool bStatus)
 {
-    YI_UNUSED(failedCallback);
+    EmitEvent("update", folly::dynamic::object("connected", bStatus));
+}
 
-    successCallback({ ToDynamic(AirplayService::GetInstance().IsAirplayConnected()) });
+void AirplayModule::StartObserving()
+{
+    AirplayService::GetInstance().StartObserving();
+}
+
+void AirplayModule::StopObserving()
+{
+    AirplayService::GetInstance().StopObserving();
 }
 
 #endif

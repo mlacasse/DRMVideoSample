@@ -1,5 +1,5 @@
 import React, { createRef, PureComponent } from 'react';
-import { findNodeHandle, View, AppState, BackHandler, NativeModules } from 'react-native';
+import { findNodeHandle, View, AppState, BackHandler, NativeModules, NativeEventEmitter } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input, FormFactor } from '@youi/react-native-youi';
 import ACButton from '../ACButton';
@@ -28,6 +28,8 @@ class ACVideo extends PureComponent {
       isPlaying: false,
     };
 
+    this.airplayStatusChangeEvent = new NativeEventEmitter(Airplay);
+
     this.videoPlayer = createRef();
   }
 
@@ -35,6 +37,8 @@ class ACVideo extends PureComponent {
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
 
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), true);
+
+    this.airplayStatusChangeEvent.addListener('update', this.handleAirplayStatusChange);
 
     Input.addEventListener('Play', this.handleOnPlayPausePress);
     Input.addEventListener('Pause', this.handleOnPlayPausePress);
@@ -49,6 +53,8 @@ class ACVideo extends PureComponent {
 
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), false);
 
+    this.airplayStatusChangeEvent.addRemoveListener('update', this.handleAirplayStatusChange);
+
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);
     Input.removeEventListener('MediaPlayPause', this.handleOnPlayPausePress);
@@ -60,6 +66,14 @@ class ACVideo extends PureComponent {
   handleAppStateChange = nextAppState => {
     if (nextAppState === 'active') {
       this.videoPlayer.current.play();
+    }
+  };
+
+
+  handleAirplayStatusChange = ({ available, connected }) => {
+    if (connected) {
+      this.videoPlayer.current.pause();
+      this.setState({ isPlaying: false });
     }
   };
 

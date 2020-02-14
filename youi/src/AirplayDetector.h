@@ -12,7 +12,6 @@
 - (void)stopAirplayObserver;
 - (BOOL)isAirplayAvailable;
 - (BOOL)isAirplayConnected;
-- (BOOL)isAirplayMirroring;
 - (BOOL)isAirplayObserverActive;
 
 @end

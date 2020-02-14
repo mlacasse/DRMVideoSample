@@ -27,11 +27,9 @@ AirplayService::AirplayService() :
     CYIAppLifeCycleBridge *pAppLifeCycleBridge = CYIAppLifeCycleBridgeLocator::GetAppLifeCycleBridge();
     if (pAppLifeCycleBridge)
     {
-        pAppLifeCycleBridge->ForegroundEntered.Connect(*this, &AirplayService::StartObserver);
-        pAppLifeCycleBridge->BackgroundEntered.Connect(*this, &AirplayService::StopObserver);
+        pAppLifeCycleBridge->ForegroundEntered.Connect(*this, &AirplayService::StartObserving);
+        pAppLifeCycleBridge->BackgroundEntered.Connect(*this, &AirplayService::StopObserving);
     }
-
-    StartObserver();
 }
 
 AirplayService::~AirplayService()
@@ -39,40 +37,21 @@ AirplayService::~AirplayService()
     CYIAppLifeCycleBridge *pAppLifeCycleBridge = CYIAppLifeCycleBridgeLocator::GetAppLifeCycleBridge();
     if (pAppLifeCycleBridge)
     {
-        pAppLifeCycleBridge->ForegroundEntered.Disconnect(*this, &AirplayService::StartObserver);
-        pAppLifeCycleBridge->BackgroundEntered.Disconnect(*this, &AirplayService::StopObserver);
+        pAppLifeCycleBridge->ForegroundEntered.Disconnect(*this, &AirplayService::StartObserving);
+        pAppLifeCycleBridge->BackgroundEntered.Disconnect(*this, &AirplayService::StopObserving);
     }
-
-    StopObserver();
 }
 
-void AirplayService::ShowAirplayDeviceOptions(const YI_FLOAT_RECT &rAirplayButtonFrame)
+void AirplayService::ShowAirplayDeviceOptions()
 {
     float reciprocalScale = 1.0f / [UIScreen mainScreen].scale;
-    CGRect airplayButtonFrame = CGRectMake(rAirplayButtonFrame.left * reciprocalScale,
-                                           rAirplayButtonFrame.top * reciprocalScale,
-                                           glm::abs(rAirplayButtonFrame.right - rAirplayButtonFrame.left) * reciprocalScale,
-                                           glm::abs(rAirplayButtonFrame.bottom - rAirplayButtonFrame.top) * reciprocalScale);
+    CGRect airplayButtonFrame = CGRectMake(0, 0, 100 * reciprocalScale, 100 * reciprocalScale);
     
     AppDelegate *delegate = static_cast<AppDelegate *>([[UIApplication sharedApplication] delegate]);
     [delegate showAirplayDeviceOptions:airplayButtonFrame];
 }
 
-bool AirplayService::IsAirplayAvailable()
-{
-    // It has been observed on iOS 9 and 9.0.2 that we have to force query IsAirplayConnected() in order
-    // to get a correct value of the airplay device availability
-    // We need to do this as long as we need to query the airplay status
-    IsAirplayConnected();
-    return [[AirplayDetector getSharedAirplayDetector] isAirplayAvailable];
-}
-
-bool AirplayService::IsAirplayConnected()
-{
-    return [[AirplayDetector getSharedAirplayDetector] isAirplayConnected];
-}
-
-void AirplayService::StopObserver()
+void AirplayService::StopObserving()
 {
     if ([[AirplayDetector getSharedAirplayDetector] isAirplayObserverActive])
     {
@@ -81,7 +60,7 @@ void AirplayService::StopObserver()
     }
 }
 
-void AirplayService::StartObserver()
+void AirplayService::StartObserving()
 {
     if (m_bIsAirplayObserverForegroundRestartRequired)
     {

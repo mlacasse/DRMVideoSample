@@ -12,7 +12,7 @@
 
 @interface AirplayDetector()
 
-@property (nonatomic) MPVolumeView *airplayView;
+@property (nonatomic) MPVolumeView *buttonView;
 @property (nonatomic, assign) BOOL bIsObserverActive;
 @end
 
@@ -23,13 +23,14 @@
     self = [super init];
     if (self)
     {
-        _airplayView = [[MPVolumeView alloc] init];
-        _airplayView.showsRouteButton = NO;
-        _airplayView.showsVolumeSlider = NO;
+        _buttonView = [[MPVolumeView alloc] init];
+        _buttonView.showsRouteButton = NO;
+        _buttonView.showsVolumeSlider = NO;
         
-        // Place an airplay button out of the window and then add it to our view, we will be able to receive the notifications without seeing it.
+        // Place an airplay button out of the window and then add it to our view,
+        // we will be able to receive the notifications without seeing it.
         CGRect frame = CGRectMake(-100, -100, 1, 1);
-        _airplayView.frame = frame;
+        _buttonView.frame = frame;
         
         _bIsObserverActive = FALSE;
     }
@@ -50,7 +51,7 @@
 - (void)dealloc
 {
     [self stopAirplayObserver];
-    _airplayView = nil;
+    _buttonView = nil;
 }
 
 - (void)startAirplayObserver
@@ -58,7 +59,7 @@
     if (!_bIsObserverActive)
     {
         UIView *parentView = [[YiRootViewController sharedInstance] view];
-        [parentView addSubview: _airplayView];
+        [parentView addSubview: _buttonView];
         
         AppDelegate *delegate = static_cast<AppDelegate *>([[UIApplication sharedApplication] delegate]);
         // To monitor airplay activity, the native airplay view must be added (sub-viewed) for callbacks to properly
@@ -81,7 +82,7 @@
 {
     if (_bIsObserverActive)
     {
-        [_airplayView removeFromSuperview];
+        [_buttonView removeFromSuperview];
         
         // No longer monitoring airplay, remove the native airplay view.
         AppDelegate *delegate = static_cast<AppDelegate *>([[UIApplication sharedApplication] delegate]);
@@ -99,19 +100,17 @@
 // Selectors for both notification events
 - (void)wirelessRouteActive:(NSNotification*)aNotification
 {
-    NSLog(@"%s: %@",__FUNCTION__, aNotification);
     AirplayService::GetInstance().AirplayConnectionStatusChanged([self isAirplayConnected]);
 }
 
 - (void)wirelessAvailable:(NSNotification*)aNotification
 {
-    NSLog(@"%s: %@",__FUNCTION__, aNotification);
-    AirplayService::GetInstance().AirplayAvailabilityStatusChanged([_airplayView areWirelessRoutesAvailable]);
+    AirplayService::GetInstance().AirplayAvailabilityStatusChanged([_buttonView areWirelessRoutesAvailable]);
 }
 
 - (BOOL)isAirplayAvailable
 {
-    return [_airplayView areWirelessRoutesAvailable];
+    return [_buttonView areWirelessRoutesAvailable];
 }
 
 - (BOOL)isAirplayConnected
@@ -128,11 +127,6 @@
         }
     }
     return bIsAirplayConnected;
-}
-
-- (BOOL)isAirplayMirroring
-{
-    return [self isAirplayConnected] && [UIScreen screens].count > 1;
 }
 
 - (BOOL)isAirplayObserverActive
