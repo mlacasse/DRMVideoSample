@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 
 const store = createStore(combineReducers({
     app: appReducer,
-    streams: streamReducer,
+    stream: streamReducer,
     drm: drmReducer
 }), applyMiddleware(thunk));
 

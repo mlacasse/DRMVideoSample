@@ -73,7 +73,7 @@ const fairplaySPCMessageAvailable = function(drmHandler, { spcMessage, tag }) {
 
 const handleLoginSuccess = (drmHandler, tag, { sessionToken, account }) => {
   return function(dispatch, getState) {
-    const { streamInfo } = getState();
+    const { stream } = getState();
 
     const authHeaders = {
       'Authorization': `Bearer ${sessionToken}`,
@@ -81,8 +81,8 @@ const handleLoginSuccess = (drmHandler, tag, { sessionToken, account }) => {
     };
 
     const body = JSON.stringify({
-      'assetID': streamInfo.assetId,
-      'playbackUrl': streamInfo.uri
+      'assetID': stream.streamInfo.assetId,
+      'playbackUrl': stream.streamInfo.uri
     });
 
     const tokenUrl = `https://platform.stage.dtc.istreamplanet.net/oem/v1/user/accounts/${account.uid}/entitlement?tokentype=isp-atlas`;

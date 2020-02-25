@@ -5,7 +5,7 @@ import { compose } from 'redux';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
 import { ACButton, ACVideo, ACGoogleCast, ACPicker, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
 
-import stream from './store/stream';
+import { nextStream, prevStream } from './store/stream/actions';
 
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 
@@ -22,13 +22,10 @@ class AppComponent extends PureComponent {
 
     const { width, height } = Dimensions.window;
 
-    this.index = 0;
-
     this.state = {
       showReceivers: false,
       ignoreSwipe: false,
       isCasting: false,
-      streamInfo: this.props.streams[this.index],
       window: {
         width,  
         height,
@@ -63,8 +60,6 @@ class AppComponent extends PureComponent {
           this.setState({ receivers: Object.values(devices) })
         })
     }, 1000);
-
-    console.log(this.index, this.props.streams[this.index]);
   };
 
   componentWillUnmount = () => {
@@ -83,33 +78,13 @@ class AppComponent extends PureComponent {
   handleOnSwipeRight = () => {
     if (this.state.ignoreSwipe) return;
 
-    const { streams } = this.props;
-
-    this.index--;
-
-    if (this.index <= 0) {
-      this.index = streams.length - 1;
-    }
-
-    console.log(this.index, streams[this.index]);
-
-    this.setState({ streamInfo: streams[this.index] });
+    this.props.dispatch(nextStream());
   };
 
   handleOnSwipeLeft = () => {
     if (this.state.ignoreSwipe) return;
 
-    const { streams } = this.props;
-
-    this.index++;
-
-    if (this.index >= streams.length) {
-      this.index = 0;
-    }
-
-    console.log(this.index, streams[this.index]);
-
-    this.setState({ streamInfo: streams[this.index] });
+    this.props.dispatch(prevStream());
   };
 
   handleOnTap = () => {
@@ -154,7 +129,7 @@ class AppComponent extends PureComponent {
   };
 
   renderVideoPlayer = () => {
-    const { streamInfo } = this.state;
+    const { streamInfo } = this.props;
 
     return (
       <ACVideo 
@@ -222,9 +197,9 @@ const Styles = {
 };
 
 const mapStateToProps = state => {
-  const { streams } = state;
+  const { streamInfo } = state.stream;
 
-  return { streams };
+  return { streamInfo };
 };
 
 const conditionalDRMHandler = () => {
