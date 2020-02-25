@@ -69,11 +69,9 @@ class ACVideo extends PureComponent {
     }
   };
 
-
   handleAirplayStatusChange = ({ available, connected }) => {
-    if (connected) {
-      this.videoPlayer.current.pause();
-      this.setState({ isPlaying: false });
+    if (connected === false && this.state.isPlaying === true) {
+      setTimeout(() => this.videoPlayer.current.play(), 500);
     }
   };
 

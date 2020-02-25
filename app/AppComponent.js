@@ -25,16 +25,9 @@ class AppComponent extends PureComponent {
       showReceivers: false,
       ignoreSwipe: false,
       isCasting: false,
-<<<<<<< HEAD
-      window: {
-        width,  
-        height,
-=======
-      streamInfo: this.props.streamInfo,
       airplay: {
         available: false,
         connected: false,
->>>>>>> Refactored Airplay to use observer
       },
       receivers: [],
       receiver: undefined,
