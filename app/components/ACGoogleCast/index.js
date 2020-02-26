@@ -19,18 +19,11 @@ class ACGoogleCast extends PureComponent {
   constructor(props) {
     super(props);
 
-  this.state = {
-      metadata: {
-        title: 'Bip-Bop [16x9]',
-        description: 'Bip-Bop sample video with captions',
-        image: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
-        width: 640,
-        height: 360,
-      },
-      source: {
-        uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-        type: 'application/x-mpegURL',  
-      },
+    const { source, metadata } = this.props;
+
+    this.state = {
+      metadata,
+      source,
       duration: 0,
       elapsed: 0,
       isPlaying: false,

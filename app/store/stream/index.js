@@ -48,16 +48,31 @@ const hlsStreams = [
     drmScheme: 'fairplay',
     drmInfo: null,
   },
-  { uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8', type: 'HLS' },
-  { uri: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8', type: 'HLS' },
-  { uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8', type: 'HLS' },
-  { uri: 'http://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8', type: 'HLS' },
-  { uri: 'http://b028.wpc.azureedge.net/80B028/Samples/a38e6323-95e9-4f1f-9b38-75eba91704e4/5f2ce531-d508-49fb-8152-647eba422aec.ism/Manifest(format=m3u8-aapl-v3)', type: 'HLS' },
-  { uri: 'http://b028.wpc.azureedge.net/80B028/SampleStream/595d6b9a-d98e-4381-86a3-cb93664479c2/b722b983-af65-4bb3-950a-18dded2b7c9b.ism/Manifest(format=m3u8-aapl-v3)', type: 'HLS' },
-  { uri: 'http://csm-e.cds1.yospace.com/csm/live/143389657.m3u8?yo.br=false&yo.ac=true', type: 'HLS' },
-  { uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.br=false&yo.ac=true', type: 'HLS' },
-  { uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.ac=true', type: 'HLS' },
-  { uri: 'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.br=true&yo.ac=true', type: 'HLS' },
+  {
+    uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
+    type: 'HLS',
+    cast: {
+      title: 'Bip-Bop [16x9]',
+      description: 'Bip-Bop sample video with captions',
+      image: {
+        uri: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
+    uri: 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8',
+    type: 'HLS',
+  },
+  {
+    uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
+    type: 'HLS',
+  },
+  {
+    uri: 'http://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8',
+    type: 'HLS',
+  },
 ];
 
 const INITIAL_STATE = {

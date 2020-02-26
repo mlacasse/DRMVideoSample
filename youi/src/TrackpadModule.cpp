@@ -15,7 +15,7 @@ using namespace yi::react;
 
 YI_RN_INSTANTIATE_MODULE(TrackpadModule, EventEmitterModule);
 
-static const std::string YI_TRACKPAD_MOVE_EVENT = "YI_TRACKPAD_MOVE";
+static const std::string YI_TRACKPAD_MOVE_EVENT = "TrackpadMove";
 
 TrackpadModule::TrackpadModule()
 {

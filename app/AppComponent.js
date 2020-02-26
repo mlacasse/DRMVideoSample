@@ -2,15 +2,25 @@ import React, { PureComponent } from 'react';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
+import { debounce } from "lodash";
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
-import { ACButton, ACVideo, ACGoogleCast, ACPicker, ACScaler, withFairplay, withPassthrough, withWidevine } from './components';
+import {
+  ACButton,
+  ACVideo,
+  ACGoogleCast,
+  ACPicker,
+  ACScaler,
+  withFairplay,
+  withPassthrough,
+  withWidevine
+} from './components';
 
 import { nextStream, prevStream } from './store/stream/actions';
 
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 const AirplayIcon = { 'uri': 'res://drawable/default/airplay.png' };
 
-const { OrientationLock, GoogleCast, Airplay, PlatformConstants } = NativeModules;
+const { OrientationLock, TrackpadModule, GoogleCast, Airplay, PlatformConstants } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -44,6 +54,7 @@ class AppComponent extends PureComponent {
     OrientationLock.setRotationMode(6);
 
     this.airplayStatusChangeEvent = new NativeEventEmitter(Airplay);
+    this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
   }
 
   componentDidMount = () => {
@@ -51,14 +62,42 @@ class AppComponent extends PureComponent {
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
 
     this.airplayStatusChangeEvent.addListener('update', this.handleAirplayStatusChange);
+    this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
   };
 
   componentWillUnmount = () => {
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
 
-    this.airplayStatusChangeEvent.addRemoveListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusChangeEvent.removeListener('update', this.handleAirplayStatusChange);
+    this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
   };
+
+  handleOnMove = debounce(evt => {
+    if (this.state.showControls || evt.eventName !== 'TrackpadMove') return;
+
+    const { x, y } = evt.translation;
+
+    if (Math.abs(x) > Math.abs(y)) {  // Horizontal transition
+      if (Math.abs(x) > 0.25) { // fudge factor - looking for deltas of at least 0.25
+        if (x > 0) {
+          console.log('handleOnMove', 'right');
+          this.handleOnSwipeRight();
+        } else {
+          console.log('handleOnMove', 'left');
+          this.handleOnSwipeLeft();
+        }
+      }
+    } else {  // Vertical transition
+      if (Math.abs(y) > 0.25) { // fudge factor - looking for deltas of at least 0.25
+        if (y > 0) {
+          console.log('handleOnMove', 'up');
+        } else {
+          console.log('handleOnMove', 'down');
+        }
+      }
+    }
+  });
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;
@@ -92,99 +131,122 @@ class AppComponent extends PureComponent {
     this.setState({ ignoreSwipe: !this.state.ignoreSwipe });
   };
 
-  handleOnPressGoogleCastControl = () => {
-    const { showReceivers } = this.state;
-  
-    GoogleCast.getAvailableDevices()
-      .then(devices => {
-        this.setState({ receivers: Object.values(devices), showReceivers: !showReceivers })
-      });
-  };
-
-  handleOnAirplay = () => {
-    Airplay.showAirplayDeviceOptions();
-  };
-
-  handleOnCast = uniqueId => {
-    const isCasting = uniqueId ? true : false;
-
-    this.setState({ isCasting, receiver: uniqueId, showReceivers: false, ignoreSwipe: false });  
-  };
-
   renderGoogleCastReceivers = () => {
     const { receivers, showReceivers } = this.state;
 
-    if (!showReceivers) return null;
-
-    const devices = [ localDevice, ...receivers ];
-
-    return (
-      <ACPicker style={Styles.PickerStyle} data={devices} onPress={this.handleOnCast} />
-    );
+    if (showReceivers) {
+      return (
+        <ACPicker
+          style={Styles.PickerStyle}
+          data={[ localDevice, ...receivers ]}
+          onPress={uniqueId => this.setState({
+            isCasting: uniqueId ? true : false,
+            receiver: uniqueId,
+            showReceivers: false,
+            ignoreSwipe: uniqueId ? true : false,
+          })}
+        />
+      );
+    }
   };
 
   renderAirplayControl = () => {
-    if (this.state.airplay.available) {
+    const { airplay, ignoreSwipe } = this.state;
+
+    if (airplay.available && ignoreSwipe) {
       return (
-        <ACButton source ={AirplayIcon} style={Styles.AirplayIconStyle} onPress={this.handleOnAirplay} />
+        <ACButton
+          source ={AirplayIcon}
+          style={Styles.AirplayIconStyle}
+          onPress={() => Airplay.showAirplayDeviceOptions()}
+        />
       );
     }
-
-    return null;
   };
 
-  renderBroadcastControls = () => {
-    if (!this.state.isCasting && !this.state.ignoreSwipe) return null;
+  renderGoogleCastControl = () => {
+    const { ignoreSwipe, showReceivers } = this.state;
 
-    return (
-      <View style={{ width: '100%', position: 'absolute', flexDirection: 'row', justifyContent: 'flex-end', padding: 10 }}>
-        {this.renderGoogleCastReceivers()}
-        {this.renderAirplayControl()}
-        <ACButton source={GoogleCastIcon} style={Styles.GoogleCastIconStyle} onPress={this.handleOnPressGoogleCastControl} />
-      </View>
-    );
+    if (this.props.streamInfo.cast && ignoreSwipe) {
+      return (
+        <ACButton
+          source={GoogleCastIcon}
+          style={Styles.GoogleCastIconStyle}
+          onPress={() => 
+            GoogleCast.getAvailableDevices()
+              .then(devices => {
+                this.setState({ receivers: Object.values(devices), showReceivers: !showReceivers })
+              })
+          }
+        />
+      );
+    }
   };
 
   renderVideoPlayer = () => {
+    const { isCasting, receiver } = this.state;
     const { streamInfo } = this.props;
 
-    return (
-      <ACVideo 
-        style={{ flex: 1 }}
-        source={streamInfo}
-        continuous={1}
-        maxBitrate={400000}
-        bufferLength={{
-          min: 5000,
-          max: 15000,
-        }}
-        onSwipeLeft={this.handleOnSwipeLeft}
-        onSwipeRight={this.handleOnSwipeRight}
-        onTap={this.handleOnTap}
-      />
-    );
-  };
+    if (!isCasting) {
+      return (
+        <ACVideo
+          style={{ flex: 1 }}
+          source={streamInfo}
+          continuous={1}
+          maxBitrate={400000}
+          bufferLength={{
+            min: 5000,
+            max: 15000,
+          }}
+          onSwipeLeft={this.handleOnSwipeLeft}
+          onSwipeRight={this.handleOnSwipeRight}
+          onTap={this.handleOnTap}
+        />
+      );
+    }
 
-  renderGoogleCastPlayer = () => {
-    const { streamInfo, receiver } = this.state;
+    const { uri, type, cast } = streamInfo;
+
+    const source = {
+      uri,
+      type: type === 'HLS' ? 'application/x-mpegURL' : 'application/dash+xml',
+    };
+
+    const { title, description, image } = cast;
+
+    const metadata = {
+      title,
+      description,
+      image: image.uri,
+      width: image.width,
+      height: image.height,
+    };
 
     return (
-      <ACGoogleCast source={streamInfo} receiver={receiver}/>
+      <ACGoogleCast source={source} metadata={metadata} receiver={receiver}/>
     );
   };
 
   render() {
-    const { isCasting } = this.state;
-
     return(
       <View style={{ flex: 1, flexDirection: 'column', alignItems: 'center' }}>
         <ACScaler
           xRatio={16} 
           yRatio={9}
         >
-          {isCasting ? this.renderGoogleCastPlayer() : this.renderVideoPlayer()}
+          {this.renderVideoPlayer()}
         </ACScaler>
-        {this.renderBroadcastControls()}
+        <View style={{
+          flex: 1,
+          flexDirection: 'row',
+          position: 'absolute',
+          alignSelf: 'flex-end',
+          paddingRight: 20,
+        }}>
+          {this.renderGoogleCastReceivers()}
+          {this.renderAirplayControl()}
+          {this.renderGoogleCastControl()}
+        </View>
       </View>
     );
   }

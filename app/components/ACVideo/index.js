@@ -53,7 +53,7 @@ class ACVideo extends PureComponent {
 
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), false);
 
-    this.airplayStatusChangeEvent.addRemoveListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusChangeEvent.removeListener('update', this.handleAirplayStatusChange);
 
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);

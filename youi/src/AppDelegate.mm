@@ -21,6 +21,9 @@
 {
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
 
+    // Enable logger.
+    [GCKLogger sharedInstance].delegate = self;
+
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
@@ -75,6 +78,17 @@
             }
         }
     }
+}
+
+#pragma mark - GCKLoggerDelegate
+
+- (void)logMessage:(NSString *)message
+           atLevel:(GCKLoggerLevel)level
+      fromFunction:(NSString *)function
+          location:(NSString *)location {
+#ifdef YI_DEBUG
+    NSLog(@"%@ - %@, %@", function, message, location);
+#endif
 }
 
 @end
