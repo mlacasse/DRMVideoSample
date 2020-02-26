@@ -167,7 +167,7 @@ class AppComponent extends PureComponent {
   renderGoogleCastControl = () => {
     const { ignoreSwipe, showReceivers } = this.state;
 
-    if (this.props.streamInfo.cast && ignoreSwipe) {
+    if (this.props.streamInfo.cast && ignoreSwipe && !PlatformConstants.isTV) {
       return (
         <ACButton
           source={GoogleCastIcon}

@@ -110,10 +110,6 @@ export default (state = INITIAL_STATE, action) => {
     return { ...state, streamInfo: state.streams[state.index] };
   }
 
-  if (DeviceInfo.getDeviceModel() === 'Simulator') {
-    return INITIAL_STATE;
-  }
-
   switch(DeviceInfo.getSystemName()) {
     case 'iOS':
     case 'tvOS':
