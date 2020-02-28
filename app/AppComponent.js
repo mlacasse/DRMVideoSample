@@ -97,7 +97,7 @@ class AppComponent extends PureComponent {
         }
       }
     }
-  });
+  }, 250);
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;
@@ -115,17 +115,17 @@ class AppComponent extends PureComponent {
     this.setState({ airplay });
   };
 
-  handleOnSwipeRight = () => {
+  handleOnSwipeRight = debounce(() => {
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(nextStream());
-  };
+  }, 250);
 
-  handleOnSwipeLeft = () => {
+  handleOnSwipeLeft = debounce(() => {
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(prevStream());
-  };
+  }, 250);
 
   handleOnTap = () => {
     this.setState({ ignoreSwipe: !this.state.ignoreSwipe });
@@ -167,7 +167,7 @@ class AppComponent extends PureComponent {
   renderGoogleCastControl = () => {
     const { ignoreSwipe, showReceivers } = this.state;
 
-    if (this.props.streamInfo.cast && ignoreSwipe && !PlatformConstants.isTV) {
+    if (!FormFactor.isTV && ignoreSwipe) {
       return (
         <ACButton
           source={GoogleCastIcon}
