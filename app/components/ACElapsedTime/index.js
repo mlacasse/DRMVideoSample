@@ -10,6 +10,8 @@ class ACElapsedTime extends PureComponent {
   };
 
   createElapsedTimeText = () => {
+    if (isNaN(this.props.elapsed) || isNaN(this.props.duration)) return null;
+
     const elapsed = {
       seconds: Math.floor((this.props.elapsed / 1000) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),
       minutes: Math.floor((this.props.elapsed / (1000*60)) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}),

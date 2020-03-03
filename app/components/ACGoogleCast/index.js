@@ -19,11 +19,8 @@ class ACGoogleCast extends PureComponent {
   constructor(props) {
     super(props);
 
-    const { source, metadata } = this.props;
-
     this.state = {
-      metadata,
-      source,
+      source: this.props.source,
       duration: 0,
       elapsed: 0,
       isPlaying: false,
@@ -53,9 +50,10 @@ class ACGoogleCast extends PureComponent {
   };
 
   handleOnReceiverUpdate = event => {
-    const { status } = event;
-    if (status) {
-      const { elapsed, duration } = status;
+    const { media } = event;
+
+    if (media) {
+      const { elapsed, duration } = media;
 
       this.setState({ elapsed: elapsed * 1000, duration: duration * 1000 });  
     }

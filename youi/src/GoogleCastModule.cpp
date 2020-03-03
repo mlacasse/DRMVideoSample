@@ -32,10 +32,9 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
 }
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)
-(Callback successCallback, Callback failedCallback, folly::dynamic source, folly::dynamic metadata)
+(Callback successCallback, Callback failedCallback, folly::dynamic source)
 {
     YI_UNUSED(source);
-    YI_UNUSED(metadata);
     YI_UNUSED(successCallback);
     YI_UNUSED(failedCallback);
 

@@ -21,7 +21,7 @@ public:
     YI_RN_EXPORT_METHOD(connect)(std::string uniqueId);
     YI_RN_EXPORT_METHOD(disconnect)();
 
-    YI_RN_EXPORT_METHOD(prepare)(Callback successCallback, Callback failedCallback, folly::dynamic source, folly::dynamic metadata);
+    YI_RN_EXPORT_METHOD(prepare)(Callback successCallback, Callback failedCallback, folly::dynamic source);
     YI_RN_EXPORT_METHOD(play)();
     YI_RN_EXPORT_METHOD(pause)();
 

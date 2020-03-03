@@ -4,11 +4,42 @@
 
 #ifdef YI_IOS
 
-#include "apple/FollyUtils.h"
-
 #import <GoogleCast/GoogleCast.h>
 
 using namespace yi::react;
+
+namespace {
+// From https://github.com/facebook/react-native/blob/master/React/CxxUtils/RCTFollyConvert.mm
+id convertFollyDynamic(const folly::dynamic &dyn) {
+    switch (dyn.type()) {
+        case folly::dynamic::NULLT:
+            return (id)kCFNull;
+        case folly::dynamic::BOOL:
+            return dyn.asBool() ? @YES : @NO;
+        case folly::dynamic::INT64:
+            return @(dyn.asInt());
+        case folly::dynamic::DOUBLE:
+            return @(dyn.asDouble());
+        case folly::dynamic::STRING:
+            return [[NSString alloc] initWithBytes:dyn.c_str() length:dyn.size()
+                                          encoding:NSUTF8StringEncoding];
+        case folly::dynamic::ARRAY: {
+            NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:dyn.size()];
+            for (auto &elem : dyn) {
+                [array addObject:convertFollyDynamic(elem)];
+            }
+            return array[0];
+        }
+        case folly::dynamic::OBJECT: {
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:dyn.size()];
+            for (auto &elem : dyn.items()) {
+                dict[convertFollyDynamic(elem.first)] = convertFollyDynamic(elem.second);
+            }
+            return dict;
+        }
+    }
+}
+} // namespace
 
 GoogleCastModule::GoogleCastModule()
 {
@@ -23,6 +54,7 @@ GoogleCastModule::GoogleCastModule()
     m_timer.TimedOut.Connect(*this, &GoogleCastModule::OnTimeout, EYIConnectionType::Async);
     m_timer.SetSingleShot(false);
     m_timer.SetInterval(1000);
+    m_timer.Start();
 }
 
 GoogleCastModule::~GoogleCastModule()
@@ -42,73 +74,83 @@ void GoogleCastModule::OnTimeout()
     GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
     if (sessionManager.currentSession != nil)
     {
+        folly::dynamic mediaState = folly::dynamic::object;
+        folly::dynamic connectionState = folly::dynamic::object;
+
+        switch([sessionManager.currentSession connectionState])
+        {
+            case GCKConnectionStateConnected:
+                connectionState["state"] = ToDynamic("connected");
+                break;
+            case GCKConnectionStateDisconnected:
+            case GCKConnectionStateDisconnecting:
+            case GCKConnectionStateConnecting:
+            default:
+                connectionState["state"] = ToDynamic("disconnected");
+                break;
+        }
+
         GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
         if (remoteMediaClient != nil)
         {
             GCKMediaStatus * mediaStatus = [remoteMediaClient mediaStatus];
             if (mediaStatus != nil)
             {
-                folly::dynamic status = folly::dynamic::object;
-
-                status["duration"] = ToDynamic([[mediaStatus mediaInformation] streamDuration]);
-                status["elapsed"] = ToDynamic([mediaStatus streamPosition]);
+                mediaState["duration"] = ToDynamic([[mediaStatus mediaInformation] streamDuration]);
+                mediaState["elapsed"] = ToDynamic([mediaStatus streamPosition]);
 
                 GCKMediaPlayerState playerState = [mediaStatus playerState];
 
-                switch (playerState) {
+                switch (playerState)
+                {
                     case GCKMediaPlayerStatePlaying:
-                        status["state"] = ToDynamic("playing");
-                        status["connected"] = ToDynamic(true);
+                        mediaState["state"] = ToDynamic("playing");
 
                         break;
                     case GCKMediaPlayerStateIdle:
-                        status["state"] = ToDynamic("idle");
-                        status["connected"] = ToDynamic(false);
+                        mediaState["state"] = ToDynamic("idle");
 
                         switch([mediaStatus idleReason]) {
                             case GCKMediaPlayerIdleReasonNone:
-                                status["reason"] = ToDynamic("no reason");
+                                mediaState["reason"] = ToDynamic("no reason");
                                 break;
                             case GCKMediaPlayerIdleReasonFinished:
-                                status["reason"] = ToDynamic("playback has finished");
+                                mediaState["reason"] = ToDynamic("playback has finished");
                                 break;
                             case GCKMediaPlayerIdleReasonCancelled:
-                                status["reason"] = ToDynamic("playback was cancelled");
+                                mediaState["reason"] = ToDynamic("playback was cancelled");
                                 break;
                             case GCKMediaPlayerIdleReasonInterrupted:
-                                status["reason"] = ToDynamic("playback was interrupted");
+                                mediaState["reason"] = ToDynamic("playback was interrupted");
                                 break;
                             case GCKMediaPlayerIdleReasonError:
-                                status["reason"] = ToDynamic("playback error has occurred");
+                                mediaState["reason"] = ToDynamic("playback error has occurred");
                                 break;
                         };
 
                         break;
                     case GCKMediaPlayerStatePaused:
-                        status["state"] = ToDynamic("paused");
-                        status["connected"] = ToDynamic(true);
-
+                        mediaState["state"] = ToDynamic("paused");
                         break;
                     case GCKMediaPlayerStateLoading:
-                        status["state"] = ToDynamic("loading");
-                        status["connected"] = ToDynamic(true);
-
+                        mediaState["state"] = ToDynamic("loading");
                         break;
                     case GCKMediaPlayerStateBuffering:
-                        status["state"] = ToDynamic("buffering");
-                        status["connected"] = ToDynamic(true);
-
+                        mediaState["state"] = ToDynamic("buffering");
                         break;
                     default:
-                        status["state"] = ToDynamic("unknown");
-                        status["connected"] = ToDynamic(false);
-
+                        mediaState["state"] = ToDynamic("unknown");
                         break;
                 }
-
-                EmitEvent("update", folly::dynamic::object("status", status));
             }
         }
+
+        folly::dynamic state = folly::dynamic::object;
+
+        state["media"] = ToDynamic(mediaState);
+        state["connection"] = ToDynamic(connectionState);
+
+        EmitEvent("update", ToDynamic(state));
     }
 }
 
@@ -125,12 +167,7 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, connect)(std::string uniqueId)
         GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
 
         [sessionManager endSessionAndStopCasting:YES];
-
-        BOOL bSuccess = [sessionManager startSessionWithDevice:device];
-        if (!bSuccess)
-        {
-            YI_LOGE(LOG_TAG, "GoogleCast could not connect to device!");
-        }
+        [sessionManager startSessionWithDevice:device];
     }
 }
 
@@ -142,39 +179,33 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
     {
         [sessionManager endSessionAndStopCasting:YES];
     }
-    
-    m_timer.Stop();
 }
 
-YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)
-(Callback successCallback, Callback failedCallback, folly::dynamic source, folly::dynamic details)
+YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)(Callback successCallback, Callback failedCallback, folly::dynamic source)
 {
-    m_timer.Stop();
-
     GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
     if (sessionManager.currentSession != nil)
     {
         GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
         if (remoteMediaClient != nil)
         {
-            id streamDictionary = convertFollyDynamic(source);
-            id metadataDictionary = convertFollyDynamic(details);
-
+            id sourceDictionary = convertFollyDynamic(source);
+            
             GCKMediaMetadata *metadata = [[GCKMediaMetadata alloc]
                                             initWithMetadataType:GCKMediaMetadataTypeMovie];
-            [metadata setString: metadataDictionary[@"title"] forKey:kGCKMetadataKeyTitle];
-            [metadata setString: metadataDictionary[@"description"] forKey:kGCKMetadataKeySubtitle];
+
+            [metadata setString: sourceDictionary[@"cast"][@"title"] forKey:kGCKMetadataKeyTitle];
+            [metadata setString: sourceDictionary[@"cast"][@"description"] forKey:kGCKMetadataKeySubtitle];
             [metadata addImage:[[GCKImage alloc]
-                                initWithURL:[[NSURL alloc] initWithString: metadataDictionary[@"image"]]
-                                width: [metadataDictionary[@"width"] integerValue]
-                                height: [metadataDictionary[@"height"] integerValue]]];
+                                initWithURL:[[NSURL alloc] initWithString: sourceDictionary[@"cast"][@"image"][@"uri"]]
+                                width: [sourceDictionary[@"cast"][@"image"][@"width"] integerValue]
+                                height: [sourceDictionary[@"cast"][@"image"][@"height"] integerValue]]];
 
             GCKMediaInformationBuilder *mediaInfoBuilder =
-              [[GCKMediaInformationBuilder alloc] initWithContentURL:
-               [NSURL URLWithString:streamDictionary[@"uri"]]];
+              [[GCKMediaInformationBuilder alloc] initWithContentURL: [NSURL URLWithString: sourceDictionary[@"uri"]]];
 
             mediaInfoBuilder.streamType = GCKMediaStreamTypeNone;
-            mediaInfoBuilder.contentType = streamDictionary[@"type"];
+            mediaInfoBuilder.contentType = [sourceDictionary[@"type"] isEqual: @"HLS"] ? @"application/x-mpegURL" : @"application/dash+xml";
             mediaInfoBuilder.metadata = metadata;
 
             GCKMediaInformation *mediaInformation = [mediaInfoBuilder build];
@@ -182,29 +213,21 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)
             GCKRequest *request = [remoteMediaClient loadMedia:mediaInformation autoplay:YES];
             if (request != nil)
             {
-                m_timer.Start();
-
                 successCallback({});
             }
             else
             {
-                YI_LOGE(LOG_TAG, "GoogleCast request for media failed!");
-
-                failedCallback({});
+                failedCallback({ ToDynamic("GoogleCast request for media failed!") });
             }
         }
         else
         {
-            YI_LOGE(LOG_TAG, "GoogleCast no remote media client!");
-
-            failedCallback({});
+            failedCallback({ ToDynamic("GoogleCast no remote media client!") });
         }
     }
     else
     {
-        YI_LOGE(LOG_TAG, "GoogleCast no session!");
-
-        failedCallback({});
+        failedCallback({ ToDynamic("GoogleCast no session!") });
     }
 }
 

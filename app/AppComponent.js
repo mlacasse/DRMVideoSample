@@ -205,25 +205,8 @@ class AppComponent extends PureComponent {
       );
     }
 
-    const { uri, type, cast } = streamInfo;
-
-    const source = {
-      uri,
-      type: type === 'HLS' ? 'application/x-mpegURL' : 'application/dash+xml',
-    };
-
-    const { title, description, image } = cast;
-
-    const metadata = {
-      title,
-      description,
-      image: image.uri,
-      width: image.width,
-      height: image.height,
-    };
-
     return (
-      <ACGoogleCast source={source} metadata={metadata} receiver={receiver}/>
+      <ACGoogleCast source={streamInfo} receiver={receiver}/>
     );
   };
 
