@@ -19,7 +19,7 @@ GoogleCastModule::GoogleCastModule()
 
     GCKCastOptions *options = [[GCKCastOptions alloc] initWithDiscoveryCriteria:criteria];
     [GCKCastContext setSharedInstanceWithOptions:options];
-
+        
     m_timer.TimedOut.Connect(*this, &GoogleCastModule::OnTimeout, EYIConnectionType::Async);
     m_timer.SetSingleShot(false);
     m_timer.SetInterval(1000);
@@ -27,21 +27,87 @@ GoogleCastModule::GoogleCastModule()
 
 GoogleCastModule::~GoogleCastModule()
 {
+    GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
+    if (sessionManager != nil)
+    {
+        [sessionManager endSessionAndStopCasting:YES];
+    }
+
+    m_timer.Stop();
     m_timer.TimedOut.Disconnect(*this);
 }
 
 void GoogleCastModule::OnTimeout()
 {
     GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
-    
     if (sessionManager.currentSession != nil)
     {
         GCKRemoteMediaClient *remoteMediaClient = sessionManager.currentSession.remoteMediaClient;
         if (remoteMediaClient != nil)
         {
-            double approximateStreamPosition = [remoteMediaClient approximateStreamPosition];
+            GCKMediaStatus * mediaStatus = [remoteMediaClient mediaStatus];
+            if (mediaStatus != nil)
+            {
+                folly::dynamic status = folly::dynamic::object;
 
-            EmitEvent("update", folly::dynamic::object("elapsed", approximateStreamPosition));
+                status["duration"] = ToDynamic([[mediaStatus mediaInformation] streamDuration]);
+                status["elapsed"] = ToDynamic([mediaStatus streamPosition]);
+
+                GCKMediaPlayerState playerState = [mediaStatus playerState];
+
+                switch (playerState) {
+                    case GCKMediaPlayerStatePlaying:
+                        status["state"] = ToDynamic("playing");
+                        status["connected"] = ToDynamic(true);
+
+                        break;
+                    case GCKMediaPlayerStateIdle:
+                        status["state"] = ToDynamic("idle");
+                        status["connected"] = ToDynamic(false);
+
+                        switch([mediaStatus idleReason]) {
+                            case GCKMediaPlayerIdleReasonNone:
+                                status["reason"] = ToDynamic("no reason");
+                                break;
+                            case GCKMediaPlayerIdleReasonFinished:
+                                status["reason"] = ToDynamic("playback has finished");
+                                break;
+                            case GCKMediaPlayerIdleReasonCancelled:
+                                status["reason"] = ToDynamic("playback was cancelled");
+                                break;
+                            case GCKMediaPlayerIdleReasonInterrupted:
+                                status["reason"] = ToDynamic("playback was interrupted");
+                                break;
+                            case GCKMediaPlayerIdleReasonError:
+                                status["reason"] = ToDynamic("playback error has occurred");
+                                break;
+                        };
+
+                        break;
+                    case GCKMediaPlayerStatePaused:
+                        status["state"] = ToDynamic("paused");
+                        status["connected"] = ToDynamic(true);
+
+                        break;
+                    case GCKMediaPlayerStateLoading:
+                        status["state"] = ToDynamic("loading");
+                        status["connected"] = ToDynamic(true);
+
+                        break;
+                    case GCKMediaPlayerStateBuffering:
+                        status["state"] = ToDynamic("buffering");
+                        status["connected"] = ToDynamic(true);
+
+                        break;
+                    default:
+                        status["state"] = ToDynamic("unknown");
+                        status["connected"] = ToDynamic(false);
+
+                        break;
+                }
+
+                EmitEvent("update", folly::dynamic::object("status", status));
+            }
         }
     }
 }
@@ -54,13 +120,11 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, connect)(std::string uniqueId)
     GCKDiscoveryManager *discoveryManager = [GCKCastContext sharedInstance].discoveryManager;
     GCKDevice *device = [discoveryManager deviceWithUniqueID:deviceID];
 
-    if (device == nil)
-    {
-        YI_LOGE(LOG_TAG, "GoogleCast could not connect to device!");
-    }
-    else
+    if (device != nil)
     {
         GCKSessionManager *sessionManager = [GCKCastContext sharedInstance].sessionManager;
+
+        [sessionManager endSessionAndStopCasting:YES];
 
         BOOL bSuccess = [sessionManager startSessionWithDevice:device];
         if (!bSuccess)
@@ -78,6 +142,8 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, disconnect)()
     {
         [sessionManager endSessionAndStopCasting:YES];
     }
+    
+    m_timer.Stop();
 }
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, prepare)
@@ -153,8 +219,6 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, play)()
             [remoteMediaClient play];
         }
     }
-
-    m_timer.Start();
 }
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, pause)()
@@ -168,8 +232,6 @@ YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, pause)()
             [remoteMediaClient pause];
         }
     }
-
-    m_timer.Stop();
 }
 
 YI_RN_DEFINE_EXPORT_METHOD(GoogleCastModule, getAvailableDevices)(Callback successCallback, Callback failedCallback)

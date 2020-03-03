@@ -6,6 +6,8 @@ import PropTypes from 'prop-types';
 const ACProgressBar = props => {
   const { barWidth } = props;
 
+  if (barWidth === -1) return null;
+
   return (
     <View style={Styles.progressBarStyle}>
       <View style={Styles.trackStyle}>

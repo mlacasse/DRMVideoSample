@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { View, NativeModules, NativeEventEmitter } from 'react-native';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { debounce } from "lodash";
+import { debounce } from 'lodash';
 import { DeviceInfo, Input, FormFactor } from '@youi/react-native-youi';
 import {
   ACButton,
@@ -53,7 +53,7 @@ class AppComponent extends PureComponent {
 
     OrientationLock.setRotationMode(6);
 
-    this.airplayStatusChangeEvent = new NativeEventEmitter(Airplay);
+    this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
   }
 
@@ -61,7 +61,7 @@ class AppComponent extends PureComponent {
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
 
-    this.airplayStatusChangeEvent.addListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
   };
 
@@ -69,7 +69,7 @@ class AppComponent extends PureComponent {
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
 
-    this.airplayStatusChangeEvent.removeListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
   };
 

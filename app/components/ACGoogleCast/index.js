@@ -52,7 +52,14 @@ class ACGoogleCast extends PureComponent {
     GoogleCast.disconnect();    
   };
 
-  handleOnReceiverUpdate = ({ elapsed }) => this.setState({ elapsed: elapsed * 1000 });
+  handleOnReceiverUpdate = event => {
+    const { status } = event;
+    if (status) {
+      const { elapsed, duration } = status;
+
+      this.setState({ elapsed: elapsed * 1000, duration: duration * 1000 });  
+    }
+  };
 
   handleOnPlayPausePress = () => {
     const { isReady, isPlaying, source, metadata } = this.state;
@@ -84,7 +91,7 @@ class ACGoogleCast extends PureComponent {
     const playPauseIcon = isPlaying ? PauseIcon : PlayIcon;
     const playPauseStyle = isPlaying ? Styles.pauseIconStyle : Styles.playIconStyle;
 
-    const playBackProgress = duration > 0 ? (elapsed / duration) * 100 : 0;
+    const playBackProgress = duration > 0 ? (elapsed / duration) * 100 : -1;
 
     return (
       <View style={Styles.playerControlsStyle}>

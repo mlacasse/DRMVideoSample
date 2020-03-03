@@ -28,7 +28,7 @@ class ACVideo extends PureComponent {
       isPlaying: false,
     };
 
-    this.airplayStatusChangeEvent = new NativeEventEmitter(Airplay);
+    this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
 
     this.videoPlayer = createRef();
   }
@@ -38,7 +38,7 @@ class ACVideo extends PureComponent {
 
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), true);
 
-    this.airplayStatusChangeEvent.addListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
 
     Input.addEventListener('Play', this.handleOnPlayPausePress);
     Input.addEventListener('Pause', this.handleOnPlayPausePress);
@@ -53,7 +53,7 @@ class ACVideo extends PureComponent {
 
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), false);
 
-    this.airplayStatusChangeEvent.removeListener('update', this.handleAirplayStatusChange);
+    this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
 
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);

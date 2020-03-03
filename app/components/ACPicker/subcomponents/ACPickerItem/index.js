@@ -5,7 +5,6 @@ import { FormFactor } from '@youi/react-native-youi';
 
 class ACPickerItem extends PureComponent {
   static propTypes = {
-    key: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
     onPress: PropTypes.func.isRequired,
   };
