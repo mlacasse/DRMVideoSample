@@ -88,6 +88,7 @@ bool App::UserInit()
         { "CYIAssetManager", EYILogLevel::off },
         { "CYITextRendererFT", EYILogLevel::off },
         { "CYITextRendererFT::AddFont", EYILogLevel::off },
+        { "IComponentManager", EYILogLevel::off },
         { "ReactComponent", EYILogLevel::off },
         { "TextUtilities", EYILogLevel::off },
         { "TimingModule", EYILogLevel::off },
