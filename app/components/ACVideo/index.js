@@ -10,7 +10,7 @@ import ACSwipe from '../ACSwipe';
 const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
 const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
-const { DevicePowerManagementBridge, Airplay } = NativeModules;
+const { Airplay, DevicePowerManagementBridge, PrepareVideo } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
