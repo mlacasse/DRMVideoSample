@@ -20,7 +20,7 @@ import { nextStream, prevStream } from './store/stream/actions';
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 const AirplayIcon = { 'uri': 'res://drawable/default/airplay.png' };
 
-const { OrientationLock, TrackpadModule, GoogleCast, Airplay, PlatformConstants } = NativeModules;
+const { OrientationLock, TrackpadModule, GoogleCast, Airplay, Interaction, PlatformConstants } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -55,6 +55,7 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
+    this.interactionEvent = new NativeEventEmitter(Interaction);
   }
 
   componentDidMount = () => {
@@ -63,6 +64,7 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
+    this.interactionEvent.addListener('USER_INTERACTION', this.handleUserInteraction);
   };
 
   componentWillUnmount = () => {
@@ -71,6 +73,7 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
+    this.interactionEvent.removeListener('USER_INTERACTION', this.handleUserInteraction);
   };
 
   handleOnMove = debounce(evt => {
@@ -98,6 +101,10 @@ class AppComponent extends PureComponent {
       }
     }
   }, 250);
+
+  handleUserInteraction = event => {
+    console.log('handleUserIntraction', event);
+  };
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;

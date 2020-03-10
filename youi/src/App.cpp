@@ -5,6 +5,7 @@
 #include "DevicePowerManagementBridgeModule.h"
 #include "DimensionsModule.h"
 #include "GoogleCastModule.h"
+#include "InteractionModule.h"
 #include "OrientationLockModule.h"
 #include "PrepareVideoModule.h"
 #include "TrackpadModule.h"
@@ -121,15 +122,18 @@ bool App::UserInit()
 
     bool result = PlatformApp::UserInit();
 
-    GetBridge().AddModule<FairPlayDrmHandlerModule>();
-    GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
+    GetBridge().AddModule<AirplayModule>();
     GetBridge().AddModule<DevicePowerManagementBridgeModule>();
     GetBridge().AddModule<DimensionsModule>();
-    GetBridge().AddModule<AirplayModule>();
     GetBridge().AddModule<GoogleCastModule>();
+    GetBridge().AddModule<InteractionModule>();
     GetBridge().AddModule<OrientationLockModule>();
     GetBridge().AddModule<PrepareVideoModule>();
     GetBridge().AddModule<TrackpadModule>();
+
+    // DRM Modules
+    GetBridge().AddModule<FairPlayDrmHandlerModule>();
+    GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
 
     return result;
 }
