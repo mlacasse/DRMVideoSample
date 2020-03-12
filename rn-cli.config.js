@@ -1,8 +1,9 @@
-const blacklist = require('metro-config/src/defaults/blacklist');
+/* eslint-disable import/no-commonjs */
+/* eslint-disable import/no-extraneous-dependencies */
+const blacklist = require('metro-config/src/defaults/blacklist')
 
 module.exports = {
-  getBlacklistRE () {
-    return blacklist([/\/youi\/build\/.*/])
+  resolver: {
+    blacklistRE: blacklist([/youi\/build\/.*/]),
   },
-}
-
+};
