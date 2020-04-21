@@ -1,8 +1,8 @@
+#ifdef YI_IOS
+
 #include "GoogleCastModule.h"
 
 #define LOG_TAG "GoogleCastModule"
-
-#ifdef YI_IOS
 
 #import <GoogleCast/GoogleCast.h>
 
