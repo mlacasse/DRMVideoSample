@@ -115,7 +115,7 @@ export default (state = INITIAL_STATE, action) => {
     case 'tvOS':
       return { ...state, streams: hlsStreams, streamInfo: hlsStreams[state.index] };
     case 'android':
-      return { ...state, streams: dashStreams, streamInfo: hlsStreams[state.index] };
+      return { ...state, streams: dashStreams, streamInfo: dashStreams[state.index] };
     default:
       return INITIAL_STATE;
   }
