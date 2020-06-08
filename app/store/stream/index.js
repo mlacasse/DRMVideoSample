@@ -3,6 +3,36 @@ import { DeviceInfo } from '@youi/react-native-youi';
 
 const androidStreams = [
   {
+    uri: 'https://storage.googleapis.com/shaka-live-assets/player-source.mpd',
+    type: 'DASH',
+    cast: {
+      title: 'DASH Live Stream 1',
+      description: 'Live stream with a suggestedPresentationDelay',
+      image: {
+        uri: 'https://shaka-player-demo.appspot.com/demo/shaka_logo_trans.png',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
+    uri: 'http://b028.wpc.azureedge.net/80B028/SampleStream/595d6b9a-d98e-4381-86a3-cb93664479c2/b722b983-af65-4bb3-950a-18dded2b7c9b.ism/Manifest(format=mpd-time-csf)',
+    type: 'DASH',
+    cast: {
+      title: 'Azure Demo - Channel 2 (Live)',
+      description: 'Live stream without a suggestedPresentationDelay',
+      image: {
+        uri: 'https://dzone.com/storage/temp/12165862-azurelogo-1.png',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
+    uri: 'https://vm2.dashif.org/livesim-chunked/chunkdur_1/ato_7/testpic4_8s/Manifest300.mpd',
+    type: 'DASH',
+  },
+  {
     uri:  'https://xandrssads-sponsored.akamaized.net/xaaf_csads/A060770441F0.mp4',
     type: 'MP4',
   },
