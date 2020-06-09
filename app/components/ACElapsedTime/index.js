@@ -32,9 +32,9 @@ class ACElapsedTime extends PureComponent {
   }
 
   render() {
-    const { style, duration } = this.props
+    const { style, elapsed } = this.props
 
-    if (duration === 0) return null;
+    if (elapsed === 0) return null;
 
     return (
       <Fragment>

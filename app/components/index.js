@@ -1,6 +1,7 @@
 import ACButton from './ACButton';
 import ACElapsedTime from './ACElapsedTime';
 import ACGoogleCast from './ACGoogleCast';
+import ACMetadata from './ACMetadata';
 import ACPicker from './ACPicker';
 import ACProgressBar from './ACProgressBar';
 import ACScaler from './ACScaler';
@@ -14,6 +15,7 @@ export {
   ACButton,
   ACElapsedTime,
   ACGoogleCast,
+  ACMetadata,
   ACPicker,
   ACProgressBar,
   ACScaler,

@@ -200,6 +200,7 @@ class AppComponent extends PureComponent {
           style={{ flex: 1 }}
           source={streamInfo}
           continuous={1}
+          onCurrentTimeUpdatedThresholdMs={1000}
           maxBitrate={400000}
           bufferLength={{
             min: 5000,

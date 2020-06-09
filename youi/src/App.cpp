@@ -15,16 +15,20 @@
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
 
+#include <framework/YiFramework.h>
+#include <framework/YiVersion.h>
 #include <logging/YiLogger.h>
 #include <logging/YiLoggerHelper.h>
-#include <framework/YiFramework.h>
+#include <network/YiHTTPService.h>
+#include <player/YiExoPlayerVideoPlayer.h>
 
 #include <youireact/modules/drm/FairPlayDrmHandlerModule.h>
 #include <youireact/modules/drm/WidevineCustomRequestDrmHandlerModule.h>
-
-#include <network/YiHTTPService.h>
+#include <youireact/VideoPlayerFactory.h>
 
 #include <JSBundlingStrings.h>
+
+#define LOG_TAG "DRMVideoSample"
 
 App::App() = default;
 
@@ -34,6 +38,17 @@ using namespace yi::react;
 
 bool App::UserInit()
 {
+#if defined(YI_ANDROID)
+     VideoPlayerFactory::SetFactoryFunction([] {
+        auto player = std::make_unique<CYIExoPlayerVideoPlayer>();
+
+        player->Init();
+        player->SetLivePresentationDelay_(9000, true);
+
+        return player;
+    });
+#endif
+
     // Start the web driver for allowing the use of Appium.
     CYIWebDriver *pWebDriver = CYIWebDriverLocator::GetWebDriver();
     if (pWebDriver)

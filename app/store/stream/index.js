@@ -3,26 +3,28 @@ import { DeviceInfo } from '@youi/react-native-youi';
 
 const androidStreams = [
   {
-    uri: 'https://storage.googleapis.com/shaka-live-assets/player-source.mpd',
+    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/DASH_dash.00/Live/channel(NBCTV-8064.dfw.1080)/manifest_mobile.mpd',
     type: 'DASH',
+    title: 'KNBC Live',
     cast: {
-      title: 'DASH Live Stream 1',
-      description: 'Live stream with a suggestedPresentationDelay',
+      title: 'KNBC Live Source',
+      description: 'DVS with secondary groomed as spanish',
       image: {
-        uri: 'https://shaka-player-demo.appspot.com/demo/shaka_logo_trans.png',
+        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
         width: 640,
         height: 360,
       },
     },
   },
   {
-    uri: 'http://b028.wpc.azureedge.net/80B028/SampleStream/595d6b9a-d98e-4381-86a3-cb93664479c2/b722b983-af65-4bb3-950a-18dded2b7c9b.ism/Manifest(format=mpd-time-csf)',
-    type: 'DASH',
+    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(NBCTV-8064.dfw.1080)/index_mobile.m3u8',
+    type: 'HLS',
+    title: 'KNBC Live',
     cast: {
-      title: 'Azure Demo - Channel 2 (Live)',
-      description: 'Live stream without a suggestedPresentationDelay',
+      title: 'KNBC Live Source',
+      description: 'DVS with secondary groomed as spanish',
       image: {
-        uri: 'https://dzone.com/storage/temp/12165862-azurelogo-1.png',
+        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
         width: 640,
         height: 360,
       },
@@ -31,26 +33,27 @@ const androidStreams = [
   {
     uri: 'https://vm2.dashif.org/livesim-chunked/chunkdur_1/ato_7/testpic4_8s/Manifest300.mpd',
     type: 'DASH',
+    title: 'Live Test Screen',
   },
   {
     uri:  'https://xandrssads-sponsored.akamaized.net/xaaf_csads/A060770441F0.mp4',
     type: 'MP4',
+    title: 'FirstNET',
   },
   {
     uri: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     type: 'MP4',
+    title: 'Big Buck Bunny',
   },
   {
     uri: 'https://d2rghg6apqy7xc.cloudfront.net/dvp/test_dash/005/unencrypted/montereypop_16_min_2265099.mpd',
     type: 'DASH',
-  },
-  {
-    uri: 'https://akamai-axtest.akamaized.net/routes/lapd-v1-acceptance/www_c4/Manifest.mpd',
-    type: 'DASH',
+    title: 'Monterey Pop',
   },
   {
     uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
     type: 'HLS',
+    title: 'Bip-Bop',
     cast: {
       title: 'Bip-Bop [16x9]',
       description: 'Bip-Bop sample video with captions',
@@ -64,10 +67,12 @@ const androidStreams = [
   {
     uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     type: 'HLS',
+    title: 'Sintel',
   },
   {
     uri: 'https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd',
     type: 'DASH',
+    title: 'Art of motion',
     drmScheme: 'widevine_modular_custom_request',
     drmInfo: {
       licenseAcquisitionUrl: 'https://widevine-proxy.appspot.com/proxy',

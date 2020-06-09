@@ -6,11 +6,12 @@ import ACButton from '../ACButton';
 import ACElapsedTime from '../ACElapsedTime';
 import ACProgressBar from '../ACProgressBar';
 import ACSwipe from '../ACSwipe';
+import ACMetadata from '../ACMetadata';
 
 const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
 const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
-const { Airplay, DevicePowerManagementBridge, PrepareVideo } = NativeModules;
+const { Airplay, DevicePowerManagementBridge } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -43,6 +44,7 @@ class ACVideo extends PureComponent {
     Input.addEventListener('Play', this.handleOnPlayPausePress);
     Input.addEventListener('Pause', this.handleOnPlayPausePress);
     Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
+    Input.addEventListener('Space', this.handleOnTap);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
     AppState.addEventListener('change', this.handleAppStateChange);
@@ -58,6 +60,7 @@ class ACVideo extends PureComponent {
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);
     Input.removeEventListener('MediaPlayPause', this.handleOnPlayPausePress);
+    Input.removeEventListener('Space', this.handleOnTap);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
     AppState.removeEventListener('change', this.handleAppStateChange);
@@ -75,12 +78,33 @@ class ACVideo extends PureComponent {
     }
   };
 
+  handleOnReady = () => {
+    this.videoPlayer.current.getStatistics().then(statistics => {
+        const { isLive } = statistics;
+        const duration = isLive ? 0 : this.state.duration;
+
+        this.setState({ isLive, duration, elapsed: 0 });
+
+        this.videoPlayer.current.play();
+      });
+  };
+
+  handleOnCurrentTimeUpdated = currentTime => {
+    const { isLive, elapsed } = this.state;
+
+    if (isLive) {
+      this.setState({ elapsed: elapsed + 1000 });
+    } else {
+      this.setState({ elapsed: currentTime });
+    }
+  };
+
   handleOnErrorOccurred = error => {
     console.log(error);
 
     this.videoPlayer.current.stop();
 
-    this.setState({ isPlaying: false });
+    this.setState({ isPlaying: false, elapsed: 0, duration: 0 });
   };
 
   handleOnPlaybackComplete = () => {
@@ -111,8 +135,11 @@ class ACVideo extends PureComponent {
     this.setState({ isPlaying: !isPlaying });
   };
 
-  handleOnTap = () => {
+  handleOnTap = event => {
+    const { eventType } = event;
     const { showControls } = this.state;
+
+    if (eventType && eventType === 'down') return;
 
     if (this.props.onTap) {
       this.props.onTap();
@@ -122,6 +149,8 @@ class ACVideo extends PureComponent {
   };
 
   renderControls = () => {
+    const { title, type } = this.props.source;
+
     const {
       showControls,
       isPlaying,
@@ -140,9 +169,12 @@ class ACVideo extends PureComponent {
 
     return (
       <View style={Styles.playerControlsStyle}>
-        <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
-        <ACProgressBar barWidth={playBackProgress} />
-        <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed} />
+        <ACMetadata style={Styles.playerMetadataTextStyle} title={`${title} - ${type}`} />
+        <View style={Styles.playerControlBarStyle}>
+          <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
+          <ACProgressBar barWidth={playBackProgress} />
+          <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed} />
+        </View>
       </View>
     );
   };
@@ -153,12 +185,12 @@ class ACVideo extends PureComponent {
         <Video
           ref={this.videoPlayer}
           {...this.props}
-          onCurrentTimeUpdated={currentTime => this.setState({ elapsed: currentTime })}
+          onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
           onDurationChanged={duration => this.setState({ duration, elapsed: 0 })}
           onErrorOccurred={this.handleOnErrorOccurred}
           onPlaying={() => this.setState({ isPlaying: true })}
-          onReady={() => this.videoPlayer.current.play()}
+          onReady={this.handleOnReady}
         />
         <ACSwipe {...this.props} onTap={this.handleOnTap} />
         {this.renderControls()}
@@ -183,7 +215,7 @@ const Styles = {
   },
   playerControlsStyle: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     backgroundColor: 'black',
     alignItems: 'center',
     position: 'absolute',
@@ -192,6 +224,16 @@ const Styles = {
     paddingLeft: 10,
     paddingRight: 10,
     bottom: 0,
+    width: '100%',
+  },
+  playerControlBarStyle: {
+    flex: 1, 
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  playerMetadataTextStyle: {
+    fontSize: FormFactor.isTV ? 25 : 18,
+    color: '#FAFAFA',
   },
 };
 
