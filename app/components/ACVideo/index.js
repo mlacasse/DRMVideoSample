@@ -100,7 +100,7 @@ class ACVideo extends PureComponent {
   };
 
   handleOnErrorOccurred = error => {
-    console.log(error);
+    console.log(error.nativeEvent);
 
     this.videoPlayer.current.stop();
 
@@ -136,10 +136,9 @@ class ACVideo extends PureComponent {
   };
 
   handleOnTap = event => {
-    const { eventType } = event;
     const { showControls } = this.state;
 
-    if (eventType && eventType === 'down') return;
+    if (event !== undefined && event.eventType !== 'up') return;
 
     if (this.props.onTap) {
       this.props.onTap();

@@ -39,7 +39,7 @@ using namespace yi::react;
 bool App::UserInit()
 {
 #if defined(YI_ANDROID)
-     VideoPlayerFactory::SetFactoryFunction([] {
+    VideoPlayerFactory::SetFactoryFunction([] {
         auto player = std::make_unique<CYIExoPlayerVideoPlayer>();
 
         player->Init();
