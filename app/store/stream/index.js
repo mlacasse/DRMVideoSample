@@ -82,6 +82,20 @@ const androidStreams = [
 
 const appleStreams = [
   {
+    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(NBCTV-8064.dfw.1080)/index_mobile.m3u8',
+    type: 'HLS',
+    title: 'KNBC Live',
+    cast: {
+      title: 'KNBC Live Source',
+      description: 'DVS with secondary groomed as spanish',
+      image: {
+        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
     uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
     type: 'HLS',
     cast: {
