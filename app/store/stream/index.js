@@ -3,35 +3,7 @@ import { DeviceInfo } from '@youi/react-native-youi';
 
 const androidStreams = [
   {
-    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/DASH_dash.00/Live/channel(NBCTV-8064.dfw.1080)/manifest_mobile.mpd',
-    type: 'DASH',
-    title: 'KNBC Live',
-    cast: {
-      title: 'KNBC Live Source',
-      description: 'DVS with secondary groomed as spanish',
-      image: {
-        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
-        width: 640,
-        height: 360,
-      },
-    },
-  },
-  {
-    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(NBCTV-8064.dfw.1080)/index_mobile.m3u8',
-    type: 'HLS',
-    title: 'KNBC Live',
-    cast: {
-      title: 'KNBC Live Source',
-      description: 'DVS with secondary groomed as spanish',
-      image: {
-        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
-        width: 640,
-        height: 360,
-      },
-    },
-  },
-  {
-    uri: 'https://vm2.dashif.org/livesim-chunked/chunkdur_1/ato_7/testpic4_8s/Manifest300.mpd',
+    uri: 'https://livesim.dashif.org/livesim/utc_head/testpic_2s/Manifest.mpd',
     type: 'DASH',
     title: 'Live Test Screen',
   },
@@ -81,20 +53,6 @@ const androidStreams = [
 ];
 
 const appleStreams = [
-  {
-    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(NBCTV-8064.dfw.1080)/index_mobile.m3u8',
-    type: 'HLS',
-    title: 'KNBC Live',
-    cast: {
-      title: 'KNBC Live Source',
-      description: 'DVS with secondary groomed as spanish',
-      image: {
-        uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
-        width: 640,
-        height: 360,
-      },
-    },
-  },
   {
     uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
     type: 'HLS',
