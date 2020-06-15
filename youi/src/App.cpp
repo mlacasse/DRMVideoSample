@@ -43,7 +43,7 @@ bool App::UserInit()
         auto player = std::make_unique<CYIExoPlayerVideoPlayer>();
 
         player->Init();
-        player->SetLivePresentationDelay_(18000, true);
+        player->SetLivePresentationDelay(18000, true);
 
         return player;
     });
