@@ -102,9 +102,9 @@ class AppComponent extends PureComponent {
     }
   }, 250);
 
-  handleUserInteraction = event => {
-    console.log('handleUserIntraction', event);
-  };
+  handleUserInteraction = debounce(evt => {
+    console.log('handleUserIntraction', evt);
+  }, 250);
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;

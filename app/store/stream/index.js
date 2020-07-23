@@ -31,6 +31,20 @@ const androidStreams = [
     },
   },
   {
+    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/DASH_dash.00/Live/channel(COMHD-3035.dfw.1080)/manifest_mobile.mpd',
+    type: 'HLS',
+    title: 'Comedy Central',
+    cast: {
+      title: 'Comedy Central',
+      description: 'DAI',
+      image: {
+        uri: 'http://www.cc.com/sitewide/images/logos/cc_site_logo_2018.png',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
     uri: 'https://livesim.dashif.org/livesim/utc_head/testpic_2s/Manifest.mpd',
     type: 'DASH',
     title: 'Live Test Screen',
@@ -90,6 +104,20 @@ const appleStreams = [
       description: 'DVS with secondary groomed as spanish',
       image: {
         uri: 'https://pbs.twimg.com/profile_images/770670152748666881/R5DG9j_1_400x400.jpg',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
+    uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(COMHD-3035.dfw.1080)/index_mobile.m3u8',
+    type: 'HLS',
+    title: 'Comedy Central',
+    cast: {
+      title: 'Comedy Central',
+      description: 'DAI',
+      image: {
+        uri: 'http://www.cc.com/sitewide/images/logos/cc_site_logo_2018.png',
         width: 640,
         height: 360,
       },
