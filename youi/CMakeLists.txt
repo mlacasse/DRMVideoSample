@@ -213,6 +213,9 @@ yi_configure_instrumented_build(TARGET ${PROJECT_NAME})
 
 # === END OF OPTION HANDLING ==================================================
 
+include(Modules/YiConfigureLogging)
+yi_configure_logging(TARGET ${PROJECT_NAME})
+
 # === START OF COMPILER SETUP =================================================
 
 include(Modules/YiConfigureWarningsAsErrors)

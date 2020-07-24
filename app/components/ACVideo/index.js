@@ -10,7 +10,7 @@ const { DevicePowerManagementBridge } = NativeModules;
 class ACVideo extends PureComponent {
   static propTypes = {
     source: PropTypes.object.isRequired,
-    style: PropTypes.object.isRequired,
+    style: PropTypes.object,
     continuous: PropTypes.bool,
     onCurrentTimeUpdated: PropTypes.func,
     onPlaybackComplete: PropTypes.func,
@@ -50,7 +50,7 @@ class ACVideo extends PureComponent {
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
   }
 
-  componentDidUnmount = () => {
+  componentWillUnmount = () => {
     DevicePowerManagementBridge.keepDeviceScreenOn(false);
 
     AppState.removeEventListener('change', this.handleAppStateChange);

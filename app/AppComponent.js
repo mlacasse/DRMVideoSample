@@ -95,7 +95,7 @@ class AppComponent extends PureComponent {
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
   };
 
-  componentDidUnmount = () => {
+  componentWillUnmount = () => {
     if (this.yospaceSessionManager) {
       this.yospaceSessionManager.shutdown();
     }
@@ -116,6 +116,7 @@ class AppComponent extends PureComponent {
   };
 
   handleOnTimedMetadata = metadata => {
+    console.log('handleOnTimedMetadata', metadata.nativeEvent);
     const { identifier, timestamp, value } = metadata.nativeEvent;
 
     if (this.yospaceSessionManager) {
@@ -186,7 +187,7 @@ class AppComponent extends PureComponent {
         >
           <ACVideo 
             source={this.state.streamInfo}
-            continuous={1}
+            continuous={true}
             maxBitrate={400000}
             bufferLength={{
               min: 5000,
