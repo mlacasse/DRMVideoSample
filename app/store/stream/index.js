@@ -32,7 +32,7 @@ const androidStreams = [
   },
   {
     uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/DASH_dash.00/Live/channel(COMHD-3035.dfw.1080)/manifest_mobile.mpd',
-    type: 'HLS',
+    type: 'DASH',
     title: 'Comedy Central',
     cast: {
       title: 'Comedy Central',
