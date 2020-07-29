@@ -55,6 +55,8 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
+    this.trackpadDownEvent = new NativeEventEmitter(TrackpadModule);
+    this.trackpadUpEvent = new NativeEventEmitter(TrackpadModule);
     this.interactionEvent = new NativeEventEmitter(Interaction);
   }
 
@@ -64,6 +66,8 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
+    this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
+    this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
     this.interactionEvent.addListener('USER_INTERACTION', this.handleUserInteraction);
   };
 
@@ -73,7 +77,17 @@ class AppComponent extends PureComponent {
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
+    this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
+    this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
     this.interactionEvent.removeListener('USER_INTERACTION', this.handleUserInteraction);
+  };
+
+  handleOnDown = evt => {
+    console.log('handleOnDown', evt);
+  };
+
+  handleOnUp = evt => {
+    console.log('handleOnUp', evt);
   };
 
   handleOnMove = debounce(evt => {
