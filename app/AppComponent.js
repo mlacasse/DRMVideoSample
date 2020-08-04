@@ -39,7 +39,7 @@ class AppComponent extends PureComponent {
     };
 
     this.yospaceSessionManager = YSSessionManager.createForLive(
-      'http://csm-e.cds1.yospace.com/csm/extlive/yospace02,hlssample.m3u8?yo.ac=true&',
+      'https://csm-e-dfwprd-eb.tls1.yospace.com/csm/extlive/aegdfwprd01,/Content/HLS.abre/Live/channel(STGCH-26.dfw.1080)/index_mobile.m3u8?yo.up=https://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls-ts.00/Live/channel(COMHD-3035.dfw.1080)/',
       this.state.yospaceProps,
       this.handleYospaceInitialized
     );
@@ -84,6 +84,7 @@ class AppComponent extends PureComponent {
         console.log(`Yospace no analytics ${state} ${result}`);
       default:
         this.yospaceSessionManager.shutdown();
+        this.setState({ streamInfo: this.props.streamInfo });
         break;
     }
   };
