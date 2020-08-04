@@ -16,16 +16,24 @@ using namespace yi::react;
 YI_RN_INSTANTIATE_MODULE(InteractionModule, EventEmitterModule);
 
 static const std::string YI_INTERACTION_EVENT = "USER_INTERACTION";
+static const std::string YI_TIMEOUT_EVENT = "USER_INTERACTION_TIMEOUT";
 
 InteractionModule::InteractionModule()
 {
+    m_intervalTimer.SetSingleShot(false);
+    m_intervalTimer.TimedOut.Connect(*this, &InteractionModule::OnIntervalTimeout);
+
     SetSupportedEvents({
-        YI_INTERACTION_EVENT
+        YI_INTERACTION_EVENT,
+        YI_TIMEOUT_EVENT
     });
 }
 
 InteractionModule::~InteractionModule()
 {
+    m_intervalTimer.Stop();
+    m_intervalTimer.TimedOut.Disconnect(*this, &InteractionModule::OnIntervalTimeout);
+
     StopObserving();
 }
 
@@ -57,12 +65,16 @@ void InteractionModule::StopObserving()
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionUp, this);
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionDown, this);
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionMove, this);
+
+    m_intervalTimer.Stop();
 }
 
 bool InteractionModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent)
 {
     YI_UNUSED(pDispatcher);
     YI_UNUSED(pEvent);
+
+    m_intervalTimer.Stop();
 
     folly::dynamic event = folly::dynamic::object;
 
@@ -71,7 +83,20 @@ bool InteractionModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &p
     
     EmitEvent(YI_INTERACTION_EVENT, event);
 
+    m_intervalTimer.Start();
+
     YI_LOGD(LOG_TAG, "Event received: %s", pEvent->GetName().GetData());
 
     return false;
+}
+
+void InteractionModule::OnIntervalTimeout()
+{
+    EmitEvent(YI_TIMEOUT_EVENT, folly::dynamic::object());
+}
+
+YI_RN_DEFINE_EXPORT_METHOD(InteractionModule, setInterval)
+(Callback successCallback, Callback failedCallback, uint64_t interval)
+{
+    m_intervalTimer.Start(interval);
 }

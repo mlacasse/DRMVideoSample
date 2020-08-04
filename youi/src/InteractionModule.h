@@ -9,6 +9,8 @@
 #define _INTERACTION_MODULE_H_
 
 #include <event/YiEventHandler.h>
+#include <utility/YiTimer.h>
+#include <youireact/NativeModule.h>
 #include <youireact/modules/EventEmitter.h>
 
 class CYIEvent;
@@ -27,10 +29,17 @@ public:
     
     YI_RN_EXPORT_NAME(Interaction);
     
+    YI_RN_EXPORT_METHOD(setInterval)
+    (Callback successCallback, Callback failedCallback, uint64_t interval);
+
 private:
     virtual bool HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent) override;
     virtual void StartObserving() override;
     virtual void StopObserving() override;
+    
+    void OnIntervalTimeout();
+
+    CYITimer m_intervalTimer;
 };
 
 } // namespace react

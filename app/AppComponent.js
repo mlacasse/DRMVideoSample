@@ -69,6 +69,10 @@ class AppComponent extends PureComponent {
     this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
     this.interactionEvent.addListener('USER_INTERACTION', this.handleUserInteraction);
+    this.interactionEvent.addListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
+
+    // Set no user interaction timeout for 15 minutes
+    Interaction.setInterval(900000);
   };
 
   componentWillUnmount = () => {
@@ -80,6 +84,7 @@ class AppComponent extends PureComponent {
     this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
     this.interactionEvent.removeListener('USER_INTERACTION', this.handleUserInteraction);
+    this.interactionEvent.removeListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
   };
 
   handleOnDown = evt => {
@@ -119,6 +124,10 @@ class AppComponent extends PureComponent {
   handleUserInteraction = debounce(evt => {
     console.log('handleUserIntraction', evt);
   }, 250);
+
+  handleUserInteractionTimeout = (event) => {
+    console.log('handleUserInteractionTimeout', event);
+  };
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;
