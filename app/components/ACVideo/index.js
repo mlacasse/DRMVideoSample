@@ -2,6 +2,7 @@ import React, { createRef, PureComponent } from 'react';
 import { findNodeHandle, View, AppState, BackHandler, NativeModules, NativeEventEmitter } from 'react-native';
 import PropTypes from 'prop-types';
 import { Video, Input, FormFactor } from '@youi/react-native-youi';
+import { debounce } from 'lodash';
 import ACButton from '../ACButton';
 import ACElapsedTime from '../ACElapsedTime';
 import ACProgressBar from '../ACProgressBar';
@@ -11,7 +12,7 @@ import ACMetadata from '../ACMetadata';
 const PauseIcon = { 'uri': 'res://drawable/default/pause.png' };
 const PlayIcon = { 'uri': 'res://drawable/default/play.png' };
 
-const { Airplay, DevicePowerManagementBridge } = NativeModules;
+const { Airplay, DevicePowerManagementBridge, Interaction } = NativeModules;
 
 class ACVideo extends PureComponent {
   static propTypes = {
@@ -30,6 +31,7 @@ class ACVideo extends PureComponent {
     };
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
+    this.interactionEvent = new NativeEventEmitter(Interaction);
 
     this.videoPlayer = createRef();
   }
@@ -40,11 +42,17 @@ class ACVideo extends PureComponent {
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), true);
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
+    this.interactionEvent.addListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
+    this.interactionEvent.addListener('USER_INTERACTION', this.handleUserInteraction);
+
+    // Set no user interaction timeout for 15 minutes
+    Interaction.setInterval(900000);
 
     Input.addEventListener('Play', this.handleOnPlayPausePress);
     Input.addEventListener('Pause', this.handleOnPlayPausePress);
     Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
     Input.addEventListener('Space', this.handleOnTap);
+    Input.addEventListener('SiriRemoteClickCenter', this.handleOnTap);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
     AppState.addEventListener('change', this.handleAppStateChange);
@@ -56,11 +64,14 @@ class ACVideo extends PureComponent {
     Airplay.setExternalAutoPlayback(findNodeHandle(this.videoPlayer.current), false);
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
+    this.interactionEvent.removeListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
+    this.interactionEvent.removeListener('USER_INTERACTION', this.handleUserInteraction);
 
     Input.removeEventListener('Play', this.handleOnPlayPausePress);
     Input.removeEventListener('Pause', this.handleOnPlayPausePress);
     Input.removeEventListener('MediaPlayPause', this.handleOnPlayPausePress);
     Input.removeEventListener('Space', this.handleOnTap);
+    Input.removeEventListener('SiriRemoteClickCenter', this.handleOnTap);
 
     BackHandler.removeEventListener('hardwareBackPress', this.handleOnTap);
     AppState.removeEventListener('change', this.handleAppStateChange);
@@ -70,6 +81,15 @@ class ACVideo extends PureComponent {
     if (nextAppState === 'active') {
       this.videoPlayer.current.play();
     }
+  };
+
+  handleUserInteraction = debounce(() => {
+    DevicePowerManagementBridge.keepDeviceScreenOn(true);
+  }, 250);
+
+  handleUserInteractionTimeout = () => {
+    // User hasn't done anything for a while time to turn the screen saver on.
+    DevicePowerManagementBridge.keepDeviceScreenOn(false);
   };
 
   handleAirplayStatusChange = ({ available, connected }) => {

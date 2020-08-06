@@ -20,7 +20,7 @@ import { nextStream, prevStream } from './store/stream/actions';
 const GoogleCastIcon = { 'uri': 'res://drawable/default/chromecast.png' };
 const AirplayIcon = { 'uri': 'res://drawable/default/airplay.png' };
 
-const { OrientationLock, TrackpadModule, GoogleCast, Airplay, Interaction, PlatformConstants } = NativeModules;
+const { OrientationLock, TrackpadModule, GoogleCast, Airplay, PlatformConstants } = NativeModules;
 
 const localDevice = {
   uniqueId: undefined,
@@ -57,34 +57,30 @@ class AppComponent extends PureComponent {
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
     this.trackpadDownEvent = new NativeEventEmitter(TrackpadModule);
     this.trackpadUpEvent = new NativeEventEmitter(TrackpadModule);
-    this.interactionEvent = new NativeEventEmitter(Interaction);
   }
 
   componentDidMount = () => {
     Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
+    Input.addEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
+    Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
     this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
-    this.interactionEvent.addListener('USER_INTERACTION', this.handleUserInteraction);
-    this.interactionEvent.addListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
-
-    // Set no user interaction timeout for 15 minutes
-    Interaction.setInterval(900000);
   };
 
   componentWillUnmount = () => {
     Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
     Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
+    Input.removeEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
+    Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
     this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
     this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
-    this.interactionEvent.removeListener('USER_INTERACTION', this.handleUserInteraction);
-    this.interactionEvent.removeListener('USER_INTERACTION_TIMEOUT', this.handleUserInteractionTimeout);
   };
 
   handleOnDown = evt => {
@@ -121,14 +117,6 @@ class AppComponent extends PureComponent {
     }
   }, 250);
 
-  handleUserInteraction = debounce(evt => {
-    console.log('handleUserIntraction', evt);
-  }, 250);
-
-  handleUserInteractionTimeout = (event) => {
-    console.log('handleUserInteractionTimeout', event);
-  };
-
   handleAirplayStatusChange = event => {
     const { available, connected } = event;
 
@@ -145,13 +133,16 @@ class AppComponent extends PureComponent {
     this.setState({ airplay });
   };
 
-  handleOnSwipeRight = debounce(() => {
+  handleOnSwipeRight = debounce((event) => {
+    console.log('handleOnSwipeRight', event);
+
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(nextStream());
   }, 250);
 
-  handleOnSwipeLeft = debounce(() => {
+  handleOnSwipeLeft = debounce((event) => {
+    console.log('handleOnSwipeRight', event);
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(prevStream());
