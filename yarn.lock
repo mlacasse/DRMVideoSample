@@ -1073,10 +1073,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@youi/react-native-youi@5.18.0-rc1":
-  version "5.18.0-rc1"
-  resolved "http://youi-artifact-p1:8081/artifactory/api/npm/jspkg/@youi/react-native-youi/-/@youi/react-native-youi-5.18.0-rc1.tgz#e2c43525f9b2d129f6ebfbd80cbe7701b7380b38"
-  integrity sha1-4sQ1Jfmy0Sn26/vYDL53Abc4Czg=
+"@youi/react-native-youi@5.18.0":
+  version "5.18.0"
+  resolved "https://youi.jfrog.io/youi/api/npm/jspkg/@youi/react-native-youi/-/@youi/react-native-youi-5.18.0.tgz#f4c8cb84df1e4e842c78168ba0aa8d973c458f2f"
+  integrity sha1-9MjLhN8eToQseBaLoKqNlzxFjy8=
   dependencies:
     "@babel/core" "7.0.0"
     create-react-class "^15.6.3"
