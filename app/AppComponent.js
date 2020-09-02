@@ -134,15 +134,12 @@ class AppComponent extends PureComponent {
   };
 
   handleOnSwipeRight = debounce((event) => {
-    console.log('handleOnSwipeRight', event);
-
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(nextStream());
   }, 250);
 
   handleOnSwipeLeft = debounce((event) => {
-    console.log('handleOnSwipeRight', event);
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(prevStream());

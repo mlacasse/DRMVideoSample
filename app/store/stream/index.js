@@ -126,6 +126,7 @@ const appleStreams = [
   {
     uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
     type: 'HLS',
+    title: 'Bip-Bop [16x9]',
     cast: {
       title: 'Bip-Bop [16x9]',
       description: 'Bip-Bop sample video with captions',
@@ -143,6 +144,7 @@ const appleStreams = [
   {
     uri: 'https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8',
     type: 'HLS',
+    title: 'Sintel',
   },
   {
     uri: 'http://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8',
@@ -151,6 +153,7 @@ const appleStreams = [
   {
     uri: 'https://dtv-latam-abc.akamaized.net/hls/live/2003011-b/dtv/dtv-latam-boomerang/master.m3u8',
     type: 'HLS',
+    title: 'LATAM Boomerang',
     assetId: 'c0fe1b7d2de4e5b94dc821091e5b2150',
     drmScheme: 'fairplay',
     drmInfo: null,
