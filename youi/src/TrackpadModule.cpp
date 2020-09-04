@@ -10,7 +10,7 @@
 
 using namespace yi::react;
 
-#define TAG "TrackpadModule"
+#define LOG_TAG "TrackpadModule"
 
 YI_RN_INSTANTIATE_MODULE(TrackpadModule, EventEmitterModule);
 
@@ -32,9 +32,11 @@ TrackpadModule::~TrackpadModule()
     StopObserving();
 }
 
+#ifndef YI_TVOS
 void TrackpadModule::StartObserving()
 {
     auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
+
     pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
     pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
     pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
@@ -43,10 +45,12 @@ void TrackpadModule::StartObserving()
 void TrackpadModule::StopObserving()
 {
     auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
+
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
     pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
 }
+#endif
 
 bool TrackpadModule::PreFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination)
 {
@@ -79,27 +83,38 @@ bool TrackpadModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDis
 {
     YI_UNUSED(pDispatcher);
     
-    if (!pEvent->IsTrackpadEvent())
-    {
-        return false;
-    }
+    SendEvent(pEvent);
 
-    auto trackPadEvent = static_cast<const CYITrackpadEvent &>(*pEvent);
-   
-    switch(trackPadEvent.GetType())
-    {
-        case CYITrackpadEvent::Type::TrackpadMove:
-            EmitEvent(YI_TRACKPAD_MOVE_EVENT, folly::dynamic::object("eventType", "move")("eventName", YI_TRACKPAD_MOVE_EVENT)("translation", folly::dynamic::object("x",ToDynamic(trackPadEvent.m_Translation.x))("y",ToDynamic(trackPadEvent.m_Translation.y))));
-            break;
-        case CYITrackpadEvent::Type::TrackpadDown:
-            EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
-            break;
-        case CYITrackpadEvent::Type::TrackpadUp:
-            EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
-            break;
-        default:
-            break;
-    }
-    
     return false;
+}
+
+void TrackpadModule::SendEvent(CYIEvent *pEvent)
+{
+    if (pEvent->IsTrackpadEvent())
+    {
+        CYITrackpadEvent *pTrackPadEvent = dynamic_cast<CYITrackpadEvent *>(pEvent);
+
+        if (pTrackPadEvent)
+        {
+            switch(pTrackPadEvent->GetType())
+            {
+                case CYITrackpadEvent::Type::TrackpadMove:
+                    EmitEvent(YI_TRACKPAD_MOVE_EVENT, folly::dynamic::object("eventType", "move")("eventName", YI_TRACKPAD_MOVE_EVENT)("translation", folly::dynamic::object("x",ToDynamic(pTrackPadEvent->m_Translation.x))("y",ToDynamic(pTrackPadEvent->m_Translation.y))));
+                    break;
+                case CYITrackpadEvent::Type::TrackpadDown:
+                    EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
+                    break;
+                case CYITrackpadEvent::Type::TrackpadUp:
+                    EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void TrackpadModule::OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent)
+{
+    SendEvent(pEvent.get());
 }

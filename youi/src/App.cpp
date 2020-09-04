@@ -28,6 +28,11 @@
 
 #include <JSBundlingStrings.h>
 
+#if defined(YI_DEBUG)
+#include <debug/YiDevPanel.h>
+#endif
+
+
 #define LOG_TAG "DRMVideoSample"
 
 App::App() = default;
@@ -150,7 +155,19 @@ bool App::UserInit()
     GetBridge().AddModule<FairPlayDrmHandlerModule>();
     GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
 
+#ifdef YI_DEBUG
+    // explicitly enable remote JS debugging when set to true
+    GetBridge().SetRemoteDebuggingEnabled(true);
+#endif
+
     return result;
+}
+
+CYIFrameworkConfiguration App::UserConfiguration()
+{
+    CYIFrameworkConfiguration config;
+    config.SetAudioEngineEnabled(false);
+    return config;
 }
 
 bool App::UserStart()

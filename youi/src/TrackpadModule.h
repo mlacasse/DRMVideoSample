@@ -20,15 +20,20 @@ class YI_RN_MODULE(TrackpadModule, EventEmitterModule), public CYIEventHandler, 
 public:
     TrackpadModule();
     virtual ~TrackpadModule();
-    
+
+    static CYISignal<std::shared_ptr<CYITrackpadEvent>> EmitTrackpadEvent;
+
     YI_RN_EXPORT_NAME(TrackpadModule);
-    
+
 private:
     virtual bool HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent) override;
     virtual void StartObserving() override;
     virtual void StopObserving() override;
     virtual bool PreFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
     virtual bool PostFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
+
+    void OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent);
+    void SendEvent(CYIEvent *pEvent);
 };
 
 } // namespace react

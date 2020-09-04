@@ -116,7 +116,7 @@ set(YI_PROJECT_CODE_FILES
     ${YI_PROJECT_HEADERS}
 )
 
-if (IOS)
+if (IOS OR TVOS)
     list(REMOVE_ITEM YI_PROJECT_CODE_FILES "${YouiEngine_DIR}/templates/mains/src/Apple/main.mm")
 endif()
 

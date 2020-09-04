@@ -83,9 +83,10 @@ class ACVideo extends PureComponent {
     }
   };
 
-  handleUserInteraction = debounce(() => {
+  handleUserInteraction = (event) => {
+    console.log('handleUserInteraction', event);
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
-  }, 250);
+  };
 
   handleUserInteractionTimeout = () => {
     // User hasn't done anything for a while time to turn the screen saver on.
@@ -204,6 +205,7 @@ class ACVideo extends PureComponent {
         <Video
           ref={this.videoPlayer}
           {...this.props}
+          muted={true}
           onCurrentTimeUpdated={this.handleOnCurrentTimeUpdated}
           onPlaybackComplete={this.handleOnPlaybackComplete}
           onDurationChanged={duration => this.setState({ duration, elapsed: 0 })}

@@ -80,12 +80,10 @@ bool InteractionModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &p
 
     event["eventType"] = ToDynamic(pEvent->GetName().GetData());
     event["eventName"] = YI_INTERACTION_EVENT;
-    
+
     EmitEvent(YI_INTERACTION_EVENT, event);
 
     m_intervalTimer.Start();
-
-    YI_LOGD(LOG_TAG, "Event received: %s", pEvent->GetName().GetData());
 
     return false;
 }

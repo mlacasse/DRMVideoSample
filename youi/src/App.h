@@ -12,6 +12,7 @@ public:
     App();
 
     virtual ~App();
+    virtual CYIFrameworkConfiguration UserConfiguration() override;
 
 protected:
     virtual bool UserInit() override;

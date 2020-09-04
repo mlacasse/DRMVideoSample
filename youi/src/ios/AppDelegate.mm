@@ -11,6 +11,7 @@
 
 @property (nonatomic, strong) AirplayView *nativeAirPlayView;
 @property (nonatomic, strong) UIView *componentKeyWindow;
+@property (nonatomic, strong)  *componentKeyWindow;
 @property (nonatomic, assign) NSUInteger detectAirplayWindowCount;
 
 @end
