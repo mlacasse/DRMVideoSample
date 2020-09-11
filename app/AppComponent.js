@@ -83,18 +83,18 @@ class AppComponent extends PureComponent {
     this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
   };
 
-  handleOnDown = evt => {
-    console.log('handleOnDown', evt);
+  handleOnDown = event => {
+    console.log('handleOnDown', event);
   };
 
-  handleOnUp = evt => {
-    console.log('handleOnUp', evt);
+  handleOnUp = event => {
+    console.log('handleOnUp', event);
   };
 
-  handleOnMove = debounce(evt => {
-    if (this.state.showControls || evt.eventName !== 'TrackpadMove') return;
+  handleOnMove = event => {
+    if (this.state.showControls) return;
 
-    const { x, y } = evt.translation;
+    const { x, y } = event.translation;
 
     if (Math.abs(x) > Math.abs(y)) {  // Horizontal transition
       if (Math.abs(x) > 0.25) { // fudge factor - looking for deltas of at least 0.25
@@ -115,7 +115,7 @@ class AppComponent extends PureComponent {
         }
       }
     }
-  }, 250);
+  };
 
   handleAirplayStatusChange = event => {
     const { available, connected } = event;

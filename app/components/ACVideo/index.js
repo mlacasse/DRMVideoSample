@@ -84,7 +84,7 @@ class ACVideo extends PureComponent {
   };
 
   handleUserInteraction = (event) => {
-    console.log('handleUserInteraction', event);
+    // console.log('handleUserInteraction', event);
     DevicePowerManagementBridge.keepDeviceScreenOn(true);
   };
 

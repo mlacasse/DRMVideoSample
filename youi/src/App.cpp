@@ -106,6 +106,7 @@ bool App::UserInit()
         { "JavaScript", EYILogLevel::info },
 
         // Suppressed messages
+        { "AudioObjectRemovePropertyListener", EYILogLevel::off },
         { "CYISceneNode", EYILogLevel::off },
         { "CYIAssetManager", EYILogLevel::off },
         { "CYITextRendererFT", EYILogLevel::off },

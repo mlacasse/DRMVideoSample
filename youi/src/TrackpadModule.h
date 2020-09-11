@@ -3,7 +3,7 @@
 
 #include <event/YiEventHandler.h>
 #include <event/YiEventFilter.h>
-
+#include <utility/YiTimer.h>
 #include <youireact/modules/EventEmitter.h>
 
 class CYIEvent;
@@ -21,7 +21,7 @@ public:
     TrackpadModule();
     virtual ~TrackpadModule();
 
-    static CYISignal<std::shared_ptr<CYITrackpadEvent>> EmitTrackpadEvent;
+    static CYISignal<std::shared_ptr<CYIEvent>> EmitTrackpadEvent;
 
     YI_RN_EXPORT_NAME(TrackpadModule);
 
@@ -32,8 +32,14 @@ private:
     virtual bool PreFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
     virtual bool PostFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
 
-    void OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent);
+    void OnEmitTrackpadEvent(std::shared_ptr<CYIEvent> pEvent);
+    void OnUpKeyTimeout(int32_t);
+
     void SendEvent(CYIEvent *pEvent);
+    
+    CYITimer m_upKeyTimer;
+    
+    bool m_downKeyPressed;
 };
 
 } // namespace react

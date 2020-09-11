@@ -18,18 +18,24 @@ static const std::string YI_TRACKPAD_MOVE_EVENT = "TrackpadMove";
 static const std::string YI_TRACKPAD_DOWN_EVENT = "TrackpadDown";
 static const std::string YI_TRACKPAD_UP_EVENT = "TrackpadUp";
 
-TrackpadModule::TrackpadModule()
+TrackpadModule::TrackpadModule() : m_downKeyPressed(false)
 {
     SetSupportedEvents({
         YI_TRACKPAD_MOVE_EVENT,
         YI_TRACKPAD_DOWN_EVENT,
         YI_TRACKPAD_UP_EVENT
     });
+
+    m_upKeyTimer.SetSingleShot(true);
+    m_upKeyTimer.TimedOut.Connect(*this, &TrackpadModule::OnUpKeyTimeout);
 }
 
 TrackpadModule::~TrackpadModule()
 {
     StopObserving();
+
+    m_upKeyTimer.Stop();
+    m_upKeyTimer.TimedOut.Disconnect(*this, &TrackpadModule::OnUpKeyTimeout);
 }
 
 #ifndef YI_TVOS
@@ -90,31 +96,56 @@ bool TrackpadModule::HandleEvent(const std::shared_ptr<CYIEventDispatcher> &pDis
 
 void TrackpadModule::SendEvent(CYIEvent *pEvent)
 {
-    if (pEvent->IsTrackpadEvent())
+    switch(pEvent->GetType())
     {
-        CYITrackpadEvent *pTrackPadEvent = dynamic_cast<CYITrackpadEvent *>(pEvent);
-
-        if (pTrackPadEvent)
+        case CYIEvent::Type::TrackpadMove:
         {
-            switch(pTrackPadEvent->GetType())
+            if (!m_downKeyPressed && m_upKeyTimer.GetState() != CYITimer::State::Running)
             {
-                case CYITrackpadEvent::Type::TrackpadMove:
-                    EmitEvent(YI_TRACKPAD_MOVE_EVENT, folly::dynamic::object("eventType", "move")("eventName", YI_TRACKPAD_MOVE_EVENT)("translation", folly::dynamic::object("x",ToDynamic(pTrackPadEvent->m_Translation.x))("y",ToDynamic(pTrackPadEvent->m_Translation.y))));
-                    break;
-                case CYITrackpadEvent::Type::TrackpadDown:
-                    EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
-                    break;
-                case CYITrackpadEvent::Type::TrackpadUp:
-                    EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
-                    break;
-                default:
-                    break;
+                EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
             }
+
+            m_upKeyTimer.Stop();
+
+            CYITrackpadEvent *pTrackPadEvent = dynamic_cast<CYITrackpadEvent *>(pEvent);
+
+            EmitEvent(YI_TRACKPAD_MOVE_EVENT, folly::dynamic::object("eventType", "move")("eventName", YI_TRACKPAD_MOVE_EVENT)("translation", folly::dynamic::object("x",ToDynamic(pTrackPadEvent->m_Translation.x))("y",ToDynamic(pTrackPadEvent->m_Translation.y))));
+
+            m_upKeyTimer.Start(500);
+
+            break;
         }
+        case CYIEvent::Type::TrackpadDown:
+        {
+            m_downKeyPressed = true;
+
+            EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
+
+            break;
+        }
+        case CYIEvent::Type::TrackpadUp:
+        {
+            m_downKeyPressed = false;
+            m_upKeyTimer.Stop();
+
+            EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
+            break;
+        }
+        default:
+            break;
     }
 }
 
-void TrackpadModule::OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent)
+void TrackpadModule::OnEmitTrackpadEvent(std::shared_ptr<CYIEvent> pEvent)
 {
     SendEvent(pEvent.get());
+}
+
+void TrackpadModule::OnUpKeyTimeout(int32_t timerId)
+{
+    YI_UNUSED(timerId);
+
+    m_downKeyPressed = false;
+
+    EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
 }
