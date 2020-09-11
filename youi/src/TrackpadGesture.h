@@ -11,10 +11,10 @@
 
 @interface TrackpadGesture : NSObject
 
-    @property (nonatomic, strong) TrackpadGestureRecognizer *touchRecognizer;
+@property (nonatomic, strong) TrackpadGestureRecognizer *touchRecognizer;
 
-    - (void) addGestureRecognizers;
-    - (void) removeGestureRecognizers;
+- (void) addGestureRecognizers;
+- (void) removeGestureRecognizers;
 
 @end
 

@@ -106,6 +106,7 @@ bool App::UserInit()
         { "JavaScript", EYILogLevel::info },
 
         // Suppressed messages
+        { "AudioObjectRemovePropertyListener", EYILogLevel::off },
         { "CYISceneNode", EYILogLevel::off },
         { "CYIAssetManager", EYILogLevel::off },
         { "CYITextRendererFT", EYILogLevel::off },
@@ -157,7 +158,7 @@ bool App::UserInit()
 
 #ifdef YI_DEBUG
     // explicitly enable remote JS debugging when set to true
-    GetBridge().SetRemoteDebuggingEnabled(true);
+    GetBridge().SetRemoteDebuggingEnabled(false);
 #endif
 
     return result;
