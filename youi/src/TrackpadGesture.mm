@@ -19,10 +19,12 @@ using namespace yi::react;
 
 CYISignal<std::shared_ptr<CYITrackpadEvent>> TrackpadModule::EmitTrackpadEvent;
 
-@implementation TrackpadDownGestureRecognizer
+@implementation TrackpadGestureRecognizer
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event
 {
+    [super touchesBegan: touches withEvent: event];
+
     std::shared_ptr<CYITrackpadEvent> pEvent = std::make_shared<CYITrackpadEvent>(CYIEvent::Type::TrackpadDown);
     pEvent->m_eventTimeMs = YiGetTimeuS() / 1000;
 
@@ -36,6 +38,8 @@ CYISignal<std::shared_ptr<CYITrackpadEvent>> TrackpadModule::EmitTrackpadEvent;
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event
 {
+    [super touchesEnded: touches withEvent: event];
+
     std::shared_ptr<CYITrackpadEvent> pEvent = std::make_shared<CYITrackpadEvent>(CYIEvent::Type::TrackpadUp);
     pEvent->m_eventTimeMs = YiGetTimeuS() / 1000;
 
@@ -50,8 +54,8 @@ CYISignal<std::shared_ptr<CYITrackpadEvent>> TrackpadModule::EmitTrackpadEvent;
 {
     if (self = [super init])
     {
-        _tapRecognizer = [[TrackpadDownGestureRecognizer alloc] initWithTarget: self action: nil];
-        [_tapRecognizer setAllowedTouchTypes: @[@(UITouchTypeIndirect)]];
+        _touchRecognizer = [[TrackpadGestureRecognizer alloc] initWithTarget: self action: nil];
+        [_touchRecognizer setAllowedTouchTypes: @[@(UITouchTypeIndirect)]];
     }
     
     return self;
@@ -60,13 +64,13 @@ CYISignal<std::shared_ptr<CYITrackpadEvent>> TrackpadModule::EmitTrackpadEvent;
 - (void) addGestureRecognizers
 {
     UIView *parentView = [[YiRootViewController sharedInstance] view];
-    [parentView addGestureRecognizer: _tapRecognizer];
+    [parentView addGestureRecognizer: _touchRecognizer];
 }
 
 - (void) removeGestureRecognizers
 {
     UIView *parentView = [[YiRootViewController sharedInstance] view];
-    [parentView removeGestureRecognizer: _tapRecognizer];
+    [parentView removeGestureRecognizer: _touchRecognizer];
 }
 
 @end

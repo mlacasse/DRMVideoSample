@@ -5,13 +5,13 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TrackpadDownGestureRecognizer : UIGestureRecognizer
+@interface TrackpadGestureRecognizer : UIGestureRecognizer
 
 @end
 
 @interface TrackpadGesture : NSObject
 
-    @property (nonatomic, strong) TrackpadDownGestureRecognizer *tapRecognizer;
+    @property (nonatomic, strong) TrackpadGestureRecognizer *touchRecognizer;
 
     - (void) addGestureRecognizers;
     - (void) removeGestureRecognizers;
