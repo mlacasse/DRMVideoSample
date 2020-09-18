@@ -43,17 +43,6 @@ using namespace yi::react;
 
 bool App::UserInit()
 {
-#if defined(YI_ANDROID)
-    VideoPlayerFactory::SetFactoryFunction([] {
-        auto player = std::make_unique<CYIExoPlayerVideoPlayer>();
-
-        player->Init();
-        player->SetLivePresentationDelay(18000, true);
-
-        return player;
-    });
-#endif
-
     // Start the web driver for allowing the use of Appium.
     CYIWebDriver *pWebDriver = CYIWebDriverLocator::GetWebDriver();
     if (pWebDriver)
