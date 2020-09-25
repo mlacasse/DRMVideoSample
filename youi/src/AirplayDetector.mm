@@ -3,7 +3,7 @@
 #import "AirplayDetector.h"
 
 #include "AirplayService.h"
-#include "AppDelegate.h"
+#include "ios/AppDelegate.h"
 
 #import <AVFoundation/AVAudioSession.h>
 #import <MediaPlayer/MediaPlayer.h>

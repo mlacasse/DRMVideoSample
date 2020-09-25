@@ -168,6 +168,11 @@ class ACVideo extends PureComponent {
     this.setState({ showControls: !showControls });
   };
 
+  onSeekComplete = (position) => {
+    if (position === undefined) return;
+    this.videoPlayer.current.seek(Math.floor((position / 100) * this.state.duration));
+  };
+
   renderControls = () => {
     const { title, type } = this.props.source;
 
@@ -192,7 +197,7 @@ class ACVideo extends PureComponent {
         <ACMetadata style={Styles.playerMetadataTextStyle} title={`${title} - ${type}`} />
         <View style={Styles.playerControlBarStyle}>
           <ACButton source={playPauseIcon} style={playPauseStyle} onPress={this.handleOnPlayPausePress} />
-          <ACProgressBar barWidth={playBackProgress} />
+          <ACProgressBar disabled={!this.state.isPlaying || this.state.isLive} barWidth={playBackProgress} onSeekComplete={this.onSeekComplete} />
           <ACElapsedTime style={Styles.elapsedStyle} duration={duration} elapsed={elapsed} />
         </View>
       </View>

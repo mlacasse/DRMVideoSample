@@ -1,7 +1,7 @@
 #ifdef YI_IOS
 
 #include "AirplayService.h"
-#include "AppDelegate.h"
+#include "ios/AppDelegate.h"
 
 #include <glm/glm.hpp>
 #include <platform/YiAppLifeCycleBridgeLocator.h>

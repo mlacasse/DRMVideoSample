@@ -2,6 +2,9 @@
 #include "App.h"
 
 #include "AirplayModule.h"
+#include "CustomDrmConfigurationFactory.h"
+#include "CustomFairplayDrmHandlerModule.h"
+#include "CustomWidevineDrmHandlerModule.h"
 #include "DevicePowerManagementBridgeModule.h"
 #include "DimensionsModule.h"
 #include "GoogleCastModule.h"
@@ -21,9 +24,6 @@
 #include <logging/YiLoggerHelper.h>
 #include <network/YiHTTPService.h>
 #include <player/YiExoPlayerVideoPlayer.h>
-
-#include <youireact/modules/drm/FairPlayDrmHandlerModule.h>
-#include <youireact/modules/drm/WidevineCustomRequestDrmHandlerModule.h>
 #include <youireact/VideoPlayerFactory.h>
 
 #include <JSBundlingStrings.h>
@@ -43,6 +43,8 @@ using namespace yi::react;
 
 bool App::UserInit()
 {
+    DrmConfigurationFactory::SetFactoryFunction(CustomDrmConfigurationFactory::CustomDrmConfiguration);
+
 #if defined(YI_ANDROID)
     VideoPlayerFactory::SetFactoryFunction([] {
         auto player = std::make_unique<CYIExoPlayerVideoPlayer>();
@@ -73,6 +75,7 @@ bool App::UserInit()
     // Disable hud
     SetHUDVisibility(false);
 
+#ifdef YI_DEBUG
     // App wide Log preferences
     CYILogger::SetLevel(EYILogLevel::debug);
 
@@ -118,6 +121,7 @@ bool App::UserInit()
 
     // by default, only warnings and errors are logged
     }, EYILogLevel::debug));
+#endif
 
     CYINetworkConfiguration config;
 
@@ -153,8 +157,8 @@ bool App::UserInit()
     GetBridge().AddModule<TrackpadModule>();
 
     // DRM Modules
-    GetBridge().AddModule<FairPlayDrmHandlerModule>();
-    GetBridge().AddModule<WidevineCustomRequestDrmHandlerModule>();
+    GetBridge().AddModule<CustomFairplayDrmHandlerModule>();
+    GetBridge().AddModule<CustomWidevineDrmHandlerModule>();
 
 #ifdef YI_DEBUG
     // explicitly enable remote JS debugging when set to true

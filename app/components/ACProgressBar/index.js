@@ -1,18 +1,28 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Slider, View } from 'react-native';
 import { FormFactor } from '@youi/react-native-youi';
 import PropTypes from 'prop-types';
 
 const ACProgressBar = props => {
-  const { barWidth } = props;
+  const { barWidth, disabled, onSeekComplete } = props;
 
   if (barWidth === -1) return null;
 
   return (
     <View style={Styles.progressBarStyle}>
-      <View style={Styles.trackStyle}>
+      <Slider
+        disabled={disabled}
+        minimumValue={0}
+        maximumValue={100}
+        value={barWidth}
+        // onValueChange={this._onValueChange}
+        onSlidingComplete={onSeekComplete ? onSeekComplete : null}
+        seek={1}
+        minimumTrackTintColor={'red'}
+      />
+      {/* <View style={Styles.trackStyle}>
         <View style={{ ...Styles.trackFillStyle, width: `${barWidth}%` }} />
-      </View>
+      </View> */}
     </View>
   );
 };
