@@ -54,6 +54,7 @@ class AppComponent extends PureComponent {
     OrientationLock.setRotationMode(6);
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
+    this.trackpadPressEvent = new NativeEventEmitter(TrackpadModule); 
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
     this.trackpadDownEvent = new NativeEventEmitter(TrackpadModule);
     this.trackpadUpEvent = new NativeEventEmitter(TrackpadModule);
@@ -66,6 +67,7 @@ class AppComponent extends PureComponent {
     Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
+    this.trackpadPressEvent.addListener('TrackpadDpad', this.handleOnPress);
     this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
     this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
@@ -78,6 +80,7 @@ class AppComponent extends PureComponent {
     Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
+    this.trackpadPressEvent.removeListener('TrackpadDpad', this.handleOnPress);
     this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
     this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
     this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
@@ -89,6 +92,10 @@ class AppComponent extends PureComponent {
 
   handleOnUp = event => {
     console.log('handleOnUp', event);
+  };
+
+  handleOnPress = event => {
+    console.log('handleOnPress', event);
   };
 
   handleOnMove = event => {

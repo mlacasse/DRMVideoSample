@@ -3,7 +3,6 @@
 
 #include <event/YiEventHandler.h>
 #include <event/YiEventFilter.h>
-#include <utility/YiTimer.h>
 #include <youireact/modules/EventEmitter.h>
 
 class CYIEvent;
@@ -18,10 +17,36 @@ class ReactComponent;
 class YI_RN_MODULE(TrackpadModule, EventEmitterModule), public CYIEventHandler, public CYIEventFilter
 {
 public:
+    enum class Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right,
+    };
+
     TrackpadModule();
     virtual ~TrackpadModule();
 
-    static CYISignal<std::shared_ptr<CYIEvent>> EmitTrackpadEvent;
+    static CYISignal<std::shared_ptr<CYITrackpadEvent>> EmitTrackpadEvent;
+    static CYISignal<TrackpadModule::Direction, bool> EmitTrackpadDpadEvent;
+
+    const std::string getDirectionString(TrackpadModule::Direction direction) const
+    {
+        switch(direction)
+        {
+            case TrackpadModule::Direction::Up:
+                return "up";
+            case TrackpadModule::Direction::Down:
+                return "down";
+            case TrackpadModule::Direction::Left:
+                return "left";
+            case TrackpadModule::Direction::Right:
+                return "right";
+        }
+        
+        return "None";
+    };
 
     YI_RN_EXPORT_NAME(TrackpadModule);
 
@@ -32,14 +57,10 @@ private:
     virtual bool PreFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
     virtual bool PostFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
 
-    void OnEmitTrackpadEvent(std::shared_ptr<CYIEvent> pEvent);
-    void OnUpKeyTimeout(int32_t);
+    void OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent);
+    void OnEmitTrackpadDpadEvent(TrackpadModule::Direction direction, bool pressed);
 
     void SendEvent(CYIEvent *pEvent);
-    
-    CYITimer m_upKeyTimer;
-    
-    bool m_downKeyPressed;
 };
 
 } // namespace react

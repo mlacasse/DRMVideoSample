@@ -3,18 +3,17 @@
 #ifndef _YOUIREACT_TRACKPAD_GESTURE_H_
 #define _YOUIREACT_TRACKPAD_GESTURE_H_
 
+#import <GameController/GameController.h>
 #import <UIKit/UIKit.h>
 
-@interface TrackpadGestureRecognizer : UIGestureRecognizer
+@interface TrackpadGestureRecognizer : UIPanGestureRecognizer
 
 @end
 
 @interface TrackpadGesture : NSObject
 
-@property (nonatomic, strong) TrackpadGestureRecognizer *touchRecognizer;
-
-- (void) addGestureRecognizers;
-- (void) removeGestureRecognizers;
+@property (nonatomic, strong) TrackpadGestureRecognizer *panRecognizer;
+@property (nonatomic, strong) UIView *gestureView;
 
 @end
 
