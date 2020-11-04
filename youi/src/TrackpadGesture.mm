@@ -4,6 +4,9 @@
 
 #include <event/YiEvent.h>
 #include <event/YiTrackpadEvent.h>
+#include <framework/YiAppContext.h>
+#include <scenetree/YiSceneManager.h>
+
 #include <utility/YiUtilities.h>
 #include <youireact/ReactNativePlatformApp.h>
 
@@ -49,13 +52,11 @@ CYISignal<TrackpadModule::Direction, bool> TrackpadModule::EmitTrackpadDpadEvent
 {
     if (self = [super init])
     {
-        _panRecognizer = [[TrackpadGestureRecognizer alloc] initWithTarget:self action:@selector(respondToPanRecognizer:)];
-
-        _gestureView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        [_gestureView addGestureRecognizer:_panRecognizer];
+        _touchRecognizer = [[TrackpadGestureRecognizer alloc] initWithTarget:self action:nil];
+        [_touchRecognizer setAllowedTouchTypes:@[@(UITouchTypeIndirect)]];
 
         UIView *parentView = [[YiRootViewController sharedInstance] view];
-        [parentView addSubview:_gestureView];
+        [parentView addGestureRecognizer:_touchRecognizer];
 
         for (GCController *controller in GCController.controllers)
         {
@@ -103,37 +104,15 @@ CYISignal<TrackpadModule::Direction, bool> TrackpadModule::EmitTrackpadDpadEvent
     }
 }
 
-- (IBAction)respondToPanRecognizer:(UIPanGestureRecognizer *)recognizer
-{
-    const UIGestureRecognizerState state = [recognizer state];
-    if (state == UIGestureRecognizerStateChanged)
-    {
-        // Get the data from the gesture recogniser
-        const CGPoint translation = [recognizer translationInView:[YiRootViewController sharedInstance].view];
-        const CGPoint velocity = [recognizer velocityInView:[YiRootViewController sharedInstance].view];
-
-        // Create a trackpad event and populate it
-        std::shared_ptr<CYITrackpadEvent> pEvent = std::make_shared<CYITrackpadEvent>(CYIEvent::Type::TrackpadMove);
-        pEvent->m_eventTimeMs = YiGetTimeuS() / 1000;
-
-        // Normalizing the translation and velocity by the screen bounds allows us to work independently of the device aspect ratio and resolution.
-        CGRect screenBounds = [UIScreen mainScreen].bounds;
-        pEvent->m_Translation.x = translation.x / screenBounds.size.width;
-        pEvent->m_Translation.y = translation.y / screenBounds.size.height;
-        pEvent->m_Velocity.x = velocity.x / screenBounds.size.width;
-        pEvent->m_Velocity.y = velocity.y / screenBounds.size.height;
-
-        // Emit the event
-        TrackpadModule::EmitTrackpadEvent.Emit(pEvent);
-    }
-}
-
 @end
 
 static TrackpadGesture* pGestureRecognizer = nil;
 
 void TrackpadModule::StartObserving()
 {
+    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
+    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+
     TrackpadModule::EmitTrackpadEvent.Connect(*this, &TrackpadModule::OnEmitTrackpadEvent);
     TrackpadModule::EmitTrackpadDpadEvent.Connect(*this, &TrackpadModule::OnEmitTrackpadDpadEvent);
 
@@ -145,6 +124,9 @@ void TrackpadModule::StartObserving()
 
 void TrackpadModule::StopObserving()
 {
+    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
+    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+
     TrackpadModule::EmitTrackpadEvent.Disconnect(*this, &TrackpadModule::OnEmitTrackpadEvent);
     TrackpadModule::EmitTrackpadDpadEvent.Disconnect(*this, &TrackpadModule::OnEmitTrackpadDpadEvent);
 

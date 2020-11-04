@@ -103,12 +103,12 @@ void TrackpadModule::SendEvent(CYIEvent *pEvent)
         }
         case CYIEvent::Type::TrackpadDown:
         {
-            EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object());
+            EmitEvent(YI_TRACKPAD_DOWN_EVENT, folly::dynamic::object("eventType", "touch")("eventName", YI_TRACKPAD_DOWN_EVENT)("translation", folly::dynamic::object("x",ToDynamic(0))("y",ToDynamic(0))));
             break;
         }
         case CYIEvent::Type::TrackpadUp:
         {
-            EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object());
+            EmitEvent(YI_TRACKPAD_UP_EVENT, folly::dynamic::object("eventType", "touch")("eventName", YI_TRACKPAD_UP_EVENT)("translation", folly::dynamic::object("x",ToDynamic(0))("y",ToDynamic(0))));
             break;
         }
         default:

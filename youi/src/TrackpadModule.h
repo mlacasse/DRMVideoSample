@@ -23,6 +23,7 @@ public:
         Down,
         Left,
         Right,
+        Center,
     };
 
     TrackpadModule();
@@ -43,6 +44,8 @@ public:
                 return "left";
             case TrackpadModule::Direction::Right:
                 return "right";
+            case TrackpadModule::Direction::Center:
+                return "center";
         }
         
         return "None";

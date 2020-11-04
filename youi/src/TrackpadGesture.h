@@ -6,14 +6,13 @@
 #import <GameController/GameController.h>
 #import <UIKit/UIKit.h>
 
-@interface TrackpadGestureRecognizer : UIPanGestureRecognizer
+@interface TrackpadGestureRecognizer : UIGestureRecognizer
 
 @end
 
 @interface TrackpadGesture : NSObject
 
-@property (nonatomic, strong) TrackpadGestureRecognizer *panRecognizer;
-@property (nonatomic, strong) UIView *gestureView;
+@property (nonatomic, strong) TrackpadGestureRecognizer *touchRecognizer;
 
 @end
 
