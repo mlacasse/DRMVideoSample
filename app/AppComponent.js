@@ -61,29 +61,39 @@ class AppComponent extends PureComponent {
   }
 
   componentDidMount = () => {
-    Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
-    Input.addEventListener('ArrowRight', this.handleOnSwipeRight);
-    Input.addEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
-    Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
+    if (PlatformConstants.platform === 'tvos') {
+      this.trackpadPressEvent.addListener('TrackpadDpad', this.handleOnDpad);
+      this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
+      this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
+      this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
+
+      Input.addEventListener('SiriRemoteClickCenter', this.handleOnClick);
+      Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
+      Input.addEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
+    } else {
+      Input.addEventListener('ArrowLeft', this.handleOnSwipeLeft);
+      Input.addEventListener('ArrowRight', this.handleOnSwipeRight);  
+    }
 
     this.airplayStatusUpdateEvent.addListener('update', this.handleAirplayStatusChange);
-    this.trackpadPressEvent.addListener('TrackpadDpad', this.handleOnPress);
-    this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
-    this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
-    this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
   };
 
   componentWillUnmount = () => {
-    Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
-    Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);
-    Input.removeEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
-    Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
+    if (PlatformConstants.platform === 'tvos') {
+      this.trackpadPressEvent.removeListener('TrackpadDpad', this.handleOnDpad);
+      this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
+      this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
+      this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
+
+      Input.removeEventListener('SiriRemoteClickCenter', this.handleOnClick);
+      Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
+      Input.removeEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
+    } else {
+      Input.removeEventListener('ArrowLeft', this.handleOnSwipeLeft);
+      Input.removeEventListener('ArrowRight', this.handleOnSwipeRight);  
+    }
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
-    this.trackpadPressEvent.removeListener('TrackpadDpad', this.handleOnPress);
-    this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
-    this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
-    this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
   };
 
   handleOnDown = event => {
@@ -94,12 +104,20 @@ class AppComponent extends PureComponent {
     console.log('handleOnUp', event);
   };
 
+  handleOnDpad = event => {
+    console.log('handleOnDpad', event);
+  };
+
   handleOnPress = event => {
     console.log('handleOnPress', event);
   };
 
+  handleOnClick = event => {
+    console.log('handleOnClick', event);
+  };
+
   handleOnMove = event => {
-    if (this.state.showControls) return;
+    if (this.state.showControls || event.eventType !== 'move') return;
 
     const { x, y } = event.translation;
 
@@ -141,12 +159,15 @@ class AppComponent extends PureComponent {
   };
 
   handleOnSwipeRight = debounce((event) => {
+    console.log('handleOnSwipeRight', event);
+
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(nextStream());
   }, 250);
 
   handleOnSwipeLeft = debounce((event) => {
+    console.log('handleOnSwipeRight', event);
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(prevStream());

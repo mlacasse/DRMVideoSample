@@ -6,7 +6,7 @@
 #import <GameController/GameController.h>
 #import <UIKit/UIKit.h>
 
-@interface TrackpadGestureRecognizer : UIGestureRecognizer
+@interface TrackpadGestureRecognizer : UIPanGestureRecognizer
 
 @end
 
