@@ -28,6 +28,8 @@ class ACVideo extends PureComponent {
       elapsed: 0,
       showControls: false,
       isPlaying: false,
+      selectedClosedCaptionsTrack: -1,
+      closedCaptionTracks: [],
     };
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
@@ -173,6 +175,33 @@ class ACVideo extends PureComponent {
     this.videoPlayer.current.seek(Math.floor((position / 100) * this.state.duration));
   };
 
+  onAvailableClosedCaptionsTracksChanged = (closedCaptionTracks) => {
+    tempClosedCaptionTracksArray = []
+    closedCaptionTracks.nativeEvent.forEach(element => {
+      tempClosedCaptionTracksArray.push({
+        id: element.id,
+        name: element.id == Video.getClosedCaptionsOffId() && element.name == "" ? "OFF" : element.name,
+        language: element.language
+      })
+    });
+    this.setState({
+      closedCaptionTracks: tempClosedCaptionTracksArray
+    })
+    // If there are not enough closed captions tracks for the selected track, disable closed captions.
+    if(this.state.selectedClosedCaptionsTrack >= closedCaptionTracks.nativeEvent.length)
+    {
+      this.setState({
+        selectedClosedCaptionsTrack: -1
+      })
+    }
+    // If at this point, closed captions are indicated to be disabled with 'selectedClosedCaptionsTrack = -1', set it to the position of the disabled track in the array, for simpler tracking of the selected track position.
+    if(this.state.selectedClosedCaptionsTrack < 0)
+    {
+      this.setState({
+        selectedClosedCaptionsTrack: tempClosedCaptionTracksArray.map(track => track.id).indexOf(Video.getClosedCaptionsOffId())
+      })
+    }};
+
   renderControls = () => {
     const { title, type } = this.props.source;
 
@@ -205,6 +234,8 @@ class ACVideo extends PureComponent {
   };
 
   render() {
+    const { closedCaptionTracks, selectedClosedCaptionsTrack } = this.state;
+
     return(
       <View style={{ flex: 1 }}>
         <Video
@@ -217,6 +248,8 @@ class ACVideo extends PureComponent {
           onErrorOccurred={this.handleOnErrorOccurred}
           onPlaying={() => this.setState({ isPlaying: true })}
           onReady={this.handleOnReady}
+          selectedClosedCaptionsTrack={Video.getClosedCaptionsTrackId(closedCaptionTracks.map(track => track.id), selectedClosedCaptionsTrack)}
+          onAvailableClosedCaptionsTracksChanged={this.onAvailableClosedCaptionsTracksChanged}
         />
         <ACSwipe {...this.props} onTap={this.handleOnTap} />
         {this.renderControls()}

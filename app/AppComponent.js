@@ -54,20 +54,13 @@ class AppComponent extends PureComponent {
     OrientationLock.setRotationMode(6);
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
-    this.trackpadPressEvent = new NativeEventEmitter(TrackpadModule); 
     this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
-    this.trackpadDownEvent = new NativeEventEmitter(TrackpadModule);
-    this.trackpadUpEvent = new NativeEventEmitter(TrackpadModule);
   }
 
   componentDidMount = () => {
     if (PlatformConstants.platform === 'tvos') {
-      this.trackpadPressEvent.addListener('TrackpadDpad', this.handleOnDpad);
       this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
-      this.trackpadDownEvent.addListener('TrackpadDown', this.handleOnDown);
-      this.trackpadUpEvent.addListener('TrackpadUp', this.handleOnUp);
 
-      Input.addEventListener('SiriRemoteClickCenter', this.handleOnClick);
       Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
       Input.addEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
     } else {
@@ -80,12 +73,8 @@ class AppComponent extends PureComponent {
 
   componentWillUnmount = () => {
     if (PlatformConstants.platform === 'tvos') {
-      this.trackpadPressEvent.removeListener('TrackpadDpad', this.handleOnDpad);
       this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
-      this.trackpadDownEvent.removeListener('TrackpadDown', this.handleOnDown);
-      this.trackpadUpEvent.removeListener('TrackpadUp', this.handleOnUp);
 
-      Input.removeEventListener('SiriRemoteClickCenter', this.handleOnClick);
       Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
       Input.removeEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
     } else {
@@ -94,26 +83,6 @@ class AppComponent extends PureComponent {
     }
 
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
-  };
-
-  handleOnDown = event => {
-    console.log('handleOnDown', event);
-  };
-
-  handleOnUp = event => {
-    console.log('handleOnUp', event);
-  };
-
-  handleOnDpad = event => {
-    console.log('handleOnDpad', event);
-  };
-
-  handleOnPress = event => {
-    console.log('handleOnPress', event);
-  };
-
-  handleOnClick = event => {
-    console.log('handleOnClick', event);
   };
 
   handleOnMove = event => {
@@ -159,15 +128,12 @@ class AppComponent extends PureComponent {
   };
 
   handleOnSwipeRight = debounce((event) => {
-    console.log('handleOnSwipeRight', event);
-
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(nextStream());
   }, 250);
 
   handleOnSwipeLeft = debounce((event) => {
-    console.log('handleOnSwipeRight', event);
     if (this.state.ignoreSwipe) return;
 
     this.props.dispatch(prevStream());

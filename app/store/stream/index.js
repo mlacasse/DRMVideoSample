@@ -96,20 +96,6 @@ const androidStreams = [
 
 const appleStreams = [
   {
-    uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
-    type: 'HLS',
-    title: 'Bip-Bop [16x9]',
-    cast: {
-      title: 'Bip-Bop [16x9]',
-      description: 'Bip-Bop sample video with captions',
-      image: {
-        uri: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
-        width: 640,
-        height: 360,
-      },
-    },
-  },
-  {
     uri: 'http://dfwlive-vos-msdc.akamaized.net/Content/HLS_hls.00/Live/channel(NBCTV-8064.dfw.1080)/index_mobile.m3u8',
     type: 'HLS',
     title: 'KNBC Live',
@@ -132,6 +118,20 @@ const appleStreams = [
       description: 'DAI',
       image: {
         uri: 'http://www.cc.com/sitewide/images/logos/cc_site_logo_2018.png',
+        width: 640,
+        height: 360,
+      },
+    },
+  },
+  {
+    uri: 'https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8',
+    type: 'HLS',
+    title: 'Bip-Bop [16x9]',
+    cast: {
+      title: 'Bip-Bop [16x9]',
+      description: 'Bip-Bop sample video with captions',
+      image: {
+        uri: 'http://storage.googleapis.com/android-tv/images/bipbop.png',
         width: 640,
         height: 360,
       },
