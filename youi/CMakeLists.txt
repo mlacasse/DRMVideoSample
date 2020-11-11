@@ -17,6 +17,7 @@ if (APPLE)
     set(CMAKE_CXX_COMPILER_FORCED 1)
     set(CMAKE_C_COMPILER_FORCED 1)
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-nullability-completeness")
 endif()
 
 set(YI_BUNDLE_URL_SCHEME "yirnapp")

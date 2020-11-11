@@ -23,6 +23,7 @@
 #include <logging/YiLogger.h>
 #include <logging/YiLoggerHelper.h>
 #include <network/YiHTTPService.h>
+#include <player/YiAVPlayer.h>
 #include <player/YiExoPlayerVideoPlayer.h>
 #include <youireact/VideoPlayerFactory.h>
 
@@ -45,6 +46,17 @@ bool App::UserInit()
 {
     DrmConfigurationFactory::SetFactoryFunction(CustomDrmConfigurationFactory::CustomDrmConfiguration);
 
+#if defined(YI_IOS)
+    VideoPlayerFactory::SetFactoryFunction([] {
+        auto player = std::make_unique<CYIAVPlayer>();
+
+        player->Init();
+        player->EnableAutoExternalPlaybackWhenAvailable(true);
+
+        return player;
+    });
+#endif
+    
 #if defined(YI_ANDROID)
     VideoPlayerFactory::SetFactoryFunction([] {
         auto player = std::make_unique<CYIExoPlayerVideoPlayer>();

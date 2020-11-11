@@ -1,11 +1,15 @@
 #ifdef YI_IOS
 
+#include <logging/YiLogger.h>
+
 #import "AppDelegate.h"
 
 #import <apple/YiRootViewController.h>
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+
+#define LOG_TAG "AppDelegate"
 
 @interface AppDelegate()
 
@@ -20,6 +24,9 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary<UIApplicationLaunchOptionsKey, id> *)launchOptions
 {
     [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleScreenDidConnect:) name:UIScreenDidConnectNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleScreenDidDisconnect:) name:UIScreenDidDisconnectNotification object:nil];
 
     // Enable logger.
     [GCKLogger sharedInstance].delegate = self;
@@ -78,6 +85,16 @@
             }
         }
     }
+}
+
+- (void)handleScreenDidConnect:(NSNotification *)notification
+{
+    YI_LOGD(LOG_TAG, "External Screen Connected");
+}
+
+- (void)handleScreenDidDisconnect:(NSNotification *)notification
+{
+    YI_LOGD(LOG_TAG, "External Screen Disconnected");
 }
 
 #pragma mark - GCKLoggerDelegate
