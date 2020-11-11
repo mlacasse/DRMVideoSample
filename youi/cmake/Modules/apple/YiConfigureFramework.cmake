@@ -59,6 +59,13 @@ function(yi_configure_framework)
             message(FATAL_ERROR "The Framework '${ARGS_FRAMEWORK_PATH}' was marked as an EMBEDDED Framework. To code sign the Framework, the CODE_SIGN_IDENTITY argument needs to be given the code signing identity to use.")
         endif()
 
+        # Sanitize un-escaped parenthesis from ARGS_CODE_SIGN_IDENTITY
+        # Example:    iPhone Developer (XXXXX) -> iPhone Developer \(XXXXX\)
+        # Example 2:  iPhone Developer \(XXXXX\) -> iPhone Developer \(XXXXX\)
+        # Example 3:  iPhone Developer(XXXXX) -> iPhone Developer\(XXXXX\)
+        string(REGEX REPLACE "([^\\\\])\\\(" "\\1\\\\(" CODE_SIGN_IDENTITY_CORRECTED ${ARGS_CODE_SIGN_IDENTITY})
+        string(REGEX REPLACE "([^\\\\])\\\)" "\\1\\\\)" CODE_SIGN_IDENTITY_CORRECTED ${CODE_SIGN_IDENTITY_CORRECTED})
+
         # Embedded frameworks need to be copied to the regular build folder and code signed when creating regular builds.
         # When creating archives, however, the embedded frameworks need to be copied into Xcode's '${INSTALL_DIR}' path and
         # code signed from that location.
@@ -71,7 +78,7 @@ function(yi_configure_framework)
             
             add_custom_command(TARGET ${ARGS_TARGET} PRE_BUILD
                 COMMAND codesign
-                    -s "${ARGS_CODE_SIGN_IDENTITY}"
+                    -s "${CODE_SIGN_IDENTITY_CORRECTED}"
                     -fv
                     "${_DESTINATION_FRAMEWORK_FILEPATH}/Frameworks/${_FRAMEWORK_NAME}"
             )

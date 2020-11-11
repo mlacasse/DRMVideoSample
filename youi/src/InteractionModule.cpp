@@ -39,32 +39,54 @@ InteractionModule::~InteractionModule()
 
 void InteractionModule::StartObserving()
 {
-    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
+    auto pAppContext = CYIAppContext::GetInstance();
+    if (pAppContext)
+    {
+        auto pApp = pAppContext->GetApp();
+        if (pApp)
+        {
+            auto pSceneManager = pApp->GetSceneManager();
 
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyUp, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyDown, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyInput, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionUp, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionDown, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionMove, this);
+            if (pSceneManager)
+            {
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyUp, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyDown, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::KeyInput, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionUp, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionDown, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::ActionMove, this);
+            }
+        }
+    }
 }
 
 void InteractionModule::StopObserving()
 {
-    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
-    
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyUp, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyDown, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyInput, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionUp, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionDown, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionMove, this);
+    auto pAppContext = CYIAppContext::GetInstance();
+    if (pAppContext)
+    {
+        auto pApp = pAppContext->GetApp();
+        if (pApp)
+        {
+            auto pSceneManager = pApp->GetSceneManager();
+
+            if (pSceneManager)
+            {
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyUp, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyDown, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::KeyInput, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionUp, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionDown, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::ActionMove, this);
+            }
+        }
+    }
 
     m_intervalTimer.Stop();
 }

@@ -37,20 +37,40 @@ TrackpadModule::~TrackpadModule()
 #ifndef YI_TVOS
 void TrackpadModule::StartObserving()
 {
-    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
-
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
-    pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+    auto pAppContext = CYIAppContext::GetInstance();
+    if (pAppContext)
+    {
+        auto pApp = pAppContext->GetApp();
+        if (pApp)
+        {
+            auto pSceneManager =pApp->GetSceneManager();
+            if (pSceneManager)
+            {
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
+                pSceneManager->AddGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+            }
+        }
+    }
 }
 
 void TrackpadModule::StopObserving()
 {
-    auto pSceneManager = CYIAppContext::GetInstance()->GetApp()->GetSceneManager();
-
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
-    pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+    auto pAppContext = CYIAppContext::GetInstance();
+    if (pAppContext)
+    {
+        auto pApp = pAppContext->GetApp();
+        if (pApp)
+        {
+            auto pSceneManager =pApp->GetSceneManager();
+            if (pSceneManager)
+            {
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadMove, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadDown, this);
+                pSceneManager->RemoveGlobalEventListener(CYIEvent::Type::TrackpadUp, this);
+            }
+        }
+    }
 }
 #endif
 
