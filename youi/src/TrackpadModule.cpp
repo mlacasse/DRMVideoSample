@@ -141,7 +141,7 @@ void TrackpadModule::OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEven
     SendEvent(pEvent.get());
 }
 
-void TrackpadModule::OnEmitTrackpadDpadEvent(TrackpadModule::Direction direction, bool pressed)
+void TrackpadModule::OnEmitTrackpadDpadEvent(TrackpadModule::Direction direction)
 {
-    EmitEvent(YI_TRACKPAD_DPAD_EVENT, folly::dynamic::object("eventType", "touch")("eventName", YI_TRACKPAD_DPAD_EVENT)("dpad", ToDynamic(getDirectionString(direction)))("pressed", ToDynamic(pressed)));
+    EmitEvent(YI_TRACKPAD_DPAD_EVENT, folly::dynamic::object("eventType", "touch")("eventName", YI_TRACKPAD_DPAD_EVENT)("dpad", ToDynamic(getDirectionString(direction))));
 }

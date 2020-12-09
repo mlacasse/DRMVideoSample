@@ -30,7 +30,7 @@ public:
     virtual ~TrackpadModule();
 
     static CYISignal<std::shared_ptr<CYITrackpadEvent>> EmitTrackpadEvent;
-    static CYISignal<TrackpadModule::Direction, bool> EmitTrackpadDpadEvent;
+    static CYISignal<TrackpadModule::Direction> EmitTrackpadDpadEvent;
 
     const std::string getDirectionString(TrackpadModule::Direction direction) const
     {
@@ -61,7 +61,7 @@ private:
     virtual bool PostFilterEvent(const std::shared_ptr<CYIEventDispatcher> &pDispatcher, CYIEvent *pEvent, CYIEventHandler *pDestination) override;
 
     void OnEmitTrackpadEvent(std::shared_ptr<CYITrackpadEvent> pEvent);
-    void OnEmitTrackpadDpadEvent(TrackpadModule::Direction direction, bool pressed);
+    void OnEmitTrackpadDpadEvent(TrackpadModule::Direction direction);
 
     void SendEvent(CYIEvent *pEvent);
 };

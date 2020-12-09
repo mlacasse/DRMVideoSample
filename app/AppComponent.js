@@ -54,12 +54,13 @@ class AppComponent extends PureComponent {
     OrientationLock.setRotationMode(6);
 
     this.airplayStatusUpdateEvent = new NativeEventEmitter(Airplay);
-    this.trackpadMoveEvent = new NativeEventEmitter(TrackpadModule);
+    this.trackpadEvent = new NativeEventEmitter(TrackpadModule);
   }
 
   componentDidMount = () => {
     if (PlatformConstants.platform === 'tvos') {
-      this.trackpadMoveEvent.addListener('TrackpadMove', this.handleOnMove);
+      this.trackpadEvent.addListener('TrackpadMove', this.handleMove);
+      this.trackpadEvent.addListener('TrackpadDpad', this.handleDpad);
 
       Input.addEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
       Input.addEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
@@ -73,7 +74,8 @@ class AppComponent extends PureComponent {
 
   componentWillUnmount = () => {
     if (PlatformConstants.platform === 'tvos') {
-      this.trackpadMoveEvent.removeListener('TrackpadMove', this.handleOnMove);
+      this.trackpadEvent.removeListener('TrackpadMove', this.handleMove);
+      this.trackpadEvent.removeListener('TrackpadDpad', this.handleDpad);
 
       Input.removeEventListener('SiriRemoteClickRight', this.handleOnSwipeRight);
       Input.removeEventListener('SiriRemoteClickLeft', this.handleOnSwipeLeft);
@@ -85,7 +87,13 @@ class AppComponent extends PureComponent {
     this.airplayStatusUpdateEvent.removeListener('update', this.handleAirplayStatusChange);
   };
 
-  handleOnMove = event => {
+  handleDpad = event => {
+    if (event.eventType !== 'touch') return;
+
+    console.log('handleDpad', event);
+  };
+
+  handleMove = event => {
     if (this.state.showControls || event.eventType !== 'move') return;
 
     const { x, y } = event.translation;
@@ -93,19 +101,19 @@ class AppComponent extends PureComponent {
     if (Math.abs(x) > Math.abs(y)) {  // Horizontal transition
       if (Math.abs(x) > 0.25) { // fudge factor - looking for deltas of at least 0.25
         if (x > 0) {
-          console.log('handleOnMove', 'right');
+          console.log('handleMove', 'right');
           this.handleOnSwipeRight();
         } else {
-          console.log('handleOnMove', 'left');
+          console.log('handleMove', 'left');
           this.handleOnSwipeLeft();
         }
       }
     } else {  // Vertical transition
       if (Math.abs(y) > 0.25) { // fudge factor - looking for deltas of at least 0.25
         if (y > 0) {
-          console.log('handleOnMove', 'up');
+          console.log('handleMove', 'up');
         } else {
-          console.log('handleOnMove', 'down');
+          console.log('handleMove', 'down');
         }
       }
     }

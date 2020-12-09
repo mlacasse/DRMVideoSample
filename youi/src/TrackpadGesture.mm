@@ -20,7 +20,7 @@ using namespace yi::react;
 #define LOG_TAG "TrackpadGesture"
 
 CYISignal<std::shared_ptr<CYITrackpadEvent>> TrackpadModule::EmitTrackpadEvent;
-CYISignal<TrackpadModule::Direction, bool> TrackpadModule::EmitTrackpadDpadEvent;
+CYISignal<TrackpadModule::Direction> TrackpadModule::EmitTrackpadDpadEvent;
 
 @implementation TrackpadGestureRecognizer
 
@@ -81,25 +81,39 @@ CYISignal<TrackpadModule::Direction, bool> TrackpadModule::EmitTrackpadDpadEvent
 - (void)configureController:(GCController *)controller {
     if (GCMicroGamepad *microGamepad = controller.microGamepad)
     {
+        const float threshold = 0.68f; // This threshold was taken from examples online.
+
         microGamepad.reportsAbsoluteDpadValues = true;
-        microGamepad.dpad.up.valueChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
+        microGamepad.dpad.up.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
         {
-            TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Up, pressed);
+            if (value > threshold)
+            {
+                TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Up);
+            }
         };
 
-        microGamepad.dpad.down.valueChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
+        microGamepad.dpad.down.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
         {
-            TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Down, pressed);
+            if (value > threshold)
+            {
+                TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Down);
+            }
         };
 
-        microGamepad.dpad.left.valueChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
+        microGamepad.dpad.left.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
         {
-            TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Left, pressed);
+            if (value > threshold)
+            {
+                TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Left);
+            }
         };
 
-        microGamepad.dpad.right.valueChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
+        microGamepad.dpad.right.pressedChangedHandler = ^(GCControllerButtonInput * _Nonnull button, float value, BOOL pressed)
         {
-            TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Right, pressed);
+            if (value > threshold)
+            {
+                TrackpadModule::EmitTrackpadDpadEvent(TrackpadModule::Direction::Right);
+            }
         };
     }
 }
