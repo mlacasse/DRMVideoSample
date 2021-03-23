@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="@_CLEARTEXT_TRAFFIC@">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>@_SSL_DEBUG_CONFIG@
+</network-security-config>

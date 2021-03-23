@@ -2,6 +2,11 @@ include(${YouiEngine_DIR}/cmake/Modules/android/YiModuleUtilities.cmake)
 
 get_filename_component(_PROJECT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../.. ABSOLUTE)
 
+option(YI_ENABLE_CLEARTEXT "When set to ON the 'android:usesCleartextTraffic attribute=true' will be added to Android Manifest." ON)
+option(YI_SSL_CAPTURE "When set to ON the project will use the project cacert.pem over the one shipped with the SDK." OFF)
+
+include("${CMAKE_CURRENT_LIST_DIR}/SSL.cmake")
+
 if(YI_LOCAL_JS)
     set(USE_LOCAL_JS "YI_LOCAL_JS=ON")
 
@@ -15,6 +20,12 @@ if(YI_LOCAL_JS)
 
     set(USE_BUNDLED_ASSETS_DEST "YI_BUNDLED_ASSETS_DEST=${YI_BUNDLED_ASSETS_DEST}")
 endif()
+
+configure_file(
+    ${CMAKE_CURRENT_LIST_DIR}/strings.xml.in
+    ${CMAKE_CURRENT_LIST_DIR}/src/main/res/values/strings.xml
+    @ONLY
+)
 
 set(YI_REACT_APP ON)
 yi_define_module(DRMVideoSample

@@ -3,4 +3,7 @@ build
 .DS_Store
 YiAppPackages.txt
 yarn.lock
+youi/android/modules/DRMVideoSample/src/main/res/values/strings.xml
+youi/android/modules/DRMVideoSample/src/main/res/xml/network_security_config.xml
+youi/android/modules/DRMVideoSample/src/main/res/raw/cacert.pem
 

@@ -55,6 +55,7 @@ class ACVideo extends PureComponent {
     Input.addEventListener('MediaPlayPause', this.handleOnPlayPausePress);
     Input.addEventListener('Space', this.handleOnTap);
     Input.addEventListener('SiriRemoteClickCenter', this.handleOnTap);
+    Input.addEventListener('Select', this.handleOnTap);
 
     BackHandler.addEventListener('hardwareBackPress', this.handleOnTap);
     AppState.addEventListener('change', this.handleAppStateChange);

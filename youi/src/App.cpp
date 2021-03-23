@@ -13,8 +13,6 @@
 #include "PrepareVideoModule.h"
 #include "TrackpadModule.h"
 
-#include <automation/YiWebDriverLocator.h>
-
 #include <cxxreact/JSBigString.h>
 #include <glog/logging.h>
 
@@ -67,13 +65,6 @@ bool App::UserInit()
         return player;
     });
 #endif
-
-    // Start the web driver for allowing the use of Appium.
-    CYIWebDriver *pWebDriver = CYIWebDriverLocator::GetWebDriver();
-    if (pWebDriver)
-    {
-        pWebDriver->Start();
-    }
 
     enum
     {
